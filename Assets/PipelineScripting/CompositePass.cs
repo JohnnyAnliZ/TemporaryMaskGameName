@@ -26,8 +26,6 @@ public class CameraGatePass : ScriptableRenderPass
     {
         var cameraData = ctx.Get<UniversalCameraData>();
 
-        
-
         using var builder =
             rg.AddRasterRenderPass<PassData>("Camera Gate", out var data);
 
@@ -38,7 +36,7 @@ public class CameraGatePass : ScriptableRenderPass
         {
             // Set global for THIS camera's graph execution
             //Debug.Log(" setting IsBaseCamera to " + data.isBaseCamera);
-            mat.SetFloat("_IsBaseCamera", data.isBaseCamera ? 1f : 0f);
+            mat.SetFloat("_IsBaseCamera", data.isBaseCamera ? 1.0f : 0.0f);
         }); 
     }   
 }
