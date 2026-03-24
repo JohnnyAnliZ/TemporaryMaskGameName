@@ -20,16 +20,16 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetRenderTarget(maskRT);
 		cmd.ClearRenderTarget(true, true, Color.black);
 
-		circleMaskMaterial.SetVector("_Resolution", new Vector4(maskRT.width, maskRT.height, 0, 0));
-		circleMaskMaterial.SetFloat("_PixelSize", pixelSize);
+		cmd.SetGlobalVector("_Resolution", new Vector4(maskRT.width, maskRT.height, 0, 0));
+		cmd.SetGlobalFloat("_PixelSize", pixelSize);
 
 		foreach (RevealPortal portal in portals) {
 			portal.currentRadius = Mathf.MoveTowards(portal.currentRadius, portal.targetRadius, expandSpeed * Time.deltaTime);
-			circleMaskMaterial.SetVector("_Center", new Vector4(
+			cmd.SetGlobalVector("_Center", new Vector4(
 				portal.position.x / maskRT.width,
-				1f - portal.position.y / maskRT.height, 0, 0));
-			circleMaskMaterial.SetFloat("_Radius", portal.currentRadius / maskRT.width);
-			cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1); //will be nicely batched comapred to blit
+				portal.position.y / maskRT.height, 0, 0));
+			cmd.SetGlobalFloat("_Radius", portal.currentRadius / maskRT.width);
+			cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
 		}
 
 		Graphics.ExecuteCommandBuffer(cmd);
