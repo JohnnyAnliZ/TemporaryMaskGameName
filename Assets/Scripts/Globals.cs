@@ -2,7 +2,6 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "Globals", menuName = "Game/Globals")]
 public class Globals : ScriptableObject {
-	[Header("Pixel Perfect")]
 	[SerializeField] float _pixelsPerUnit = 100f;
 
 	static Globals _instance;
@@ -43,7 +42,7 @@ public class Globals : ScriptableObject {
 		float newGridSize = 1f / _pixelsPerUnit;
 		UnityEditor.EditorSnapSettings.gridSize = new Vector3(newGridSize, newGridSize, newGridSize);
 
-		Debug.Log($"[Globals] Updated scene grid to {newGridSize:F4} (PPU: {_pixelsPerUnit})"); //FIXME: Make our logging system like we used to do in unreal
+		Log.Info($"Updated scene grid to {newGridSize} (PPU: {_pixelsPerUnit})");
 	}
 	#endif
 }

@@ -11,7 +11,7 @@ public static class Bootstrap {
 	static void LoadPrefab<T>(string resourceName) where T : MonoBehaviour {
 		var prefab = Resources.Load<T>(resourceName);
 		if (prefab == null) {
-			Debug.LogError($"Bootstrap: Missing Resources/{resourceName} prefab.");
+			Log.Error($"Missing Resources/{resourceName} prefab.");
 			return;
 		}
 
