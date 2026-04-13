@@ -2,6 +2,22 @@ using UnityEngine;
 
 [CreateAssetMenu(fileName = "Globals", menuName = "Game/Globals")]
 public class Globals : ScriptableObject {
+	[Header("2D Camera")]
+	public float cameraOrthoSize = 2f;
+	public float cameraDeadzoneRight = 1f;
+	public float cameraDeadzoneLeft = 2f;
+	public float cameraDeadzoneTop = 2f;
+	public float cameraDeadzoneBottom = 2f;
+	public float cameraFollowSpeed = 8f;
+	public float cameraZOffset = -10f;
+	public bool cameraSnapToPixelGrid = true;
+
+	[Header("First Person Camera")]
+	public float mouseSensitivity = 2f;
+	public float eyeOffset = 0.6f;
+	public float pitchClamp = 85f;
+
+	[Header("Misc")]
 	[SerializeField] float _pixelsPerUnit = 100f;
 
 	static Globals _instance;
@@ -43,6 +59,19 @@ public class Globals : ScriptableObject {
 		UnityEditor.EditorSnapSettings.gridSize = new Vector3(newGridSize, newGridSize, newGridSize);
 
 		Log.Info($"Updated scene grid to {newGridSize} (PPU: {_pixelsPerUnit})");
+	}
+
+	public class GlobalsWindow : UnityEditor.EditorWindow
+	{
+		UnityEditor.Editor cachedEditor;
+
+		[UnityEditor.MenuItem("Window/Globals")]
+		static void Open() => GetWindow<GlobalsWindow>("Globals");
+
+		void OnGUI() {
+			UnityEditor.Editor.CreateCachedEditor(Instance, null, ref cachedEditor);
+			cachedEditor.OnInspectorGUI();
+		}
 	}
 	#endif
 }
