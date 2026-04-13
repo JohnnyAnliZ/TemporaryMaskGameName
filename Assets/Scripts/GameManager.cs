@@ -23,6 +23,9 @@ public class GameManager : MonoBehaviour
 		var cameras = FindObjectsByType<CompositeCamera>(FindObjectsSortMode.None);
 		foreach (var camera in cameras) {
 			if (camera.index == 0) {
+				var cam = camera.GetComponent<Camera>();
+				cam.orthographic = true;
+				cam.orthographicSize = Globals.Instance.cameraOrthoSize;
 				camera.gameObject.AddComponent<CameraFollow2D>().Init(player2D.transform);
 			} else if (camera.index == 1) {
 				camera.gameObject.AddComponent<FirstPersonLook>().Init(player3D.transform);

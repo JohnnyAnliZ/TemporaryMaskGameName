@@ -3,14 +3,9 @@ using UnityEngine.InputSystem;
 
 public class FirstPersonLook : MonoBehaviour
 {
-	public float mouseSensitivity = 2f;
-	public float eyeOffset = 0.6f;
-	public float pitchClamp = 85f;
-
 	Transform target;
 	float yaw, pitch;
 
-	//Called by GameManager
 	public void Init(Transform target) {
 		this.target = target;
 		Cursor.lockState = CursorLockMode.Locked;
@@ -19,13 +14,14 @@ public class FirstPersonLook : MonoBehaviour
 
 	void LateUpdate() {
 		if (target == null) return;
+		var g = Globals.Instance;
 
-		transform.position = target.position + Vector3.up * eyeOffset;
+		transform.position = target.position + Vector3.up * g.eyeOffset;
 
 		Vector2 delta = Mouse.current.delta.ReadValue();
-		yaw += delta.x * mouseSensitivity;
-		pitch -= delta.y * mouseSensitivity;
-		pitch = Mathf.Clamp(pitch, -pitchClamp, pitchClamp);
+		yaw += delta.x * g.mouseSensitivity;
+		pitch -= delta.y * g.mouseSensitivity;
+		pitch = Mathf.Clamp(pitch, -g.pitchClamp, g.pitchClamp);
 
 		transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 	}
