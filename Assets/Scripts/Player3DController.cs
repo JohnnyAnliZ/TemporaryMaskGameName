@@ -9,10 +9,16 @@ public class Player3DController : MonoBehaviour
 	public float gravity = -20f;
 
 	CharacterController controller;
+	Transform lookTransform;
 	float verticalVelocity;
 
 	void Awake() {
 		controller = GetComponent<CharacterController>();
+	}
+
+	void Start() {
+		var fpLook = FindAnyObjectByType<FirstPersonLook>();
+		if (fpLook != null) lookTransform = fpLook.transform;
 	}
 
 	void Update() {
@@ -33,12 +39,25 @@ public class Player3DController : MonoBehaviour
 		}
 		verticalVelocity += gravity * Time.deltaTime;
 
-		Vector3 move = new Vector3(horizontal * moveSpeed, verticalVelocity, forward * moveSpeed);
+		Vector3 inputDir = new Vector3(horizontal, 0f, forward);
+		if (lookTransform != null && inputDir != Vector3.zero) {
+			Vector3 fwd = lookTransform.forward;
+			fwd.y = 0f;
+			fwd.Normalize();
+			Vector3 right = lookTransform.right;
+			right.y = 0f;
+			right.Normalize();
+			inputDir = right * horizontal + fwd * forward;
+		}
+
+		Vector3 move = inputDir * moveSpeed;
+		move.y = verticalVelocity;
 		controller.Move(move * Time.deltaTime);
 	}
 
 	void OnControllerColliderHit(ControllerColliderHit hit) {
-		if (hit.gameObject.TryGetComponent<PlatformPortalTrigger>(out var trigger))
+		if (hit.gameObject.TryGetComponent<PlatformPortalTrigger>(out var trigger)) {
 			trigger.TryTrigger(transform.position);
+		}
 	}
 }

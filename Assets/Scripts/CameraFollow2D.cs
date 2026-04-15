@@ -15,7 +15,7 @@ public class CameraFollow2D : MonoBehaviour
 	void LateUpdate() {
 		if (target == null) return;
 
-		var g = Globals.Instance;
+		Globals g = Globals.Instance;
 		Vector3 cameraCenter = new Vector3(smoothPosition.x, smoothPosition.y, 0f);
 		Vector3 targetPos = new Vector3(target.position.x, target.position.y, 0f);
 		Vector3 offset = targetPos - cameraCenter;

@@ -3,9 +3,7 @@ using UnityEditor;
 
 //Because auto compile is disabled because it's a bitch
 internal static class RefreshAssetsOnEnterPlaymode {
-	const string AutoRefreshKey = "kAutoRefreshMode";
-
-	static bool IsAutoRefreshDisabled => EditorPrefs.GetInt(AutoRefreshKey, -1) == 0;
+	static bool bIsAutoRefreshDisabled => EditorPrefs.GetInt("kAutoRefreshMode", -1) == 0;
 
 	[InitializeOnLoadMethod]
 	static void InitOnLoad() {
@@ -14,7 +12,7 @@ internal static class RefreshAssetsOnEnterPlaymode {
 	}
 
 	static void OnPlayModeStateChanged(PlayModeStateChange state) {
-		if (state == PlayModeStateChange.ExitingEditMode && IsAutoRefreshDisabled) {
+		if (state == PlayModeStateChange.ExitingEditMode && bIsAutoRefreshDisabled) {
 			AssetDatabase.Refresh();
 		}
 	}

@@ -12,15 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2b430bc7165c243acfb22214189640, type: 3}
   m_Name: Globals
   m_EditorClassIdentifier: Assembly-CSharp::Globals
-  cameraOrthoSize: 1
-  cameraDeadzoneRight: 4
-  cameraDeadzoneLeft: 2
-  cameraDeadzoneTop: 2
-  cameraDeadzoneBottom: 2
+  cameraOrthoSize: 1.5
+  cameraDeadzoneRight: 1
+  cameraDeadzoneLeft: 1
+  cameraDeadzoneTop: 0.5
+  cameraDeadzoneBottom: 0.5
   cameraFollowSpeed: 8
   cameraZOffset: -2
   cameraSnapToPixelGrid: 1
-  mouseSensitivity: 2
+  mouseSensitivity: 0.5
   eyeOffset: 0.6
   pitchClamp: 85
-  _pixelsPerUnit: 100
+  world2DZ: 1000
+  world3DZ: 0
+  camera2DNearClip: 900
+  camera2DFarClip: 1100
+  gameLevelAssets:
+  - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
+  gameLevels:
+  - MaskGame
+  pixelsPerUnit: 100

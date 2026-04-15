@@ -2,22 +2,45 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 
+public enum MaskMode { Portals, TwoD, ThreeD, Split }
+
 public class MaskDrawer : MonoBehaviour
 {
 	public Material circleMaskMaterial;
 	public float pixelSize = 8f; //FIXME: should prob hook up to ppu scriptable object
 	public float expandSpeed = 300f;
+	public MaskMode mode;
 
 	List<RevealPortal> portals = new List<RevealPortal>();
 	CommandBuffer cmd;
 
 	void LateUpdate() {
 		var maskRT = CompositeManager.Instance?.maskRT;
-		if (maskRT == null || circleMaskMaterial == null) return;
+		if (maskRT == null) return;
 
 		if (cmd == null) cmd = new CommandBuffer { name = "MaskDraw" };
 		cmd.Clear();
 		cmd.SetRenderTarget(maskRT);
+
+		if (mode == MaskMode.TwoD) {
+			cmd.ClearRenderTarget(true, true, Color.black);
+			Graphics.ExecuteCommandBuffer(cmd);
+			return;
+		}
+		if (mode == MaskMode.ThreeD) {
+			cmd.ClearRenderTarget(true, true, Color.white);
+			Graphics.ExecuteCommandBuffer(cmd);
+			return;
+		}
+		if (mode == MaskMode.Split) {
+			cmd.ClearRenderTarget(true, true, Color.black);
+			cmd.SetViewport(new Rect(maskRT.width * 0.5f, 0, maskRT.width * 0.5f, maskRT.height));
+			cmd.ClearRenderTarget(false, true, Color.white);
+			Graphics.ExecuteCommandBuffer(cmd);
+			return;
+		}
+
+		if (circleMaskMaterial == null) return;
 		cmd.ClearRenderTarget(true, true, Color.black);
 
 		cmd.SetGlobalVector("_Resolution", new Vector4(maskRT.width, maskRT.height, 0, 0));

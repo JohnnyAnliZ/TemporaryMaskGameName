@@ -12,13 +12,24 @@ public class Globals : ScriptableObject {
 	public float cameraZOffset = -10f;
 	public bool cameraSnapToPixelGrid = true;
 
-	[Header("First Person Camera")]
+	[Header("3D Camera")]
 	public float mouseSensitivity = 2f;
 	public float eyeOffset = 0.6f;
 	public float pitchClamp = 85f;
 
+	[Header("World")]
+	public float world2DZ = 1000f;
+	public float world3DZ = 0f;
+	public float camera2DNearClip = 990f;
+	public float camera2DFarClip = 1010f;
+
 	[Header("Misc")]
-	[SerializeField] float _pixelsPerUnit = 100f;
+	#if UNITY_EDITOR
+	public UnityEditor.SceneAsset[] gameLevelAssets;
+	#endif
+	[HideInInspector] public string[] gameLevels;
+	public float pixelsPerUnit = 100f;
+	public float pixelGridSize => 1f / pixelsPerUnit;
 
 	static Globals _instance;
 	public static Globals Instance {
@@ -31,46 +42,47 @@ public class Globals : ScriptableObject {
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
 	static void ResetStatics() => _instance = null;
 
-	public float pixelsPerUnit {
-		get => _pixelsPerUnit;
-		set {
-			if (_pixelsPerUnit != value) {
-				_pixelsPerUnit = value;
-				#if UNITY_EDITOR
-				UpdateEditorGrid();
-				#endif
-			}
-		}
-	}
-
-	public float pixelGridSize => 1f / _pixelsPerUnit;
-
 	void OnValidate() {
 		#if UNITY_EDITOR
-		UpdateEditorGrid();
+		UpdateEditorSettings();
+		SyncLevels();
 		#endif
 	}
 
 	#if UNITY_EDITOR
-	void UpdateEditorGrid() {
-		if (_pixelsPerUnit <= 0) return;
+	void UpdateEditorSettings() {
+		if (pixelsPerUnit <= 0) return;
 
-		float newGridSize = 1f / _pixelsPerUnit;
-		UnityEditor.EditorSnapSettings.gridSize = new Vector3(newGridSize, newGridSize, newGridSize);
+		float gridSize = pixelGridSize;
+		UnityEditor.EditorSnapSettings.gridSize = new Vector3(gridSize, gridSize, gridSize);
+		UnityEditor.EditorSnapSettings.gridSnapEnabled = cameraSnapToPixelGrid;
+	}
 
-		Log.Info($"Updated scene grid to {newGridSize} (PPU: {_pixelsPerUnit})");
+	void SyncLevels() {
+		if (gameLevelAssets == null) {
+			gameLevels = System.Array.Empty<string>();
+			return;
+		}
+
+		gameLevels = new string[gameLevelAssets.Length];
+		for (int I = 0; I < gameLevelAssets.Length; I++) {
+			gameLevels[I] = gameLevelAssets[I] != null ? gameLevelAssets[I].name : "";
+		}
 	}
 
 	public class GlobalsWindow : UnityEditor.EditorWindow
 	{
 		UnityEditor.Editor cachedEditor;
+		Vector2 scroll;
 
 		[UnityEditor.MenuItem("Window/Globals")]
 		static void Open() => GetWindow<GlobalsWindow>("Globals");
 
 		void OnGUI() {
+			scroll = UnityEditor.EditorGUILayout.BeginScrollView(scroll);
 			UnityEditor.Editor.CreateCachedEditor(Instance, null, ref cachedEditor);
 			cachedEditor.OnInspectorGUI();
+			UnityEditor.EditorGUILayout.EndScrollView();
 		}
 	}
 	#endif
