@@ -1,12 +1,60 @@
 {
     "items": [
         {
-            "id": "be932360",
-            "text": "Hi this is Jerry",
+            "id": "91c87113",
+            "text": "2d to 3d level visualizer",
             "done": false,
             "urgency": 0,
-            "user": 2,
-            "createdAt": "2026-04-12"
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
+            "id": "18116e4d",
+            "text": "figure out how to do breaking animation",
+            "done": false,
+            "urgency": 1,
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
+            "id": "6925aaf9",
+            "text": "background parallax system",
+            "done": false,
+            "urgency": 0,
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
+            "id": "63f08cd8",
+            "text": "player start system",
+            "done": false,
+            "urgency": 0,
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
+            "id": "dcca8bed",
+            "text": "dynamic 2d camera zoom system",
+            "done": false,
+            "urgency": 0,
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
+            "id": "e8c220d1",
+            "text": "2d rotation and depth size change",
+            "done": false,
+            "urgency": 1,
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
+            "id": "4cf7d691",
+            "text": "todo merge system",
+            "done": false,
+            "urgency": 0,
+            "user": 0,
+            "createdAt": "2026-04-15"
         }
     ]
 }

@@ -95,7 +95,7 @@ public static class Log {
 	//Because we need access to OnGui callback which is only called for MonoBehaviours so we just create this lil guy
 	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 	static void InitScreenLogger() {
-		var go = new GameObject("ScreenLog");
+		GameObject go = new GameObject("ScreenLog");
 		go.hideFlags = HideFlags.HideAndDontSave;
 		Object.DontDestroyOnLoad(go);
 		go.AddComponent<ScreenLogger>();
@@ -117,7 +117,7 @@ public static class Log {
 			ref var m = ref _msgs[I];
 			if (Time.unscaledTime > m.expireTime) continue;
 
-			var prev = GUI.color;
+			Color prev = GUI.color;
 			GUI.color = m.color;
 			GUI.Label(new Rect(Padding, y, Screen.width, LineHeight), m.text, _style);
 			GUI.color = prev;
