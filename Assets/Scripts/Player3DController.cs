@@ -60,4 +60,29 @@ public class Player3DController : MonoBehaviour
 			trigger.TryTrigger(transform.position);
 		}
 	}
+
+	void OnDrawGizmos() {
+		if (controller == null) controller = GetComponent<CharacterController>();
+		if (controller == null) return;
+
+		Gizmos.color = new Color(1, 0, 0, 0.5f);
+		Vector3 center = transform.position + controller.center;
+		float radius = controller.radius;
+		float height = controller.height;
+
+		//Capsule
+		float halfHeight = height * 0.5f - radius;
+		Vector3 top = center + Vector3.up * halfHeight;
+		Vector3 bottom = center + Vector3.down * halfHeight;
+
+		//Top and bottom spheres
+		Gizmos.DrawWireSphere(top, radius);
+		Gizmos.DrawWireSphere(bottom, radius);
+
+		//Vertical lines connecting the spheres
+		Gizmos.DrawLine(top + Vector3.forward * radius, bottom + Vector3.forward * radius);
+		Gizmos.DrawLine(top + Vector3.back * radius, bottom + Vector3.back * radius);
+		Gizmos.DrawLine(top + Vector3.right * radius, bottom + Vector3.right * radius);
+		Gizmos.DrawLine(top + Vector3.left * radius, bottom + Vector3.left * radius);
+	}
 }
