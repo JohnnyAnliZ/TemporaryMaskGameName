@@ -71,5 +71,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player3DController
   moveSpeed: 3
-  jumpForce: 8
+  jumpForce: 12
   gravity: -16
