@@ -24,6 +24,7 @@ public class Globals : ScriptableObject {
 	public float camera2DFarClip = 1010f;
 	public float playerScale = 7f;
 	public float depthScale = 10f;
+	public float fallThreshold = -8f;
 
 	[Header("Misc")]
 	public bool spawnAtCamera = true;

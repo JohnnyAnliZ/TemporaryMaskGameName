@@ -1,6 +1,30 @@
 {
     "items": [
         {
+            "id": "e286a2db",
+            "text": "movement into animation states",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
+            "id": "b51dca64",
+            "text": "proper movement system",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
+            "id": "de1a0d5b",
+            "text": "charge jump",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
             "id": "4d925d38",
             "text": "test light and fog layers",
             "done": false,

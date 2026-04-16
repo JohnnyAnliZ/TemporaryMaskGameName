@@ -11,18 +11,18 @@ public class Player3DController : MonoBehaviour
 	CharacterController controller;
 	Transform lookTransform;
 	float verticalVelocity;
+	Platform lastPlatform;
 
 	void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
 
 	void Start() {
-		var fpLook = FindAnyObjectByType<FirstPersonLook>();
-		if (fpLook != null) lookTransform = fpLook.transform;
+		lookTransform = FindAnyObjectByType<FirstPersonLook>().transform;
 	}
 
 	void Update() {
-		var keyboard = Keyboard.current;
+		Keyboard keyboard = Keyboard.current;
 
 		//FIXME: We should prob use the actual input event system instead of this
 		float forward = 0f, horizontal = 0f;
@@ -53,10 +53,24 @@ public class Player3DController : MonoBehaviour
 		Vector3 move = inputDir * moveSpeed;
 		move.y = verticalVelocity;
 		controller.Move(move * Time.deltaTime);
+
+		if (controller.isGrounded) {
+			if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2f)) {
+				lastPlatform = hit.collider.GetComponentInParent<Platform>();
+			}
+		}
+
+		if (transform.position.y < Globals.Instance.fallThreshold) {
+			controller.enabled = false;
+			transform.position = lastPlatform.spawnPoint.position;
+			lookTransform.rotation = Quaternion.identity;
+			verticalVelocity = 0f;
+			controller.enabled = true;
+		}
 	}
 
 	void OnControllerColliderHit(ControllerColliderHit hit) {
-		if (hit.gameObject.TryGetComponent<PlatformPortalTrigger>(out var trigger)) {
+		if (hit.gameObject.TryGetComponent<PlatformPortalTrigger>(out PlatformPortalTrigger trigger)) {
 			trigger.TryTrigger(transform.position);
 		}
 	}
