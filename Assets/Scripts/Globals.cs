@@ -22,8 +22,11 @@ public class Globals : ScriptableObject {
 	public float world3DZ = 0f;
 	public float camera2DNearClip = 990f;
 	public float camera2DFarClip = 1010f;
+	public float playerScale = 7f;
+	public float depthScale = 10f;
 
 	[Header("Misc")]
+	public bool spawnAtCamera = true;
 	#if UNITY_EDITOR
 	public UnityEditor.SceneAsset[] gameLevelAssets;
 	#endif
