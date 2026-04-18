@@ -1,49 +1,25 @@
 {
     "items": [
         {
-            "id": "e286a2db",
-            "text": "movement into animation states",
+            "id": "14f756f0",
+            "text": "Jumping too strong, too long",
             "done": false,
             "urgency": 2,
-            "user": 0,
-            "createdAt": "2026-04-16"
+            "user": 2,
+            "createdAt": "2026-04-17"
         },
         {
-            "id": "b51dca64",
-            "text": "proper movement system",
+            "id": "d2bfe3a5",
+            "text": "45 Degree man big issue",
             "done": false,
             "urgency": 2,
-            "user": 0,
+            "user": 2,
             "createdAt": "2026-04-16"
-        },
-        {
-            "id": "de1a0d5b",
-            "text": "charge jump",
-            "done": false,
-            "urgency": 2,
-            "user": 0,
-            "createdAt": "2026-04-16"
-        },
-        {
-            "id": "4d925d38",
-            "text": "test light and fog layers",
-            "done": false,
-            "urgency": 1,
-            "user": 0,
-            "createdAt": "2026-04-16"
-        },
-        {
-            "id": "0ee17b35",
-            "text": "basic fall respawn",
-            "done": true,
-            "urgency": 2,
-            "user": 0,
-            "createdAt": "2026-04-15"
         },
         {
             "id": "91c87113",
             "text": "2d to 3d level visualizer",
-            "done": true,
+            "done": false,
             "urgency": 0,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -51,7 +27,7 @@
         {
             "id": "18116e4d",
             "text": "figure out how to do breaking animation",
-            "done": true,
+            "done": false,
             "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -67,7 +43,7 @@
         {
             "id": "63f08cd8",
             "text": "player start system",
-            "done": true,
+            "done": false,
             "urgency": 0,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -83,7 +59,7 @@
         {
             "id": "e8c220d1",
             "text": "2d rotation and depth size change",
-            "done": true,
+            "done": false,
             "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-15"
