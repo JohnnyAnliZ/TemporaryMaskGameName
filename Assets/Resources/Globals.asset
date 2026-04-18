@@ -24,11 +24,13 @@ MonoBehaviour:
   eyeOffset: 0.6
   pitchClamp: 85
   world2DZ: 1000
-  world3DZ: 0
+  world3DZ: 200
   camera2DNearClip: 900
   camera2DFarClip: 1200
   playerScale: 7
   depthScale: 10
+  fallThreshold: -8
+  spawnAtCamera: 1
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
   gameLevels:
