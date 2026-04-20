@@ -20,6 +20,7 @@ MonoBehaviour:
   cameraFollowSpeed: 8
   cameraZOffset: -2
   cameraSnapToPixelGrid: 1
+  platformDistance: 0.9
   mouseSensitivity: 0.25
   eyeOffset: 0.6
   pitchClamp: 85
