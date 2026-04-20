@@ -8,8 +8,8 @@ public enum MaskMode { Portals, TwoD, ThreeD, Split }
 public class MaskDrawer : MonoBehaviour
 {
 	public Material circleMaskMaterial;
-	public float pixelSize = 8f; //FIXME: should prob hook up to ppu scriptable object
-	public float expandSpeed = 300f;
+	const float pixelSize = 2f; //FIXME: should prob hook up to ppu scriptable object
+	const float voronoiSize = 60f;
 	public MaskMode mode;
 
 	List<RevealPortal> portals = new List<RevealPortal>();
@@ -50,9 +50,11 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalFloat("_PixelSize", pixelSize);
 
         GameObject c = GameObject.Find("Camera2D");
-        Debug.Log("Camera2D, position of x, y are: " + c.transform.position.x +"  "+ c.transform.position.y);
+		
 		cmd.SetGlobalVector("_CameraPos", new Vector2(c.transform.position.x, c.transform.position.y));
         cmd.SetGlobalInt("_NumPasses", total_passes);
+		cmd.SetGlobalFloat("_CellSize", voronoiSize);
+		Debug.Log("pixel size: " + pixelSize + "voronoi size:" + voronoiSize);
         for (int i = 0; i < Mathf.Min(current_pass_index, total_passes); i++)
         {
 			
