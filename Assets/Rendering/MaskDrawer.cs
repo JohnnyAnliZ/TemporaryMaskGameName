@@ -49,11 +49,13 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalVector("_Resolution", new Vector4(maskRT.width, maskRT.height, 0, 0));
 		cmd.SetGlobalFloat("_PixelSize", pixelSize);
 
-
-		cmd.SetGlobalInt("_NumPasses", total_passes);
+        GameObject c = GameObject.Find("Camera2D");
+        Debug.Log("Camera2D, position of x, y are: " + c.transform.position.x +"  "+ c.transform.position.y);
+		cmd.SetGlobalVector("_CameraPos", new Vector2(c.transform.position.x, c.transform.position.y));
+        cmd.SetGlobalInt("_NumPasses", total_passes);
         for (int i = 0; i < Mathf.Min(current_pass_index, total_passes); i++)
         {
-
+			
             cmd.SetGlobalInt("_PassIndex", i);
             cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
         }
