@@ -30,11 +30,24 @@ MonoBehaviour:
   platformDistance: 0.9
   zOffset: -18
   projectionSize: 4
-  playerScale: 7
-  playerMin: 0.75
-  playerMax: 2.5
-  depthScale: 16
-  fallThreshold: -8
+  playerScale: 8
+  playerMin: 0.5
+  playerMax: 1.8
+  depthScale: 20
+  fadeDistance: 16
+  minOpacity: 0.8
+  farBrightness: 0.5
+  nearDistance: 16
+  nearBrightness: 1.3
+  spriteZPerPlayerZ: 0.5
+  fallThreshold: -10
+  zoomDeadzoneRate: 0.067
+  zoomMinFar: 1
+  zoomMaxFar: 8
+  zoomMaxFarAmount: 2
+  zoomMinNear: 1
+  zoomMaxNear: 8
+  zoomMaxNearAmount: 1.25
   spawnAtCamera: 1
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}

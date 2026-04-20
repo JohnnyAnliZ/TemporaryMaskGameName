@@ -20,8 +20,7 @@ public class GameManager : MonoBehaviour
 			if (sceneView != null) {
 				spawnX = sceneView.camera.transform.position.x;
 				float camZ = sceneView.camera.transform.position.z;
-				int[] offsets = { -4, -3, -2, -1, 0, 1, 2, 3, 4 };
-				System.Array.Sort(offsets, (a, b) => Mathf.Abs(camZ - (g.world3DZ + a)).CompareTo(Mathf.Abs(camZ - (g.world3DZ + b))));
+				int[] offsets = {-1, 1, 0, -2, 2, 3, -3, 4, -4, 5, -5};
 				bool hitFound = false;
 				foreach (int off in offsets) {
 					float rayZ = g.world3DZ + (off*3);
@@ -77,7 +76,7 @@ public class GameManager : MonoBehaviour
 		cam.nearClipPlane = g.camera2DNearClip;
 		cam.farClipPlane = g.camera2DFarClip;
 		camera2D.AddComponent<CompositeCamera>().index = 0;
-		camera2D.AddComponent<CameraFollow2D>().Init(player2D.transform);
+		camera2D.AddComponent<CameraFollow2D>().Init(player2D.transform, player3D.transform);
 		camera2D.SetActive(true);
 	}
 }

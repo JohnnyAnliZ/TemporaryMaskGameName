@@ -31,7 +31,22 @@ public class Globals : ScriptableObject {
 	public float playerMin = 0.5f;
 	public float playerMax = 3f;
 	public float depthScale = 10f;
+	public float fadeDistance = 30f;
+	public float minOpacity = 0.3f;
+	public float farBrightness = 0.4f;
+	public float nearDistance = 8f;
+	public float nearBrightness = 2.5f;
+	public float spriteZPerPlayerZ = 0.5f;
 	public float fallThreshold = -8f;
+
+	[Header("Camera Depth Zoom")]
+	public float zoomDeadzoneRate = 0.02f;
+	public float zoomMinFar = 1f;
+	public float zoomMaxFar = 8f;
+	public float zoomMaxFarAmount = 1.2f;
+	public float zoomMinNear = 1f;
+	public float zoomMaxNear = 8f;
+	public float zoomMaxNearAmount = 1.2f;
 
 	[Header("Misc")]
 	public bool spawnAtCamera = true;
