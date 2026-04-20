@@ -48,6 +48,13 @@ public class Globals : ScriptableObject {
 	public float zoomMaxNear = 8f;
 	public float zoomMaxNearAmount = 1.2f;
 
+	[Header("Outline")]
+	public Color outlineColor = Color.white;
+	public float outlineThickness = 1f;
+	public float outlineMaxOpacity = 1f;
+	public float angleFull = 12f;
+	public float angleFade = 4f;
+
 	[Header("Misc")]
 	public bool spawnAtCamera = true;
 	#if UNITY_EDITOR
