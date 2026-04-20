@@ -28,6 +28,8 @@ public class Globals : ScriptableObject {
 
 	[Header("Player")]
 	public float playerScale = 7f;
+	public float playerMin = 0.5f;
+	public float playerMax = 3f;
 	public float depthScale = 10f;
 	public float fallThreshold = -8f;
 
