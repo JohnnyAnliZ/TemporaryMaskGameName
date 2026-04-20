@@ -25,7 +25,7 @@ MonoBehaviour:
   eyeOffset: 0.6
   pitchClamp: 85
   world2DZ: 1000
-  world3DZ: 200
+  world3DZ: 218
   camera2DNearClip: 900
   camera2DFarClip: 1200
   playerScale: 7
