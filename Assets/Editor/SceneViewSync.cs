@@ -56,7 +56,7 @@ static class ViewportSync
 					if (sprite.sprite == null) continue;
 					if (sprite.CompareTag("NoGizmo")) continue;
 
-					float zOffset = (sprite.transform.position.z - g.world2DZ) * 0.1f;
+					float zOffset = (sprite.transform.position.z - g.world2DZ) * 0.4f;
 					Vector3 center = new Vector3(sprite.bounds.center.x, sprite.bounds.center.y, g.world3DZ + zOffset);
 					Vector3 size = new Vector3(sprite.bounds.size.x, sprite.bounds.size.y, 2f);
 
