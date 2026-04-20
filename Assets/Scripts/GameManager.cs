@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
 		Quaternion spawnRot = playerStart != null ? playerStart.transform.rotation : Quaternion.identity;
 		float spawnX = fallbackPos.x;
 		float spawnY = fallbackPos.y;
+		float spawnZ = g.world3DZ;
 
 		#if UNITY_EDITOR
 		if (g.spawnAtCamera) {
@@ -23,8 +24,10 @@ public class GameManager : MonoBehaviour
 				System.Array.Sort(offsets, (a, b) => Mathf.Abs(camZ - (g.world3DZ + a)).CompareTo(Mathf.Abs(camZ - (g.world3DZ + b))));
 				bool hitFound = false;
 				foreach (int off in offsets) {
-					if (Physics.Raycast(new Vector3(spawnX, 100, g.world3DZ + (off*3)), Vector3.down, out RaycastHit hit, 150)) {
+					float rayZ = g.world3DZ + (off*3);
+					if (Rays.Cast(new Vector3(spawnX, 100, rayZ), Vector3.down, out RaycastHit hit, 150, visualize: true)) {
 						spawnY = hit.point.y + 2;
+						spawnZ = rayZ;
 						hitFound = true;
 						break;
 					}
@@ -43,18 +46,21 @@ public class GameManager : MonoBehaviour
 					}
 					spawnX = closest.spawnPoint.position.x;
 					spawnY = closest.spawnPoint.position.y;
+					spawnZ = closest.spawnPoint.position.z;
 				}
 			}
 		}
 		#endif
 
-		Vector3 spawn3D = new Vector3(spawnX, spawnY, g.world3DZ);
+		Vector3 spawn3D = new Vector3(spawnX, spawnY, spawnZ);
 		player3D = Instantiate(player3DPrefab, spawn3D, spawnRot);
+		player3D.name = "3DPlayer";
 
 		Vector3 spawn2D = new Vector3(spawnX, spawnY, g.world2DZ);
 		player2D = Instantiate(player2DPrefab, spawn2D, spawnRot);
+		player2D.name = "2DPlayer";
 
-		GameObject camera3D = new GameObject("Camera3D");
+		GameObject camera3D = new GameObject("3DCamera");
 		camera3D.SetActive(false);
 		camera3D.AddComponent<Camera>();
 		camera3D.AddComponent<CompositeCamera>().index = 1;
@@ -63,7 +69,7 @@ public class GameManager : MonoBehaviour
 
 		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
 
-		GameObject camera2D = new GameObject("Camera2D");
+		GameObject camera2D = new GameObject("2DCamera");
 		camera2D.SetActive(false); //so that OnEnable runs after CompositeCamera component is added
 		Camera cam = camera2D.AddComponent<Camera>();
 		cam.orthographic = true;

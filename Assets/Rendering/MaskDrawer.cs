@@ -57,7 +57,7 @@ public class MaskDrawer : MonoBehaviour
 		Debug.Log("pixel size: " + pixelSize + "voronoi size:" + voronoiSize);
         for (int i = 0; i < Mathf.Min(current_pass_index, total_passes); i++)
         {
-			
+
             cmd.SetGlobalInt("_PassIndex", i);
             cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
         }
@@ -70,7 +70,7 @@ public class MaskDrawer : MonoBehaviour
 		//		portal.position.x / maskRT.width,
 		//		portal.position.y / maskRT.height, 0, 0));
 		//	cmd.SetGlobalFloat("_Radius", portal.currentRadius / maskRT.width);
-			
+
 		//}
 
 		Graphics.ExecuteCommandBuffer(cmd);

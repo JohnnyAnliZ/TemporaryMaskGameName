@@ -20,16 +20,20 @@ MonoBehaviour:
   cameraFollowSpeed: 8
   cameraZOffset: -2
   cameraSnapToPixelGrid: 1
-  platformDistance: 0.9
   mouseSensitivity: 0.25
   eyeOffset: 0.6
   pitchClamp: 85
   world2DZ: 1000
-  world3DZ: 218
+  world3DZ: 200
   camera2DNearClip: 900
   camera2DFarClip: 1200
+  platformDistance: 0.9
+  zOffset: -18
+  projectionSize: 4
   playerScale: 7
-  depthScale: 10
+  playerMin: 0.75
+  playerMax: 2.5
+  depthScale: 16
   fallThreshold: -8
   spawnAtCamera: 1
   gameLevelAssets:
