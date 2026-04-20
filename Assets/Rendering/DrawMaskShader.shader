@@ -52,7 +52,7 @@ Shader "Custom/CircleMask"
                 // Offset by camera position so the pattern is world-stable
                 //map _cameraPos to the background image
 
-                uint2 worldPixelCoord = pixelCoord + (int2)(_CameraPos * 45 / _PixelSize);//hacky part, try to match the background movement to the mask movement
+                uint2 worldPixelCoord = pixelCoord + (int2)(_CameraPos * 47 / _PixelSize);//hacky part, try to match the background movement to the mask movement
 
                 float u = (float)Hash2D(worldPixelCoord) / 4294967296.0;//uniform 0 to 1
 
