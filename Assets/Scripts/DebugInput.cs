@@ -28,9 +28,11 @@ public class DebugInput : MonoBehaviour
 		if (mouse.leftButton.wasPressedThisFrame) {
 			Vector2 pos = mouse.position.ReadValue();
 			maskDrawer.AddPortal(pos, portalRadius);
-		}
+            maskDrawer.Do_Shatter();
 
-		if (keyboard.cKey.wasPressedThisFrame) {
+        }
+
+        if (keyboard.cKey.wasPressedThisFrame) {
 			maskDrawer.ClearPortals();
 		}
 

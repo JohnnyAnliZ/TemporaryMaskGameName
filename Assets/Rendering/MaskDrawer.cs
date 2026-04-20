@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 
 public enum MaskMode { Portals, TwoD, ThreeD, Split }
 
@@ -12,6 +13,8 @@ public class MaskDrawer : MonoBehaviour
 	public MaskMode mode;
 
 	List<RevealPortal> portals = new List<RevealPortal>();
+	int total_passes = 8;
+	int current_pass_index = 0;
 	CommandBuffer cmd;
 
 	void LateUpdate() {
@@ -46,20 +49,38 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalVector("_Resolution", new Vector4(maskRT.width, maskRT.height, 0, 0));
 		cmd.SetGlobalFloat("_PixelSize", pixelSize);
 
-		foreach (RevealPortal portal in portals) {
-			portal.currentRadius = Mathf.MoveTowards(portal.currentRadius, portal.targetRadius, expandSpeed * Time.deltaTime);
-			cmd.SetGlobalVector("_Center", new Vector4(
-				portal.position.x / maskRT.width,
-				portal.position.y / maskRT.height, 0, 0));
-			cmd.SetGlobalFloat("_Radius", portal.currentRadius / maskRT.width);
-			cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
-		}
+        GameObject c = GameObject.Find("Camera2D");
+        Debug.Log("Camera2D, position of x, y are: " + c.transform.position.x +"  "+ c.transform.position.y);
+		cmd.SetGlobalVector("_CameraPos", new Vector2(c.transform.position.x, c.transform.position.y));
+        cmd.SetGlobalInt("_NumPasses", total_passes);
+        for (int i = 0; i < Mathf.Min(current_pass_index, total_passes); i++)
+        {
+			
+            cmd.SetGlobalInt("_PassIndex", i);
+            cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
+        }
+
+		//this is for drawing portal by clicking on the screen, might use later for other stuff
+
+		//foreach (RevealPortal portal in portals) {
+		//	portal.currentRadius = Mathf.MoveTowards(portal.currentRadius, portal.targetRadius, expandSpeed * Time.deltaTime);
+		//	cmd.SetGlobalVector("_Center", new Vector4(
+		//		portal.position.x / maskRT.width,
+		//		portal.position.y / maskRT.height, 0, 0));
+		//	cmd.SetGlobalFloat("_Radius", portal.currentRadius / maskRT.width);
+			
+		//}
 
 		Graphics.ExecuteCommandBuffer(cmd);
 	}
 
 	public void AddPortal(Vector2 screenPos, float radius) {
 		portals.Add(new RevealPortal { position = screenPos, targetRadius = radius });
+	}
+
+	public void Do_Shatter()
+	{
+		current_pass_index += 1;
 	}
 	public void ClearPortals() {
 		portals.Clear();
