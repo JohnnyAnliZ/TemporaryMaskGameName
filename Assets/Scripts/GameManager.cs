@@ -18,11 +18,31 @@ public class GameManager : MonoBehaviour
 			var sceneView = UnityEditor.SceneView.lastActiveSceneView;
 			if (sceneView != null) {
 				spawnX = sceneView.camera.transform.position.x;
-				if (Physics.Raycast(new Vector3(spawnX, 1000f, g.world3DZ), Vector3.down, out RaycastHit hit)) {
-					spawnY = hit.point.y + 2;
+				float camZ = sceneView.camera.transform.position.z;
+				int[] offsets = { -4, -3, -2, -1, 0, 1, 2, 3, 4 };
+				System.Array.Sort(offsets, (a, b) => Mathf.Abs(camZ - (g.world3DZ + a)).CompareTo(Mathf.Abs(camZ - (g.world3DZ + b))));
+				bool hitFound = false;
+				foreach (int off in offsets) {
+					if (Physics.Raycast(new Vector3(spawnX, 100, g.world3DZ + off), Vector3.down, out RaycastHit hit, 150)) {
+						spawnY = hit.point.y + 2;
+						hitFound = true;
+						break;
+					}
 				}
-				else {
-					spawnY = sceneView.camera.transform.position.y;
+				if (!hitFound) {
+					Vector3 camPos = sceneView.camera.transform.position;
+					Platform closest = null;
+					float closestDist = float.MaxValue;
+					foreach (Platform p in FindObjectsByType<Platform>(FindObjectsSortMode.None)) {
+						if (p.spawnPoint == null) continue;
+						float d = Vector3.Distance(p.spawnPoint.position, camPos);
+						if (d < closestDist) {
+							closestDist = d;
+							closest = p;
+						}
+					}
+					spawnX = closest.spawnPoint.position.x;
+					spawnY = closest.spawnPoint.position.y;
 				}
 			}
 		}
