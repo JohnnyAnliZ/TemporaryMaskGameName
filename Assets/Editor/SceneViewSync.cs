@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -57,8 +58,8 @@ static class ViewportSync
 					if (sprite.CompareTag("NoGizmo")) continue;
 
 					float zOffset = (sprite.transform.position.z - g.world2DZ) * g.platformDistance;
-					Vector3 center = new Vector3(sprite.bounds.center.x, sprite.bounds.center.y, g.world3DZ + zOffset);
-					Vector3 size = new Vector3(sprite.bounds.size.x, sprite.bounds.size.y, 2f);
+					Vector3 center = new Vector3(sprite.bounds.center.x, sprite.bounds.center.y, g.world3DZ + zOffset + g.zOffset);
+					Vector3 size = new Vector3(sprite.bounds.size.x, sprite.bounds.size.y, g.projectionSize);
 
 					//Shaded Cube
 					Vector3 halfSize = size * 0.5f;
@@ -121,6 +122,43 @@ static class ViewportSync
 					//Wireframe
 					Handles.color = new Color(0, 1, 0, 0.8f);
 					Handles.DrawWireCube(center, size);
+				}
+			}
+
+			//World3DZ plane
+			float extent = 10000f;
+			Vector3[] plane = {
+				new Vector3(-extent, -extent, g.world3DZ),
+				new Vector3(extent, -extent, g.world3DZ),
+				new Vector3(extent, extent, g.world3DZ),
+				new Vector3(-extent, extent, g.world3DZ),
+			};
+			Handles.color = Color.white; //reset from previous use of Handles
+			Handles.DrawSolidRectangleWithOutline(plane, new Color(1, 0, 0, 0.02f), Color.clear);
+		}
+
+		//3d projection
+		if (view.in2DMode) {
+			GameObject active = Selection.activeGameObject;
+			if (active != null) {
+				Platform platform = active.GetComponentInParent<Platform>();
+				if (platform != null) {
+					Renderer[] renderers = platform.GetComponentsInChildren<Renderer>();
+					Handles.color = Color.cyan;
+					float z = g.world2DZ - 10;
+					foreach (Renderer r in renderers) {
+						if (r is SpriteRenderer) continue;
+						Vector3 min = r.bounds.min;
+						Vector3 max = r.bounds.max;
+						Vector3 bl = new Vector3(min.x, min.y, z);
+						Vector3 br = new Vector3(max.x, min.y, z);
+						Vector3 tr = new Vector3(max.x, max.y, z);
+						Vector3 tl = new Vector3(min.x, max.y, z);
+						Handles.DrawLine(bl, br);
+						Handles.DrawLine(br, tr);
+						Handles.DrawLine(tr, tl);
+						Handles.DrawLine(tl, bl);
+					}
 				}
 			}
 		}
