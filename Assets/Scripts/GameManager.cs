@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 				System.Array.Sort(offsets, (a, b) => Mathf.Abs(camZ - (g.world3DZ + a)).CompareTo(Mathf.Abs(camZ - (g.world3DZ + b))));
 				bool hitFound = false;
 				foreach (int off in offsets) {
-					if (Physics.Raycast(new Vector3(spawnX, 100, g.world3DZ + off), Vector3.down, out RaycastHit hit, 150)) {
+					if (Physics.Raycast(new Vector3(spawnX, 100, g.world3DZ + (off*3)), Vector3.down, out RaycastHit hit, 150)) {
 						spawnY = hit.point.y + 2;
 						hitFound = true;
 						break;
