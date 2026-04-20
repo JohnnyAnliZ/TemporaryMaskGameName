@@ -33,9 +33,13 @@ public class Player2DVisual : MonoBehaviour {
 		if (source == null) return;
 		Globals g = Globals.Instance;
 
+		float zOffset = source.position.z - g.world3DZ;
+
 		float y = source.position.y;
 		y += characterController.center.y - (characterController.height * 0.5f);
-		Vector3 position = new Vector3(source.position.x, y, g.world2DZ);
+
+		float spriteZ = g.world2DZ + zOffset * g.spriteZPerPlayerZ;
+		Vector3 position = new Vector3(source.position.x, y, spriteZ);
 
 		if (snapToPixelGrid) {
 			float gridSize = g.pixelGridSize;
@@ -45,11 +49,18 @@ public class Player2DVisual : MonoBehaviour {
 
 		transform.position = position;
 
-		float zOffset = source.position.z - g.world3DZ;
 		float denom = Mathf.Max(g.depthScale + zOffset, 0.01f); //avoid sign flip across pole
 		float scale = g.depthScale / denom;
 		scale = Mathf.Clamp(scale, g.playerMin, g.playerMax) * g.playerScale;
 		transform.localScale = Vector3.one * scale;
+
+		if (spriteRenderer != null) {
+			float farT = Mathf.Clamp01(zOffset / g.fadeDistance);
+			float nearT = Mathf.Clamp01(-zOffset / g.nearDistance);
+			float alpha = Mathf.Lerp(1f, g.minOpacity, farT);
+			float rgb = Mathf.Lerp(1f, g.farBrightness, farT) * Mathf.Lerp(1f, g.nearBrightness, nearT);
+			spriteRenderer.color = new Color(rgb, rgb, rgb, alpha);
+		}
 
 		if (animator != null && lookTransform != null) {
 			float yaw = lookTransform.eulerAngles.y;
