@@ -49,7 +49,7 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalVector("_Resolution", new Vector4(maskRT.width, maskRT.height, 0, 0));
 		cmd.SetGlobalFloat("_PixelSize", pixelSize);
 
-        GameObject c = GameObject.Find("Camera2D");
+        GameObject c = GameObject.Find("2DCamera");
 		
 		cmd.SetGlobalVector("_CameraPos", new Vector2(c.transform.position.x, c.transform.position.y));
         cmd.SetGlobalInt("_NumPasses", total_passes);
