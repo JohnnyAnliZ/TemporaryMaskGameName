@@ -22,7 +22,14 @@ public class Globals : ScriptableObject {
 	public float world3DZ = 0f;
 	public float camera2DNearClip = 990f;
 	public float camera2DFarClip = 1010f;
+	public float platformDistance = 0.8f;
+	public float zOffset = 1f;
+	public float projectionSize = 4f;
+
+	[Header("Player")]
 	public float playerScale = 7f;
+	public float playerMin = 0.5f;
+	public float playerMax = 3f;
 	public float depthScale = 10f;
 	public float fallThreshold = -8f;
 
