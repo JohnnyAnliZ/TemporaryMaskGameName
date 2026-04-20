@@ -46,8 +46,9 @@ public class Player2DVisual : MonoBehaviour {
 		transform.position = position;
 
 		float zOffset = source.position.z - g.world3DZ;
-		float scale = g.depthScale / (g.depthScale + zOffset);
-		scale = Mathf.Clamp(scale, 0.1f, 5f) * g.playerScale;
+		float denom = Mathf.Max(g.depthScale + zOffset, 0.01f); //avoid sign flip across pole
+		float scale = g.depthScale / denom;
+		scale = Mathf.Clamp(scale, g.playerMin, g.playerMax) * g.playerScale;
 		transform.localScale = Vector3.one * scale;
 
 		if (animator != null && lookTransform != null) {
