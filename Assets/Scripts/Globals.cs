@@ -11,6 +11,7 @@ public class Globals : ScriptableObject {
 	public float cameraFollowSpeed = 8f;
 	public float cameraZOffset = -10f;
 	public bool cameraSnapToPixelGrid = true;
+	public float platformDistance = 0.8f;
 
 	[Header("3D Camera")]
 	public float mouseSensitivity = 2f;
