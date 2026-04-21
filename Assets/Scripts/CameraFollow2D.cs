@@ -3,10 +3,14 @@ using UnityEngine;
 public class CameraFollow2D : MonoBehaviour
 {
 	Transform target;
+	Transform player3D;
+	Camera cam;
 	Vector3 smoothPosition;
 
-	public void Init(Transform target) {
+	public void Init(Transform target, Transform player3D) {
 		this.target = target;
+		this.player3D = player3D;
+		cam = GetComponent<Camera>();
 		smoothPosition = new Vector3(target.position.x, target.position.y, Globals.Instance.cameraZOffset);
 		transform.position = SnapToGrid(smoothPosition);
 		transform.rotation = Quaternion.identity;
@@ -38,6 +42,29 @@ public class CameraFollow2D : MonoBehaviour
 
 		Vector3 finalPosition = new Vector3(smoothPosition.x, smoothPosition.y, g.cameraZOffset);
 		transform.position = g.cameraSnapToPixelGrid ? SnapToGrid(finalPosition) : finalPosition;
+
+		float zOffset = player3D.position.z - g.world3DZ;
+		cam.orthographicSize = Mathf.Max(g.cameraOrthoSize - ComputeZoomDelta(zOffset, g), 0.1f);
+	}
+
+	static float ComputeZoomDelta(float z, Globals g) {
+		if (z >= 0f) {
+			if (z <= g.zoomMinFar) return z * g.zoomDeadzoneRate;
+			if (z >= g.zoomMaxFar) return g.zoomMaxFarAmount + (z - g.zoomMaxFar) * g.zoomDeadzoneRate;
+			float edge = g.zoomMinFar * g.zoomDeadzoneRate;
+			float raw = Mathf.InverseLerp(g.zoomMinFar, g.zoomMaxFar, z);
+			float t = raw * raw * (3f - 2f * raw);
+			return Mathf.Lerp(edge, g.zoomMaxFarAmount, t);
+		}
+		else {
+			float abs = -z;
+			if (abs <= g.zoomMinNear) return z * g.zoomDeadzoneRate;
+			if (abs >= g.zoomMaxNear) return -(g.zoomMaxNearAmount + (abs - g.zoomMaxNear) * g.zoomDeadzoneRate);
+			float edge = -g.zoomMinNear * g.zoomDeadzoneRate;
+			float raw = Mathf.InverseLerp(g.zoomMinNear, g.zoomMaxNear, abs);
+			float t = raw * raw * (3f - 2f * raw);
+			return Mathf.Lerp(edge, -g.zoomMaxNearAmount, t);
+		}
 	}
 
 	Vector3 SnapToGrid(Vector3 position) {

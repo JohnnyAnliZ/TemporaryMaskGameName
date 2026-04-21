@@ -1,9 +1,25 @@
 {
     "items": [
         {
+            "id": "08e3c88e",
+            "text": "opacity is based on front of current platform box",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-20"
+        },
+        {
+            "id": "9846ebd8",
+            "text": "foreground foliage",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-20"
+        },
+        {
             "id": "14f756f0",
             "text": "Jumping too strong, too long",
-            "done": false,
+            "done": true,
             "urgency": 2,
             "user": 2,
             "createdAt": "2026-04-17"
@@ -17,9 +33,49 @@
             "createdAt": "2026-04-16"
         },
         {
+            "id": "e286a2db",
+            "text": "movement into animation states",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
+            "id": "b51dca64",
+            "text": "proper movement system",
+            "done": true,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
+            "id": "de1a0d5b",
+            "text": "charge jump",
+            "done": true,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
+            "id": "4d925d38",
+            "text": "test light and fog layers",
+            "done": false,
+            "urgency": 1,
+            "user": 0,
+            "createdAt": "2026-04-16"
+        },
+        {
+            "id": "0ee17b35",
+            "text": "basic fall respawn",
+            "done": true,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-15"
+        },
+        {
             "id": "91c87113",
             "text": "2d to 3d level visualizer",
-            "done": false,
+            "done": true,
             "urgency": 0,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -29,21 +85,21 @@
             "text": "figure out how to do breaking animation",
             "done": false,
             "urgency": 1,
-            "user": 0,
+            "user": 3,
             "createdAt": "2026-04-15"
         },
         {
             "id": "6925aaf9",
             "text": "background parallax system",
             "done": false,
-            "urgency": 0,
+            "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-15"
         },
         {
             "id": "63f08cd8",
             "text": "player start system",
-            "done": false,
+            "done": true,
             "urgency": 0,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -59,7 +115,7 @@
         {
             "id": "e8c220d1",
             "text": "2d rotation and depth size change",
-            "done": false,
+            "done": true,
             "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-15"
