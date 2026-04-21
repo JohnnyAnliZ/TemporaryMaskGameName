@@ -62,6 +62,10 @@ MonoBehaviour:
   zoomMinNear: 0.5
   zoomMaxNear: 8
   zoomMaxNearAmount: 1.25
+  cameraBoundLeft: -17.3
+  cameraBoundRight: 1000
+  cameraBoundBottom: 1.16
+  cameraBoundTop: 12.8
   outlineColor: {r: 0.5754717, g: 0.44512045, b: 0.24158953, a: 1}
   outlineThickness: 0.5
   outlineMaxOpacity: 0.4
@@ -77,17 +81,17 @@ MonoBehaviour:
   - z: 25
     factor: 0.7
   - z: 24
-    factor: 0.8
+    factor: 0.75
   - z: 23
-    factor: 0.9
+    factor: 0.8
   - z: 22
-    factor: 1
-  - z: 19
     factor: 0.85
+  - z: 19
+    factor: 0.9
   - z: 8
     factor: 1
   - z: 3
     factor: 1
   - z: 2
-    factor: 1
+    factor: 1.2
   parallaxScaleFactor: 0.2

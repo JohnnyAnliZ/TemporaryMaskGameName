@@ -18,7 +18,7 @@ public class ParallaxLayer : MonoBehaviour
 
 		Globals g = Globals.Instance;
 		float globalFactor = g.GetParallaxFactorForZ(restPosition.z);
-		float factor = Mathf.Clamp01(globalFactor * factorMultiplier);
+		float factor = Mathf.Clamp(globalFactor * factorMultiplier, 0f, 2f);
 		float scaleBlend = Mathf.Clamp01(g.parallaxScaleFactor * scaleFactorMultiplier);
 
 		Vector3 anchorPos = syncPoint != null ? syncPoint.position : restPosition;
