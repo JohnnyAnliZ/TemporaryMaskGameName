@@ -1,6 +1,22 @@
 {
     "items": [
         {
+            "id": "230a29f8",
+            "text": "headpose stuff",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-20"
+        },
+        {
+            "id": "f99e11e7",
+            "text": "game flow",
+            "done": false,
+            "urgency": 2,
+            "user": 0,
+            "createdAt": "2026-04-20"
+        },
+        {
             "id": "08e3c88e",
             "text": "opacity is based on front of current platform box",
             "done": false,
@@ -12,7 +28,7 @@
             "id": "9846ebd8",
             "text": "foreground foliage",
             "done": false,
-            "urgency": 2,
+            "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-20"
         },
@@ -27,7 +43,7 @@
         {
             "id": "d2bfe3a5",
             "text": "45 Degree man big issue",
-            "done": false,
+            "done": true,
             "urgency": 2,
             "user": 2,
             "createdAt": "2026-04-16"
