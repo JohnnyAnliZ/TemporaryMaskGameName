@@ -80,6 +80,27 @@ public class Globals : ScriptableObject {
 	public float pixelsPerUnit = 100f;
 	public float pixelGridSize => 1f / pixelsPerUnit;
 
+	[System.Serializable]
+	public struct ParallaxZFactor {
+		public float z;
+		[Range(0f, 1f)] public float factor;
+	}
+	[HideInInspector] public ParallaxZFactor[] parallaxLayers;
+
+	public float GetParallaxFactorForZ(float z) {
+		const float EPSILON = 0.01f;
+		if (parallaxLayers != null) {
+			for (int i = 0; i < parallaxLayers.Length; i++) {
+				float worldZ = world2DZ + parallaxLayers[i].z * 4;
+				if (Mathf.Abs(worldZ - z) < EPSILON) {
+					return parallaxLayers[i].factor;
+				}
+			}
+		}
+		Log.Warn($"No parallax layer configured for z={z}");
+		return 1f;
+	}
+
 	static Globals _instance;
 	public static Globals Instance {
 		get {
@@ -132,6 +153,46 @@ public class Globals : ScriptableObject {
 			UnityEditor.Editor.CreateCachedEditor(Instance, null, ref cachedEditor);
 			cachedEditor.OnInspectorGUI();
 			UnityEditor.EditorGUILayout.EndScrollView();
+		}
+	}
+
+	public class ParallaxWindow : UnityEditor.EditorWindow
+	{
+		Vector2 scroll;
+
+		[UnityEditor.MenuItem("Window/Parallax Layers")]
+		static void Open() => GetWindow<ParallaxWindow>("Parallax Layers");
+
+		void OnGUI() {
+			Globals g = Instance;
+			if (g.parallaxLayers == null) g.parallaxLayers = System.Array.Empty<ParallaxZFactor>();
+
+			scroll = UnityEditor.EditorGUILayout.BeginScrollView(scroll);
+
+			int removeIndex = -1;
+			for (int i = 0; i < g.parallaxLayers.Length; i++) {
+				UnityEditor.EditorGUILayout.BeginHorizontal();
+				UnityEditor.EditorGUILayout.LabelField("Z", GUILayout.Width(14));
+				g.parallaxLayers[i].z = UnityEditor.EditorGUILayout.FloatField(g.parallaxLayers[i].z, GUILayout.Width(60));
+				g.parallaxLayers[i].factor = UnityEditor.EditorGUILayout.Slider(g.parallaxLayers[i].factor, 0f, 1f);
+				if (GUILayout.Button("-", GUILayout.Width(22))) removeIndex = i;
+				UnityEditor.EditorGUILayout.EndHorizontal();
+			}
+
+			if (removeIndex >= 0) {
+				var list = new System.Collections.Generic.List<ParallaxZFactor>(g.parallaxLayers);
+				list.RemoveAt(removeIndex);
+				g.parallaxLayers = list.ToArray();
+			}
+
+			if (GUILayout.Button("Add Layer")) {
+				var list = new System.Collections.Generic.List<ParallaxZFactor>(g.parallaxLayers);
+				list.Add(new ParallaxZFactor { z = 0f, factor = 0.5f });
+				g.parallaxLayers = list.ToArray();
+			}
+
+			UnityEditor.EditorGUILayout.EndScrollView();
+			if (GUI.changed) UnityEditor.EditorUtility.SetDirty(g);
 		}
 	}
 	#endif
