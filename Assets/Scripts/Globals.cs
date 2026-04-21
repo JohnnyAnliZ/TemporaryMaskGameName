@@ -64,6 +64,12 @@ public class Globals : ScriptableObject {
 	public float zoomMaxNear = 8f;
 	public float zoomMaxNearAmount = 1.2f;
 
+	[Header("Camera Bounds")]
+	public float cameraBoundLeft = -1000f;
+	public float cameraBoundRight = 1000f;
+	public float cameraBoundBottom = -1000f;
+	public float cameraBoundTop = 1000f;
+
 	[Header("Outline")]
 	public Color outlineColor = Color.white;
 	public float outlineThickness = 1f;
@@ -83,7 +89,7 @@ public class Globals : ScriptableObject {
 	[System.Serializable]
 	public struct ParallaxZFactor {
 		public float z;
-		[Range(0f, 1f)] public float factor;
+		[Range(0f, 2f)] public float factor;
 	}
 	[HideInInspector] public ParallaxZFactor[] parallaxLayers;
 	[HideInInspector, Range(0f, 1f)] public float parallaxScaleFactor = 1f;
@@ -178,7 +184,7 @@ public class Globals : ScriptableObject {
 				UnityEditor.EditorGUILayout.BeginHorizontal();
 				UnityEditor.EditorGUILayout.LabelField("Z", GUILayout.Width(14));
 				g.parallaxLayers[i].z = UnityEditor.EditorGUILayout.FloatField(g.parallaxLayers[i].z, GUILayout.Width(60));
-				g.parallaxLayers[i].factor = UnityEditor.EditorGUILayout.Slider(g.parallaxLayers[i].factor, 0f, 1f);
+				g.parallaxLayers[i].factor = UnityEditor.EditorGUILayout.Slider(g.parallaxLayers[i].factor, 0f, 2f);
 				if (GUILayout.Button("-", GUILayout.Width(22))) removeIndex = i;
 				UnityEditor.EditorGUILayout.EndHorizontal();
 			}

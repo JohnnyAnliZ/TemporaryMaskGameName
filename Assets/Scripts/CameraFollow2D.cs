@@ -40,11 +40,26 @@ public class CameraFollow2D : MonoBehaviour
 			smoothPosition += desiredMove * t;
 		}
 
+		//Zoom (clamp orthoSize so frustum fits within bounds)
+		float zOffset = player3D.position.z - g.world3DZ;
+		float desiredOrtho = Mathf.Max(g.cameraOrthoSize - ComputeZoomDelta(zOffset, g), 0.1f);
+		float maxOrthoFromH = (g.cameraBoundTop - g.cameraBoundBottom) * 0.5f;
+		float maxOrthoFromW = (g.cameraBoundRight - g.cameraBoundLeft) * 0.5f / Mathf.Max(cam.aspect, 0.001f);
+		desiredOrtho = Mathf.Min(desiredOrtho, Mathf.Min(maxOrthoFromH, maxOrthoFromW));
+		cam.orthographicSize = desiredOrtho;
+
+		//Pan
+		float halfH = desiredOrtho;
+		float halfW = halfH * cam.aspect;
+		float minX = g.cameraBoundLeft + halfW;
+		float maxX = g.cameraBoundRight - halfW;
+		float minY = g.cameraBoundBottom + halfH;
+		float maxY = g.cameraBoundTop - halfH;
+		smoothPosition.x = Mathf.Clamp(smoothPosition.x, minX, maxX);
+		smoothPosition.y = Mathf.Clamp(smoothPosition.y, minY, maxY);
+
 		Vector3 finalPosition = new Vector3(smoothPosition.x, smoothPosition.y, g.cameraZOffset);
 		transform.position = g.cameraSnapToPixelGrid ? SnapToGrid(finalPosition) : finalPosition;
-
-		float zOffset = player3D.position.z - g.world3DZ;
-		cam.orthographicSize = Mathf.Max(g.cameraOrthoSize - ComputeZoomDelta(zOffset, g), 0.1f);
 	}
 
 	static float ComputeZoomDelta(float z, Globals g) {
