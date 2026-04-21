@@ -56,7 +56,7 @@ static class ViewportSync
 				float z = g.world2DZ - 10;
 				Platform selectedPlatform = Selection.activeGameObject != null ? Selection.activeGameObject.GetComponentInParent<Platform>() : null;
 				foreach (Platform platform in Object.FindObjectsByType<Platform>(FindObjectsSortMode.None)) {
-					Handles.color = platform == selectedPlatform ? Color.rebeccaPurple : Color.cyan;
+					Handles.color = platform == selectedPlatform ? Color.red : Color.cyan;
 					MeshFilter[] filters = platform.GetComponentsInChildren<MeshFilter>();
 					foreach (MeshFilter mf in filters) {
 						DrawSilhouette(mf, camForward, z);
