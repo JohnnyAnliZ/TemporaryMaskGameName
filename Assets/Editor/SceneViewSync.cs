@@ -50,107 +50,118 @@ static class ViewportSync
 		Globals g = Globals.Instance;
 
 		if (bShowSpriteGizmos) {
-			GameObject parent2D = GameObject.Find("2DScene");
-			if (parent2D != null) {
-				SpriteRenderer[] sprites = parent2D.GetComponentsInChildren<SpriteRenderer>();
-				foreach (SpriteRenderer sprite in sprites) {
-					if (sprite.sprite == null) continue;
-					if (sprite.CompareTag("NoGizmo")) continue;
-
-					float zOffset = (sprite.transform.position.z - g.world2DZ) * g.platformDistance;
-					Vector3 center = new Vector3(sprite.bounds.center.x, sprite.bounds.center.y, g.world3DZ + zOffset + g.zOffset);
-					Vector3 size = new Vector3(sprite.bounds.size.x, sprite.bounds.size.y, g.projectionSize);
-
-					//Shaded Cube
-					Vector3 halfSize = size * 0.5f;
-					Color faceColor = new Color(0, 1, 0, 0.05f);
-
-					//Front face (Z+)
-					Vector3[] front = {
-						center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z),
-						center + new Vector3(halfSize.x, -halfSize.y, halfSize.z),
-						center + new Vector3(halfSize.x, halfSize.y, halfSize.z),
-						center + new Vector3(-halfSize.x, halfSize.y, halfSize.z)
-					};
-					Handles.DrawSolidRectangleWithOutline(front, faceColor, Color.clear);
-
-					//Back face (Z-)
-					Vector3[] back = {
-						center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z),
-						center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z),
-						center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z),
-						center + new Vector3(halfSize.x, halfSize.y, -halfSize.z)
-					};
-					Handles.DrawSolidRectangleWithOutline(back, faceColor, Color.clear);
-
-					//Top face (Y+)
-					Vector3[] top = {
-						center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z),
-						center + new Vector3(halfSize.x, halfSize.y, -halfSize.z),
-						center + new Vector3(halfSize.x, halfSize.y, halfSize.z),
-						center + new Vector3(-halfSize.x, halfSize.y, halfSize.z)
-					};
-					Handles.DrawSolidRectangleWithOutline(top, faceColor, Color.clear);
-
-					//Bottom face (Y-)
-					Vector3[] bottom = {
-						center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z),
-						center + new Vector3(halfSize.x, -halfSize.y, halfSize.z),
-						center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z),
-						center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z)
-					};
-					Handles.DrawSolidRectangleWithOutline(bottom, faceColor, Color.clear);
-
-					//Right face (X+)
-					Vector3[] right = {
-						center + new Vector3(halfSize.x, -halfSize.y, halfSize.z),
-						center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z),
-						center + new Vector3(halfSize.x, halfSize.y, -halfSize.z),
-						center + new Vector3(halfSize.x, halfSize.y, halfSize.z)
-					};
-					Handles.DrawSolidRectangleWithOutline(right, faceColor, Color.clear);
-
-					//Left face (X-)
-					Vector3[] left = {
-						center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z),
-						center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z),
-						center + new Vector3(-halfSize.x, halfSize.y, halfSize.z),
-						center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z)
-					};
-					Handles.DrawSolidRectangleWithOutline(left, faceColor, Color.clear);
-
-					//Wireframe
-					Handles.color = new Color(0, 1, 0, 0.8f);
-					Handles.DrawWireCube(center, size);
-				}
-			}
-
-			//World3DZ plane
-			float extent = 10000f;
-			Vector3[] plane = {
-				new Vector3(-extent, -extent, g.world3DZ),
-				new Vector3(extent, -extent, g.world3DZ),
-				new Vector3(extent, extent, g.world3DZ),
-				new Vector3(-extent, extent, g.world3DZ),
-			};
-			Handles.color = Color.white; //reset from previous use of Handles
-			Handles.DrawSolidRectangleWithOutline(plane, new Color(1, 0, 0, 0.02f), Color.clear);
-		}
-
-		//3d projection silhouette
-		if (view.in2DMode) {
-			GameObject active = Selection.activeGameObject;
-			if (active != null) {
-				Platform platform = active.GetComponentInParent<Platform>();
-				if (platform != null) {
-					Vector3 camForward = view.camera.transform.forward;
-					float z = g.world2DZ - 10;
-					Handles.color = Color.cyan;
+			if (view.in2DMode) {
+				//3d projection silhouette
+				Vector3 camForward = view.camera.transform.forward;
+				float z = g.world2DZ - 10;
+				Platform selectedPlatform = Selection.activeGameObject != null ? Selection.activeGameObject.GetComponentInParent<Platform>() : null;
+				foreach (Platform platform in Object.FindObjectsByType<Platform>(FindObjectsSortMode.None)) {
+					Handles.color = platform == selectedPlatform ? Color.rebeccaPurple : Color.cyan;
 					MeshFilter[] filters = platform.GetComponentsInChildren<MeshFilter>();
 					foreach (MeshFilter mf in filters) {
 						DrawSilhouette(mf, camForward, z);
 					}
 				}
+
+				//2D camera preview
+				float aspect = 16f / 9f;
+				Vector3 c = view.pivot;
+				c.z = g.world2DZ;
+
+				float baseSize = g.cameraOrthoSize;
+				float minSize = Mathf.Max(baseSize - g.zoomMaxFarAmount, 0.1f);
+				float maxSize = baseSize + g.zoomMaxNearAmount;
+
+				DrawViewBox(c, minSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
+				DrawViewBox(c, maxSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
+				DrawViewBox(c, baseSize, aspect, Color.yellow, 0.5f);
+			} else {
+				//2d projection bounding boxes
+				GameObject parent2D = GameObject.Find("2DScene");
+				if (parent2D != null) {
+					SpriteRenderer[] sprites = parent2D.GetComponentsInChildren<SpriteRenderer>();
+					foreach (SpriteRenderer sprite in sprites) {
+						if (sprite.sprite == null) continue;
+						if (sprite.CompareTag("NoGizmo")) continue;
+
+						float zOffset = (sprite.transform.position.z - g.world2DZ) * g.platformDistance;
+						Vector3 center = new Vector3(sprite.bounds.center.x, sprite.bounds.center.y, g.world3DZ + zOffset + g.zOffset);
+						Vector3 size = new Vector3(sprite.bounds.size.x, sprite.bounds.size.y, g.projectionSize);
+
+						//Shaded Cube
+						Vector3 halfSize = size * 0.5f;
+						Color faceColor = new Color(0, 1, 0, 0.05f);
+
+						//Front face (Z+)
+						Vector3[] front = {
+							center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z),
+							center + new Vector3(halfSize.x, -halfSize.y, halfSize.z),
+							center + new Vector3(halfSize.x, halfSize.y, halfSize.z),
+							center + new Vector3(-halfSize.x, halfSize.y, halfSize.z)
+						};
+						Handles.DrawSolidRectangleWithOutline(front, faceColor, Color.clear);
+
+						//Back face (Z-)
+						Vector3[] back = {
+							center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z),
+							center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z),
+							center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z),
+							center + new Vector3(halfSize.x, halfSize.y, -halfSize.z)
+						};
+						Handles.DrawSolidRectangleWithOutline(back, faceColor, Color.clear);
+
+						//Top face (Y+)
+						Vector3[] top = {
+							center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z),
+							center + new Vector3(halfSize.x, halfSize.y, -halfSize.z),
+							center + new Vector3(halfSize.x, halfSize.y, halfSize.z),
+							center + new Vector3(-halfSize.x, halfSize.y, halfSize.z)
+						};
+						Handles.DrawSolidRectangleWithOutline(top, faceColor, Color.clear);
+
+						//Bottom face (Y-)
+						Vector3[] bottom = {
+							center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z),
+							center + new Vector3(halfSize.x, -halfSize.y, halfSize.z),
+							center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z),
+							center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z)
+						};
+						Handles.DrawSolidRectangleWithOutline(bottom, faceColor, Color.clear);
+
+						//Right face (X+)
+						Vector3[] right = {
+							center + new Vector3(halfSize.x, -halfSize.y, halfSize.z),
+							center + new Vector3(halfSize.x, -halfSize.y, -halfSize.z),
+							center + new Vector3(halfSize.x, halfSize.y, -halfSize.z),
+							center + new Vector3(halfSize.x, halfSize.y, halfSize.z)
+						};
+						Handles.DrawSolidRectangleWithOutline(right, faceColor, Color.clear);
+
+						//Left face (X-)
+						Vector3[] left = {
+							center + new Vector3(-halfSize.x, -halfSize.y, -halfSize.z),
+							center + new Vector3(-halfSize.x, -halfSize.y, halfSize.z),
+							center + new Vector3(-halfSize.x, halfSize.y, halfSize.z),
+							center + new Vector3(-halfSize.x, halfSize.y, -halfSize.z)
+						};
+						Handles.DrawSolidRectangleWithOutline(left, faceColor, Color.clear);
+
+						//Wireframe
+						Handles.color = new Color(0, 1, 0, 0.8f);
+						Handles.DrawWireCube(center, size);
+					}
+				}
+
+				//World3DZ plane
+				float extent = 10000f;
+				Vector3[] plane = {
+					new Vector3(-extent, -extent, g.world3DZ),
+					new Vector3(extent, -extent, g.world3DZ),
+					new Vector3(extent, extent, g.world3DZ),
+					new Vector3(-extent, extent, g.world3DZ),
+				};
+				Handles.color = Color.white; //reset from previous use of Handles
+				Handles.DrawSolidRectangleWithOutline(plane, new Color(1, 0, 0, 0.02f), Color.clear);
 			}
 		}
 
@@ -184,6 +195,19 @@ static class ViewportSync
 			other.Repaint();
 		}
 		bIsSyncing = false;
+	}
+
+	static void DrawViewBox(Vector3 center, float halfH, float aspect, Color color, float thickness) {
+		float halfW = halfH * aspect;
+		Vector3 tl = center + new Vector3(-halfW,  halfH, 0f);
+		Vector3 tr = center + new Vector3( halfW,  halfH, 0f);
+		Vector3 br = center + new Vector3( halfW, -halfH, 0f);
+		Vector3 bl = center + new Vector3(-halfW, -halfH, 0f);
+		Handles.color = color;
+		Handles.DrawLine(tl, tr, thickness);
+		Handles.DrawLine(tr, br, thickness);
+		Handles.DrawLine(br, bl, thickness);
+		Handles.DrawLine(bl, tl, thickness);
 	}
 
 	//Don't need to look down here----------------------------------------------
