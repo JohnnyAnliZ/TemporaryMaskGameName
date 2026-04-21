@@ -41,6 +41,20 @@ MonoBehaviour:
   nearBrightness: 1.3
   spriteZPerPlayerZ: 0.5
   fallThreshold: -10
+  moveSpeed: 3
+  gravity: -20
+  riseGravityMulti: 0.9
+  fallGravityMulti: 2
+  fallGravityBlend: 3
+  jumpForwardBoost: 1
+  airControl: 0.5
+  coyoteTime: 0.1
+  jumpBufferTime: 0.1
+  jumpTapWindow: 0.1
+  jumpChargeTime: 1
+  jumpForceMin: 8
+  jumpForceMax: 14
+  chargeMoveMulti: 0.5
   zoomDeadzoneRate: 0.067
   zoomMinFar: 0.5
   zoomMaxFar: 8

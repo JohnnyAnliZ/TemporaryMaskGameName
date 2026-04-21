@@ -53,8 +53,8 @@ CharacterController:
   serializedVersion: 3
   m_Height: 1.2
   m_Radius: 0.3
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
+  m_SlopeLimit: 60
+  m_StepOffset: 0.5
   m_SkinWidth: 0.01
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
@@ -70,6 +70,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f8085c3819d9c444b4eed9398f55a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Player3DController
-  moveSpeed: 3
-  jumpForce: 8
-  gravity: -10
