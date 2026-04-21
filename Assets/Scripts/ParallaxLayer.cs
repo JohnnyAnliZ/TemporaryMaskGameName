@@ -4,6 +4,7 @@ using UnityEngine;
 public class ParallaxLayer : MonoBehaviour
 {
 	[Range(0f, 2f)] public float factorMultiplier = 1f;
+	[Range(0f, 2f)] public float scaleFactorMultiplier = 1f;
 	public Transform syncPoint;
 
 	Camera cam;
@@ -15,8 +16,10 @@ public class ParallaxLayer : MonoBehaviour
 	void LateUpdate() {
 		if (!bIsInitialized && !TryInit()) return;
 
-		float globalFactor = Globals.Instance.GetParallaxFactorForZ(restPosition.z);
+		Globals g = Globals.Instance;
+		float globalFactor = g.GetParallaxFactorForZ(restPosition.z);
 		float factor = Mathf.Clamp01(globalFactor * factorMultiplier);
+		float scaleBlend = Mathf.Clamp01(g.parallaxScaleFactor * scaleFactorMultiplier);
 
 		Vector3 anchorPos = syncPoint != null ? syncPoint.position : restPosition;
 		Vector2 anchorXY = new Vector2(anchorPos.x, anchorPos.y);
@@ -27,7 +30,7 @@ public class ParallaxLayer : MonoBehaviour
 		transform.position = new Vector3(layerXY.x, layerXY.y, restPosition.z);
 
 		float zoomRatio = cam.orthographicSize / initialOrthoSize;
-		float counterScale = Mathf.Pow(zoomRatio, 1f - factor);
+		float counterScale = Mathf.Pow(zoomRatio, (1f - globalFactor) * scaleBlend);
 		transform.localScale = new Vector3(restScale.x * counterScale, restScale.y * counterScale, restScale.z);
 	}
 

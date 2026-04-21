@@ -86,6 +86,7 @@ public class Globals : ScriptableObject {
 		[Range(0f, 1f)] public float factor;
 	}
 	[HideInInspector] public ParallaxZFactor[] parallaxLayers;
+	[HideInInspector, Range(0f, 1f)] public float parallaxScaleFactor = 1f;
 
 	public float GetParallaxFactorForZ(float z) {
 		const float EPSILON = 0.01f;
@@ -168,6 +169,9 @@ public class Globals : ScriptableObject {
 			if (g.parallaxLayers == null) g.parallaxLayers = System.Array.Empty<ParallaxZFactor>();
 
 			scroll = UnityEditor.EditorGUILayout.BeginScrollView(scroll);
+
+			g.parallaxScaleFactor = UnityEditor.EditorGUILayout.Slider("Scale Factor", g.parallaxScaleFactor, 0f, 1f);
+			UnityEditor.EditorGUILayout.Space();
 
 			int removeIndex = -1;
 			for (int i = 0; i < g.parallaxLayers.Length; i++) {

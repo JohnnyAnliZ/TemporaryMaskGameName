@@ -25,6 +25,7 @@ static class HierarchyColors {
 		{ "Darkness",		new Color(0.25f, 0.1f, 0.4f, 0.2f) }, //deep purple
 		{ "Bg4",		new Color(0.2f, 0.4f, 1.0f, 0.2f) }, //blue
 		{ "FogFront",		new Color(0.7f, 0.9f, 1.0f, 0.2f) }, //pale sky
+		{ "SyncPoints",		new Color(1.0f, 0.0f, 0.0f, 0.2f) },
 
 		{ "Foregrounds",	new Color(0.0f, 0.0f, 0.0f, 0.2f) },
 		{ "PlatformsBack",	new Color(1.0f, 0.0f, 0.0f, 0.2f) },
