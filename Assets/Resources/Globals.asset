@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2b430bc7165c243acfb22214189640, type: 3}
   m_Name: Globals
   m_EditorClassIdentifier: Assembly-CSharp::Globals
-  cameraOrthoSize: 7
+  cameraOrthoSize: 6
   cameraDeadzoneRight: 1
   cameraDeadzoneLeft: 1
   cameraDeadzoneTop: 1
@@ -30,7 +30,7 @@ MonoBehaviour:
   platformDistance: 0.9
   zOffset: -18
   projectionSize: 4
-  playerScale: 8
+  playerScale: 5.9
   playerMin: 0.5
   playerMax: 1.8
   depthScale: 20
