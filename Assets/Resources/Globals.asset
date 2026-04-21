@@ -77,10 +77,17 @@ MonoBehaviour:
   - z: 25
     factor: 0.7
   - z: 24
-    factor: 0.75
-  - z: 23
     factor: 0.8
+  - z: 23
+    factor: 0.9
   - z: 22
     factor: 1
   - z: 19
     factor: 0.85
+  - z: 8
+    factor: 1
+  - z: 3
+    factor: 1
+  - z: 2
+    factor: 1
+  parallaxScaleFactor: 0.2
