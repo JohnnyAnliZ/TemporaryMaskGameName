@@ -39,6 +39,22 @@ public class Globals : ScriptableObject {
 	public float spriteZPerPlayerZ = 0.5f;
 	public float fallThreshold = -8f;
 
+	[Header("Player Movement")]
+	public float moveSpeed = 5f;
+	public float gravity = -30f;
+	public float riseGravityMulti = 0.5f;
+	public float fallGravityMulti = 1.8f;
+	public float fallGravityBlend = 2f;
+	public float jumpForwardBoost = 4f;
+	public float airControl = 0.4f;
+	public float coyoteTime = 0.1f;
+	public float jumpBufferTime = 0.1f;
+	public float jumpTapWindow = 0.1f;
+	public float jumpChargeTime = 0.6f;
+	public float jumpForceMin = 10f;
+	public float jumpForceMax = 18f;
+	public float chargeMoveMulti = 0.3f;
+
 	[Header("Camera Depth Zoom")]
 	public float zoomDeadzoneRate = 0.02f;
 	public float zoomMinFar = 1f;
