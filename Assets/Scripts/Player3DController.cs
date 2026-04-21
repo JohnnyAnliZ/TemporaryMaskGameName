@@ -4,13 +4,14 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class Player3DController : MonoBehaviour
 {
-	public float moveSpeed = 5f;
-	public float jumpForce = 10f;
-	public float gravity = -20f;
-
 	CharacterController controller;
 	Transform lookTransform;
 	float verticalVelocity;
+	float coyoteTimer;
+	float jumpBufferTimer;
+	float spaceTimer;
+	bool bIsHoldingSpace;
+	Vector3 jumpBoost;
 	Platform lastPlatform;
 
 	void Awake() {
@@ -22,25 +23,27 @@ public class Player3DController : MonoBehaviour
 	}
 
 	void Update() {
+		Globals g = Globals.Instance;
 		Keyboard keyboard = Keyboard.current;
 
-		//FIXME: We should prob use the actual input event system instead of this
 		float forward = 0f, horizontal = 0f;
 		if (keyboard.wKey.isPressed) forward += 1f;
 		if (keyboard.sKey.isPressed) forward -= 1f;
 		if (keyboard.aKey.isPressed) horizontal -= 1f;
 		if (keyboard.dKey.isPressed) horizontal += 1f;
+		bool bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
 
-		if (controller.isGrounded && verticalVelocity < 0f) {
-			verticalVelocity = -1f;
-		}
-		if (controller.isGrounded && keyboard.spaceKey.wasPressedThisFrame) {
-			verticalVelocity = jumpForce;
-		}
-		verticalVelocity += gravity * Time.deltaTime;
+		//Coyote
+		if (controller.isGrounded) coyoteTimer = g.coyoteTime;
+		else coyoteTimer -= Time.deltaTime;
 
+		//Jump buffer
+		if (bSpaceJustPressed) jumpBufferTimer = g.jumpBufferTime;
+		else jumpBufferTimer -= Time.deltaTime;
+
+		//Input
 		Vector3 inputDir = new Vector3(horizontal, 0f, forward);
-		if (lookTransform != null && inputDir != Vector3.zero) {
+		if (inputDir != Vector3.zero) {
 			Vector3 fwd = lookTransform.forward;
 			fwd.y = 0f;
 			fwd.Normalize();
@@ -50,7 +53,44 @@ public class Player3DController : MonoBehaviour
 			inputDir = right * horizontal + fwd * forward;
 		}
 
-		Vector3 move = inputDir * moveSpeed;
+		if (controller.isGrounded) jumpBoost = Vector3.zero;
+
+		//Start spaceTimer, to check if we should charge or not
+		if (!bIsHoldingSpace && jumpBufferTimer > 0f && coyoteTimer > 0f) {
+			bIsHoldingSpace = true;
+			spaceTimer = 0f;
+			jumpBufferTimer = 0f;
+		}
+
+		if (bIsHoldingSpace) {
+			spaceTimer = Mathf.Min(spaceTimer + Time.deltaTime, g.jumpChargeTime);
+			//Release
+			if (!keyboard.spaceKey.isPressed) {
+				//Charge
+				float chargeTime = 0f;
+				if (spaceTimer > g.jumpTapWindow) {
+					float range = g.jumpChargeTime - g.jumpTapWindow;
+					chargeTime = range > 0f ? Mathf.Clamp01((spaceTimer - g.jumpTapWindow) / range) : 1f;
+				}
+				verticalVelocity = Mathf.Lerp(g.jumpForceMin, g.jumpForceMax, chargeTime);
+				jumpBoost = inputDir.normalized * g.jumpForwardBoost * chargeTime; //a lil forward boost
+				bIsHoldingSpace = false;
+				spaceTimer = 0f;
+				coyoteTimer = 0f;
+			}
+		}
+
+		if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -1f; //ensure grounding
+
+		//Dynamic gravity
+		float blendTime = Mathf.Clamp01(Mathf.InverseLerp(g.fallGravityBlend, -g.fallGravityBlend, verticalVelocity));
+		blendTime = blendTime * blendTime * (3f - 2f * blendTime); //cubic smoothstep
+		float effectiveGravity = g.gravity * Mathf.Lerp(g.riseGravityMulti, g.fallGravityMulti, blendTime);
+		verticalVelocity += effectiveGravity * Time.deltaTime;
+
+		float multiplier = controller.isGrounded ? 1f : g.airControl;
+		if (bIsHoldingSpace && (spaceTimer > g.jumpTapWindow)) multiplier *= g.chargeMoveMulti; //slow walk when charging
+		Vector3 move = inputDir * g.moveSpeed * multiplier + jumpBoost;
 		move.y = verticalVelocity;
 		controller.Move(move * Time.deltaTime);
 
@@ -60,7 +100,7 @@ public class Player3DController : MonoBehaviour
 			}
 		}
 
-		if (transform.position.y < Globals.Instance.fallThreshold) {
+		if (transform.position.y < g.fallThreshold) {
 			controller.enabled = false;
 			transform.position = lastPlatform.spawnPoint.position;
 			lookTransform.rotation = Quaternion.identity;
