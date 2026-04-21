@@ -73,3 +73,14 @@ MonoBehaviour:
   gameLevels:
   - MaskGame
   pixelsPerUnit: 100
+  parallaxLayers:
+  - z: 25
+    factor: 0.7
+  - z: 24
+    factor: 0.75
+  - z: 23
+    factor: 0.8
+  - z: 22
+    factor: 1
+  - z: 19
+    factor: 0.85
