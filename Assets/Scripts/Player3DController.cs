@@ -32,7 +32,6 @@ public class Player3DController : MonoBehaviour
 		if (keyboard.aKey.isPressed) horizontal -= 1f;
 		if (keyboard.dKey.isPressed) horizontal += 1f;
 		bool bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
-		bool bSpaceJustReleased = keyboard.spaceKey.wasReleasedThisFrame;
 
 		//Coyote
 		if (controller.isGrounded) coyoteTimer = g.coyoteTime;
