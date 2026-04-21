@@ -49,21 +49,17 @@ static class ViewportSync
 	static void OnSceneGUI(SceneView view) {
 		Globals g = Globals.Instance;
 
-
 		if (bShowSpriteGizmos) {
 			if (view.in2DMode) {
 				//3d projection silhouette
-				GameObject active = Selection.activeGameObject;
-				if (active != null) {
-					Platform platform = active.GetComponentInParent<Platform>();
-					if (platform != null) {
-						Vector3 camForward = view.camera.transform.forward;
-						float z = g.world2DZ - 10;
-						Handles.color = Color.cyan;
-						MeshFilter[] filters = platform.GetComponentsInChildren<MeshFilter>();
-						foreach (MeshFilter mf in filters) {
-							DrawSilhouette(mf, camForward, z);
-						}
+				Vector3 camForward = view.camera.transform.forward;
+				float z = g.world2DZ - 10;
+				Platform selectedPlatform = Selection.activeGameObject != null ? Selection.activeGameObject.GetComponentInParent<Platform>() : null;
+				foreach (Platform platform in Object.FindObjectsByType<Platform>(FindObjectsSortMode.None)) {
+					Handles.color = platform == selectedPlatform ? Color.rebeccaPurple : Color.cyan;
+					MeshFilter[] filters = platform.GetComponentsInChildren<MeshFilter>();
+					foreach (MeshFilter mf in filters) {
+						DrawSilhouette(mf, camForward, z);
 					}
 				}
 
