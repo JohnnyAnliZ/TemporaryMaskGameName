@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2b430bc7165c243acfb22214189640, type: 3}
   m_Name: Globals
   m_EditorClassIdentifier: Assembly-CSharp::Globals
-  cameraOrthoSize: 6
+  cameraOrthoSize: 5
   cameraDeadzoneRight: 1
   cameraDeadzoneLeft: 1
   cameraDeadzoneTop: 1
@@ -35,8 +35,8 @@ MonoBehaviour:
   playerMax: 1.8
   depthScale: 20
   fadeDistance: 16
-  minOpacity: 0.67
-  farBrightness: 0.5
+  minOpacity: 0.5
+  farBrightness: 0.4
   nearDistance: 16
   nearBrightness: 1.3
   spriteZPerPlayerZ: 0.5
