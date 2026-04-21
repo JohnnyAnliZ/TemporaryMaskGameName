@@ -11,7 +11,29 @@ static class HierarchyColors {
 		{ "2DCamera",		new Color(1.0f, 0.6f, 0.1f, 0.2f) },
 		{ "3DPlayer",		new Color(1.0f, 0.2f, 0.0f, 0.2f) },
 		{ "3DCamera",		new Color(1.0f, 0.2f, 0.0f, 0.2f) },
+
+		//3D
 		{ "Platforms",		new Color(0.7f, 0.4f, 1.4f, 0.2f) },
+
+		//2D
+		{ "Backgrounds",	new Color(0.0f, 0.0f, 0.0f, 0.2f) },
+		{ "Bg1",		new Color(1.0f, 0.0f, 0.0f, 0.2f) }, //red
+		{ "Bg2",		new Color(1.0f, 0.5f, 0.0f, 0.2f) }, //orange
+		{ "Bg3",		new Color(1.0f, 1.0f, 0.0f, 0.2f) }, //yellow
+		{ "Plant",		new Color(0.3f, 0.9f, 0.3f, 0.2f) }, //green
+		{ "FogBack",		new Color(0.2f, 0.8f, 0.8f, 0.2f) }, //teal
+		{ "Darkness",		new Color(0.25f, 0.1f, 0.4f, 0.2f) }, //deep purple
+		{ "Bg4",		new Color(0.2f, 0.4f, 1.0f, 0.2f) }, //blue
+		{ "FogFront",		new Color(0.7f, 0.9f, 1.0f, 0.2f) }, //pale sky
+
+		{ "Foregrounds",	new Color(0.0f, 0.0f, 0.0f, 0.2f) },
+		{ "PlatformsBack",	new Color(1.0f, 0.0f, 0.0f, 0.2f) },
+		{ "Pillars",		new Color(1.0f, 1.0f, 0.0f, 0.2f) },
+		{ "PlatformsFront",	new Color(0.3f, 0.9f, 0.3f, 0.2f) },
+		{ "Mushrooms",		new Color(0.2f, 0.4f, 1.0f, 0.2f) },
+		{ "LightBeams",		new Color(0.25f, 0.1f, 0.4f, 0.2f) },
+
+		{ "Reference",		new Color(1.0f, 0.6f, 0.7f, 0.2f) },
 	};
 
 	static GUIStyle _labelStyle;

@@ -7,6 +7,10 @@ public class GameManager : MonoBehaviour
 
 	void Start() {
 		Globals g = Globals.Instance;
+
+		GameObject reference = GameObject.Find("Reference");
+		if (reference != null) reference.SetActive(false);
+
 		PlayerStart playerStart = FindAnyObjectByType<PlayerStart>();
 		Vector3 fallbackPos = playerStart != null ? playerStart.transform.position : new Vector3(0, 2, 0);
 		Quaternion spawnRot = playerStart != null ? playerStart.transform.rotation : Quaternion.identity;
