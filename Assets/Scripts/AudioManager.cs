@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : Singleton<AudioManager>
 {
 
     [Header("Music Clips")]
@@ -18,8 +18,12 @@ public class AudioManager : MonoBehaviour
     [Header("Ambience Clips")]
     public AudioClip ambience;
 
-    private double startTime;
+    [Header("Footstep Settings")]
+    public AudioClip[] footstepClips;
+    public float footstepVolume = 1.0f;
+    public float footstepInterval = 0.5f;
 
+    private AudioSource footstepSource;
     private AudioSource ambienceSource;
     private AudioSource track2DIntroSource;
     private AudioSource track2DSource;
@@ -29,35 +33,40 @@ public class AudioManager : MonoBehaviour
     private AudioSource trackTransToRealLifeSource;
     private AudioSource trackRealLifeSource;
 
+    private double startTime;
     private bool hasTransitioned = false;
 
     private void Start()
     {
-        ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience);
+        ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience, true);
 
-        track2DIntroSource = CreateChildAudioSource("track2DIntroSource", 1, track2DIntro);
-        track2DSource = CreateChildAudioSource("track2DSource", 0, track2D);
-        trackTransTo3DSource = CreateChildAudioSource("trackTransTo3DSource", 0, trackTransTo3D);
-        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0, track3DIntro);
-        track3DSource = CreateChildAudioSource("track3DSource", 0, track3D);
-        trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife);
-        trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife);
+        footstepSource = CreateChildAudioSource("footstepSource", footstepVolume, footstepClips[0], false);
 
+        track2DIntroSource = CreateChildAudioSource("track2DIntroSource", 1, track2DIntro, true);
+        track2DSource = CreateChildAudioSource("track2DSource", 0, track2D, true);
+        trackTransTo3DSource = CreateChildAudioSource("trackTransTo3DSource", 0, trackTransTo3D, true);
+        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0, track3DIntro, true);
+        track3DSource = CreateChildAudioSource("track3DSource", 0, track3D, true);
+        trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife, true);
+        trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
 
         ambienceSource.Play();
         track2DIntroSource.Play();
         track2DSource.Play();
 
         startTime = AudioSettings.dspTime;
+    }
 
-        //Debug.Log("startTime: " + startTime);
+    public void PlayFootstep()
+    {
+        if (footstepClips == null || footstepClips.Length == 0 || footstepSource == null) return;
+        AudioClip randomClip = footstepClips[Random.Range(0, footstepClips.Length)];
+        footstepSource.PlayOneShot(randomClip, footstepVolume);
     }
 
     private void Update()
     {
         double elapsedTime = AudioSettings.dspTime - startTime;
-
-        //Debug.Log($"Elapsed: {elapsedTime}");
 
         if (elapsedTime >= 40 && !hasTransitioned)
         {
@@ -67,13 +76,13 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private AudioSource CreateChildAudioSource(string childName, float volume = 1.0f, AudioClip clip = null)
+    private AudioSource CreateChildAudioSource(string childName, float volume = 1.0f, AudioClip clip = null, bool loop = false)
     {
         GameObject childObject = new GameObject(childName);
         childObject.transform.SetParent(transform);
         AudioSource audioSource = childObject.AddComponent<AudioSource>();
         audioSource.volume = volume;
-        audioSource.loop = true;
+        audioSource.loop = loop;
         if (clip != null)
         {
             audioSource.clip = clip;
