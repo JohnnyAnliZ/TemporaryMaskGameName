@@ -14,6 +14,10 @@ public class Player3DController : MonoBehaviour
 	Vector3 jumpBoost;
 	Platform lastPlatform;
 
+	// Footstep audio
+	float footstepTimer;
+	public float footstepInterval = 0.5f;
+
 	void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
@@ -108,6 +112,26 @@ public class Player3DController : MonoBehaviour
 			lookTransform.rotation = Quaternion.identity;
 			verticalVelocity = 0f;
 			controller.enabled = true;
+		}
+
+		// Update footstep sounds
+		UpdateFootsteps(inputDir);
+	}
+
+	void UpdateFootsteps(Vector3 movementDirection) {
+		// Only play footsteps if grounded and moving
+		bool isMoving = movementDirection != Vector3.zero && controller.isGrounded;
+		
+		if (isMoving) {
+			footstepTimer -= Time.deltaTime;
+
+			if (footstepTimer <= 0f) {
+				AudioManager.Instance.PlayFootstep();
+				footstepTimer = footstepInterval;
+			}
+		} else {
+			// Reset timer if not moving
+			footstepTimer = 0f;
 		}
 	}
 

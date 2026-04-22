@@ -54,6 +54,17 @@ MonoBehaviour:
   trackRealLife: {fileID: 8300000, guid: 4315057e0d9ea7843812e025c7a5a738, type: 3}
   crumble: {fileID: 8300000, guid: fe5a4fea6d793e54289e9ebe282d063b, type: 3}
   ambience: {fileID: 8300000, guid: f09a64ea389055d4ba1d13b85340414e, type: 3}
+  footstepClips:
+  - {fileID: 8300000, guid: de97960e1e5c38a438f4f7df6641e9b5, type: 3}
+  - {fileID: 8300000, guid: a078ee256d9faec489cc75179447161d, type: 3}
+  - {fileID: 8300000, guid: bba7316d336fb6445a5b3610cac54756, type: 3}
+  - {fileID: 8300000, guid: 0153cd03b78ae254ca3fb166d39ec2a4, type: 3}
+  - {fileID: 8300000, guid: bc8378753c1fade499fe0ccd226a10ab, type: 3}
+  - {fileID: 8300000, guid: 83fa4a88bec996148969eba8846be3b8, type: 3}
+  - {fileID: 8300000, guid: 6ecd4c1a1eb09294795c2d7fa85aff4d, type: 3}
+  - {fileID: 8300000, guid: 6f2ca0b48b76c60488a0567884530b17, type: 3}
+  footstepVolume: 0.3
+  footstepInterval: 0.01
 --- !u!82 &1871322857511142886
 AudioSource:
   m_ObjectHideFlags: 0
