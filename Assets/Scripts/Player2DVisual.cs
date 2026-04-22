@@ -52,7 +52,7 @@ public class Player2DVisual : MonoBehaviour {
 			SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
 			sr.sharedMaterial = outlineMaterial;
 			sr.sortingLayerID = spriteRenderer.sortingLayerID;
-			sr.sortingOrder = spriteRenderer.sortingOrder - 1;
+			sr.sortingOrder = spriteRenderer.sortingOrder;
 			sr.enabled = false;
 			outlineRenderers[i] = sr;
 
@@ -77,7 +77,7 @@ public class Player2DVisual : MonoBehaviour {
 		float y = source.position.y;
 		y += characterController.center.y - (characterController.height * 0.5f); //account for capsule height
 
-		float spriteZ = g.world2DZ + (zOffset * g.spriteZPerPlayerZ); //for interaction with foreground layers
+		float spriteZ = g.world2DZ + (zOffset * g.spriteZPerPlayerZ) + 24; //for interaction with foreground layers
 		Vector3 position = new Vector3(source.position.x, y, spriteZ);
 
 		// if (snapToPixelGrid) {

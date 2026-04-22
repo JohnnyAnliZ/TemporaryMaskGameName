@@ -78,7 +78,7 @@ static class ViewportSync
 			} else {
 				//2d projection bounding boxes
 				GameObject parent2D = GameObject.Find("2DScene");
-				if (parent2D != null) {
+				if (false && parent2D != null) {
 					SpriteRenderer[] sprites = parent2D.GetComponentsInChildren<SpriteRenderer>();
 					foreach (SpriteRenderer sprite in sprites) {
 						if (sprite.sprite == null) continue;
