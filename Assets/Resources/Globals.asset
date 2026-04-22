@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2b430bc7165c243acfb22214189640, type: 3}
   m_Name: Globals
   m_EditorClassIdentifier: Assembly-CSharp::Globals
-  cameraOrthoSize: 5
+  cameraOrthoSize: 1
   cameraDeadzoneRight: 1
   cameraDeadzoneLeft: 1
   cameraDeadzoneTop: 1
@@ -71,7 +71,6 @@ MonoBehaviour:
   outlineMaxOpacity: 0.4
   angleFull: 6
   angleFade: 6
-  spawnAtCamera: 1
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
   gameLevels:
@@ -94,4 +93,4 @@ MonoBehaviour:
     factor: 1
   - z: 2
     factor: 1.2
-  parallaxScaleFactor: 0.2
+  parallaxScaleFactor: 0

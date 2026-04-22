@@ -20,6 +20,11 @@ public class FirstPersonLook : MonoBehaviour
 			Cursor.visible = locked;
 		}
 
+		if (!GameManager.Instance.bInputEnabled) {
+			mouseDelta = Vector2.zero;
+			return;
+		}
+
 		if (Cursor.lockState == CursorLockMode.Locked) {
 			mouseDelta += Mouse.current.delta.ReadValue();
 		}
