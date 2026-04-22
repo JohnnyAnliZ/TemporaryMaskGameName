@@ -23,6 +23,8 @@ public class Player3DController : MonoBehaviour
 	}
 
 	void Update() {
+		if (!GameManager.Instance.bInputEnabled) return;
+
 		Globals g = Globals.Instance;
 		Keyboard keyboard = Keyboard.current;
 

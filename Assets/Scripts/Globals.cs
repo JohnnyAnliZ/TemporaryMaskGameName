@@ -78,7 +78,6 @@ public class Globals : ScriptableObject {
 	public float angleFade = 4f;
 
 	[Header("Misc")]
-	public bool spawnAtCamera = true;
 	#if UNITY_EDITOR
 	public UnityEditor.SceneAsset[] gameLevelAssets;
 	#endif

@@ -1,25 +1,49 @@
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : Singleton<GameManager>
 {
+	public bool bInputEnabled = true;
+	SectionRunner runner;
+
 	public GameObject player3DPrefab, player2DPrefab;
 	GameObject player3D, player2D;
+
+	public void AdvanceSubsection() {
+		if (runner != null) runner.Advance();
+	}
 
 	void Start() {
 		Globals g = Globals.Instance;
 
+		//Section panel -> GameManager
+		bool bSpawnFromPanel = false;
+		Section startSection = Section.Intro;
+		#if UNITY_EDITOR
+		int raw = UnityEditor.SessionState.GetInt("startSection", -1);
+		UnityEditor.SessionState.SetInt("startSection", -1); //reset back to "false" value cuz session state is until editor close
+		bSpawnFromPanel = raw >= 0;
+		if (bSpawnFromPanel) startSection = (Section)raw;
+		#endif
+
 		GameObject reference = GameObject.Find("Reference");
 		if (reference != null) reference.SetActive(false);
 
-		PlayerStart playerStart = FindAnyObjectByType<PlayerStart>();
-		Vector3 fallbackPos = playerStart != null ? playerStart.transform.position : new Vector3(0, 2, 0);
-		Quaternion spawnRot = playerStart != null ? playerStart.transform.rotation : Quaternion.identity;
+		SectionStart sectionStart = null;
+		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
+			if (s.section == startSection) {
+				sectionStart = s;
+				break;
+			}
+		}
+
+		Vector3 fallbackPos = sectionStart != null ? sectionStart.transform.position : new Vector3(0, 0, 0);
+		Quaternion spawnRot = sectionStart != null ? sectionStart.transform.rotation : Quaternion.identity;
 		float spawnX = fallbackPos.x;
 		float spawnY = fallbackPos.y;
 		float spawnZ = g.world3DZ;
 
 		#if UNITY_EDITOR
-		if (g.spawnAtCamera) {
+		if (!bSpawnFromPanel) {
 			var sceneView = UnityEditor.SceneView.lastActiveSceneView;
 			if (sceneView != null) {
 				spawnX = sceneView.camera.transform.position.x;
@@ -80,7 +104,16 @@ public class GameManager : MonoBehaviour
 		cam.nearClipPlane = g.camera2DNearClip;
 		cam.farClipPlane = g.camera2DFarClip;
 		camera2D.AddComponent<CompositeCamera>().index = 0;
-		camera2D.AddComponent<CameraFollow2D>().Init(player2D.transform, player3D.transform);
+		CameraFollow2D follow = camera2D.AddComponent<CameraFollow2D>();
+		follow.Init(player2D.transform, player3D.transform);
 		camera2D.SetActive(true);
+
+		//Sections
+		runner = gameObject.AddComponent<SectionRunner>();
+		runner.Init(cam, follow);
+
+		SectionAsset sectionAsset = Resources.Load<SectionAsset>($"Sections/Section_{startSection}");
+		if (sectionAsset != null) runner.PlaySection(sectionAsset);
+		else Log.Warn($"No SectionAsset at Resources/Sections/Section_{startSection}");
 	}
 }
