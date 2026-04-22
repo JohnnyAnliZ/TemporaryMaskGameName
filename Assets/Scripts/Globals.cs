@@ -59,10 +59,10 @@ public class Globals : ScriptableObject {
 	public float zoomDeadzoneRate = 0.02f;
 	public float zoomMinFar = 1f;
 	public float zoomMaxFar = 8f;
-	public float zoomMaxFarAmount = 1.2f;
+	public float zoomMaxFarSize = 0.8f;
 	public float zoomMinNear = 1f;
 	public float zoomMaxNear = 8f;
-	public float zoomMaxNearAmount = 1.2f;
+	public float zoomMaxNearSize = 3.2f;
 
 	[Header("Camera Bounds")]
 	public float cameraBoundLeft = -1000f;

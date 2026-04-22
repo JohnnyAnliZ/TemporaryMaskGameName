@@ -43,23 +43,23 @@ public class AudioManager : MonoBehaviour
         trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife);
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife);
 
-        
+
         ambienceSource.Play();
         track2DIntroSource.Play();
         track2DSource.Play();
-        
+
         startTime = AudioSettings.dspTime;
-        
-        Debug.Log("startTime: " + startTime);
+
+        //Debug.Log("startTime: " + startTime);
     }
 
     private void Update()
     {
         double elapsedTime = AudioSettings.dspTime - startTime;
-        
-        Debug.Log($"Elapsed: {elapsedTime}");
-        
-        if (elapsedTime >= 40 && !hasTransitioned) 
+
+        //Debug.Log($"Elapsed: {elapsedTime}");
+
+        if (elapsedTime >= 40 && !hasTransitioned)
         {
             hasTransitioned = true;
             FadeOutMusic(track2DIntroSource, 8);

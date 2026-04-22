@@ -50,11 +50,11 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalFloat("_PixelSize", pixelSize);
 
         GameObject c = GameObject.Find("2DCamera");
-		
+
 		cmd.SetGlobalVector("_CameraPos", new Vector2(c.transform.position.x, c.transform.position.y));
         cmd.SetGlobalInt("_NumPasses", total_passes);
 		cmd.SetGlobalFloat("_CellSize", voronoiSize);
-		Debug.Log("pixel size: " + pixelSize + "voronoi size:" + voronoiSize);
+		//Debug.Log("pixel size: " + pixelSize + "voronoi size:" + voronoiSize);
         for (int i = 0; i < Mathf.Min(current_pass_index, total_passes); i++)
         {
 

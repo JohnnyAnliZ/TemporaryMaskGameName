@@ -64,21 +64,23 @@ public class CameraFollow2D : MonoBehaviour
 
 	static float ComputeZoomDelta(float z, Globals g) {
 		if (z >= 0f) {
+			float endDelta = g.cameraOrthoSize - g.zoomMaxFarSize;
 			if (z <= g.zoomMinFar) return z * g.zoomDeadzoneRate;
-			if (z >= g.zoomMaxFar) return g.zoomMaxFarAmount + (z - g.zoomMaxFar) * g.zoomDeadzoneRate;
+			if (z >= g.zoomMaxFar) return endDelta + (z - g.zoomMaxFar) * g.zoomDeadzoneRate;
 			float edge = g.zoomMinFar * g.zoomDeadzoneRate;
 			float raw = Mathf.InverseLerp(g.zoomMinFar, g.zoomMaxFar, z);
 			float t = raw * raw * (3f - 2f * raw);
-			return Mathf.Lerp(edge, g.zoomMaxFarAmount, t);
+			return Mathf.Lerp(edge, endDelta, t);
 		}
 		else {
+			float endDelta = g.cameraOrthoSize - g.zoomMaxNearSize;
 			float abs = -z;
 			if (abs <= g.zoomMinNear) return z * g.zoomDeadzoneRate;
-			if (abs >= g.zoomMaxNear) return -(g.zoomMaxNearAmount + (abs - g.zoomMaxNear) * g.zoomDeadzoneRate);
+			if (abs >= g.zoomMaxNear) return endDelta - (abs - g.zoomMaxNear) * g.zoomDeadzoneRate;
 			float edge = -g.zoomMinNear * g.zoomDeadzoneRate;
 			float raw = Mathf.InverseLerp(g.zoomMinNear, g.zoomMaxNear, abs);
 			float t = raw * raw * (3f - 2f * raw);
-			return Mathf.Lerp(edge, -g.zoomMaxNearAmount, t);
+			return Mathf.Lerp(edge, endDelta, t);
 		}
 	}
 
