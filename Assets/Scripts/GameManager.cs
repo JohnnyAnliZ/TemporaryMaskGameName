@@ -7,7 +7,7 @@ public class GameManager : Singleton<GameManager>
 	SectionRunner runner;
 
 	public GameObject player3DPrefab, player2DPrefab;
-	GameObject player3D, player2D;
+	public GameObject player3D, player2D;
 
 	public void AdvanceSubsection() {
 		if (runner != null) runner.Advance();
@@ -22,6 +22,19 @@ public class GameManager : Singleton<GameManager>
 		} else {
 			player3D.transform.position = pos;
 		}
+	}
+
+	void PlaySection(Section section, int startSubsection = 0) {
+		SectionAsset asset = Resources.Load<SectionAsset>($"Sections/Section_{section}");
+		if (asset == null || asset.subsections.Count == 0) {
+			Log.Warn($"Skipping empty section {section}");
+			return;
+		}
+		runner.PlaySection(asset, startSubsection, onComplete: () => {
+			Section[] all = (Section[])System.Enum.GetValues(typeof(Section));
+			Section next = all[(System.Array.IndexOf(all, section) + 1) % all.Length];
+			PlaySection(next);
+		});
 	}
 
 	void Start() {
@@ -130,11 +143,10 @@ public class GameManager : Singleton<GameManager>
 		bSpawnFromPanel = true;
 		#endif
 		if (bSpawnFromPanel) {
+			player2D.SetActive(false);
 			runner = gameObject.AddComponent<SectionRunner>();
 			runner.Init(cam, follow);
-
-			SectionAsset sectionAsset = Resources.Load<SectionAsset>($"Sections/Section_{startSection}");
-			runner.PlaySection(sectionAsset, startSubsection);
+			PlaySection(startSection, startSubsection);
 		}
 	}
 }

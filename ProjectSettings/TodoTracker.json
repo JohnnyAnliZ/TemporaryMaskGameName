@@ -35,7 +35,7 @@
         {
             "id": "14f756f0",
             "text": "Jumping too strong, too long",
-            "done": false,
+            "done": true,
             "urgency": 2,
             "user": 2,
             "createdAt": "2026-04-17"
@@ -43,7 +43,7 @@
         {
             "id": "d2bfe3a5",
             "text": "45 Degree man big issue",
-            "done": false,
+            "done": true,
             "urgency": 2,
             "user": 2,
             "createdAt": "2026-04-16"
@@ -91,7 +91,7 @@
         {
             "id": "91c87113",
             "text": "2d to 3d level visualizer",
-            "done": false,
+            "done": true,
             "urgency": 0,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -101,7 +101,7 @@
             "text": "figure out how to do breaking animation",
             "done": false,
             "urgency": 1,
-            "user": 0,
+            "user": 3,
             "createdAt": "2026-04-15"
         },
         {
@@ -115,7 +115,7 @@
         {
             "id": "63f08cd8",
             "text": "player start system",
-            "done": false,
+            "done": true,
             "urgency": 0,
             "user": 0,
             "createdAt": "2026-04-15"
@@ -131,7 +131,7 @@
         {
             "id": "e8c220d1",
             "text": "2d rotation and depth size change",
-            "done": false,
+            "done": true,
             "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-15"
