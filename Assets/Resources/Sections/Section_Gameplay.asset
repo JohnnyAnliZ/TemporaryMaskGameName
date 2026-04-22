@@ -24,20 +24,20 @@ MonoBehaviour:
     - rid: 8691557471280431173
       type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: GameplaySubsection
+        name: 2D
         start: 0
     - rid: 8691557471280431174
       type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: GameplaySubsection
+        name: 2DBreak
         start: 1
     - rid: 8691557471280431175
       type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: GameplaySubsection
+        name: 3D
         start: 2
     - rid: 8691557471280431176
       type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: GameplaySubsection
+        name: 3DBreak
         start: 3

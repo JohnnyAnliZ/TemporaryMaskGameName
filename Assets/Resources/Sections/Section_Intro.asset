@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SectionAsset
   section: 0
   subsections:
-  - rid: 8691557451234803785
+  - rid: 8691557471280431177
   - rid: 8691557451234803786
   - rid: 8691557459218399301
   - rid: 8691557459218399304
@@ -22,21 +22,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 8691557451234803785
-      type: {class: CutsceneSubsection, ns: , asm: Assembly-CSharp}
-      data:
-        name: Idle
-        keyframes:
-        - time: 0
-          cameraPos: {x: -13.4, y: 6.4}
-          orthoSize: 1.4
-          easeIn:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 0
-            m_PostInfinity: 0
-            m_RotationOrder: 0
-        waitForInputAtEnd: 1
     - rid: 8691557451234803786
       type: {class: IntroCutscene1Subsection, ns: , asm: Assembly-CSharp}
       data:
@@ -79,11 +64,10 @@ MonoBehaviour:
             m_PostInfinity: 2
             m_RotationOrder: 0
         waitForInputAtEnd: 0
-        animationTrigger: Play
     - rid: 8691557459218399301
       type: {class: IntroPanSubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: IntroPanSubsection
+        name: Pan
         keyframes:
         - time: 0
           cameraPos: {x: -12, y: 6.4}
@@ -110,8 +94,8 @@ MonoBehaviour:
               inWeight: 0
               outWeight: 0
             - serializedVersion: 3
-              time: 0.31260902
-              value: 0.14152855
+              time: 0.3582466
+              value: 0.1391476
               inSlope: 1.1437362
               outSlope: 1.1437362
               tangentMode: 0
@@ -119,10 +103,10 @@ MonoBehaviour:
               inWeight: 0.1768856
               outWeight: 0.24474718
             - serializedVersion: 3
-              time: 0.66968465
-              value: 0.7725266
-              inSlope: 1.2278912
-              outSlope: 1.2278912
+              time: 0.62673163
+              value: 0.78681237
+              inSlope: 1.4917157
+              outSlope: 1.4917157
               tangentMode: 34
               weightedMode: 0
               inWeight: 0.33333334
@@ -152,7 +136,52 @@ MonoBehaviour:
             tangentMode: 0
             weightedMode: 0
             inWeight: 0
-            outWeight: 0
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 0.1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.43873176
+          - serializedVersion: 3
+            time: 0.32263833
+            value: 0.025291605
+            inSlope: 0.34721506
+            outSlope: 0.34721506
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 0.41505277
+            value: 0.06896185
+            inSlope: 0.80008423
+            outSlope: 0.80008423
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.22790784
+          - serializedVersion: 3
+            time: 0.50470316
+            value: 0.10157606
+            inSlope: -0.017221838
+            outSlope: -0.017221838
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 0.65561426
+            value: 0.041477688
+            inSlope: -0.31471473
+            outSlope: -0.31471473
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.15235785
           - serializedVersion: 3
             time: 1
             value: 0
@@ -161,33 +190,6 @@ MonoBehaviour:
             tangentMode: 0
             weightedMode: 0
             inWeight: 0.33333334
-            outWeight: 0.33333334
-          - serializedVersion: 3
-            time: 2.6792293
-            value: 0.00953948
-            inSlope: 0.014358378
-            outSlope: 0.014358378
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0.2633166
-            outWeight: 0.33333334
-          - serializedVersion: 3
-            time: 6.241485
-            value: 0.08624351
-            inSlope: 0.00085835694
-            outSlope: 0.00085835694
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0.33333334
-            outWeight: 0.3196994
-          - serializedVersion: 3
-            time: 10
-            value: 0
-            inSlope: 0
-            outSlope: 0
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0
             outWeight: 0
           m_PreInfinity: 2
           m_PostInfinity: 2
@@ -203,33 +205,42 @@ MonoBehaviour:
             tangentMode: 0
             weightedMode: 0
             inWeight: 0
-            outWeight: 0
-          - serializedVersion: 3
-            time: 2.4936218
-            value: 0.034848094
-            inSlope: 0.034453996
-            outSlope: 0.034453996
-            tangentMode: 0
-            weightedMode: 0
-            inWeight: 0.33153814
             outWeight: 0.33333334
           - serializedVersion: 3
-            time: 5.9377947
-            value: 0.23375356
-            inSlope: 0
-            outSlope: 0
+            time: 0.19703665
+            value: 0.03785552
+            inSlope: 0.42207584
+            outSlope: 0.42207584
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 0.53280175
+            value: 0.25678357
+            inSlope: -0.056404978
+            outSlope: -0.056404978
+            tangentMode: 34
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 0.7516458
+            value: 0.089403465
+            inSlope: -1.0197252
+            outSlope: -1.0197252
             tangentMode: 0
             weightedMode: 0
             inWeight: 0.33333334
             outWeight: 0.33333334
           - serializedVersion: 3
-            time: 10
+            time: 1
             value: 0
             inSlope: 0
             outSlope: 0
             tangentMode: 0
             weightedMode: 0
-            inWeight: 0
+            inWeight: 0.33333334
             outWeight: 0
           m_PreInfinity: 2
           m_PostInfinity: 2
@@ -237,9 +248,9 @@ MonoBehaviour:
     - rid: 8691557459218399304
       type: {class: IntroFlowerSubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: IntroFlowerSubsection
+        name: Flower
         keyframes:
-        - time: 8
+        - time: 4
           cameraPos: {x: 181, y: 7}
           orthoSize: 5.75
           easeIn:
@@ -249,14 +260,13 @@ MonoBehaviour:
             m_PostInfinity: 0
             m_RotationOrder: 0
         waitForInputAtEnd: 0
-        animationTrigger: play
     - rid: 8691557459218399305
       type: {class: IntroPanSubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: IntroPanSubsection
+        name: PanBack
         keyframes:
         - time: 0
-          cameraPos: {x: -5, y: 7}
+          cameraPos: {x: 181, y: 7}
           orthoSize: 5.75
           easeIn:
             serializedVersion: 2
@@ -264,7 +274,7 @@ MonoBehaviour:
             m_PreInfinity: 0
             m_PostInfinity: 0
             m_RotationOrder: 0
-        - time: 2
+        - time: 4
           cameraPos: {x: -9.3, y: 6.32}
           orthoSize: 4.5
           easeIn:
@@ -323,3 +333,45 @@ MonoBehaviour:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
+    - rid: 8691557471280431177
+      type: {class: IntroIdle, ns: , asm: Assembly-CSharp}
+      data:
+        name: IntroIdle
+        keyframes:
+        - time: 0
+          cameraPos: {x: -14.2, y: 6.2}
+          orthoSize: 1.1
+          easeIn:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+        - time: 4
+          cameraPos: {x: -13.4, y: 6.4}
+          orthoSize: 1.4
+          easeIn:
+            serializedVersion: 2
+            m_Curve:
+            - serializedVersion: 3
+              time: 0
+              value: 0
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            - serializedVersion: 3
+              time: 1
+              value: 1
+              inSlope: 0
+              outSlope: 0
+              tangentMode: 0
+              weightedMode: 0
+              inWeight: 0
+              outWeight: 0
+            m_PreInfinity: 2
+            m_PostInfinity: 2
+            m_RotationOrder: 0
+        waitForInputAtEnd: 1
