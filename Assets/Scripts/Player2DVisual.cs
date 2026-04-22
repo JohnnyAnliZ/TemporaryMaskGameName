@@ -22,8 +22,13 @@ public class Player2DVisual : MonoBehaviour {
 	CharacterController characterController;
 
 	SpriteRenderer[] outlineRenderers;
+	MaterialPropertyBlock[] outlineMPBs;
 	Material outlineMaterial;
 	static readonly int OutlineColorId = Shader.PropertyToID("_OutlineColor");
+	static readonly int OutlineThicknessId = Shader.PropertyToID("_OutlineThickness");
+	static readonly int OffsetDirId = Shader.PropertyToID("_OffsetDir");
+	static readonly int UvMinId = Shader.PropertyToID("_UvMin");
+	static readonly int UvMaxId = Shader.PropertyToID("_UvMax");
 	static readonly Vector2[] outlineOffsets = {
 		new Vector2(1, 0),
 		new Vector2(-1, 0),
@@ -40,6 +45,7 @@ public class Player2DVisual : MonoBehaviour {
 
 		outlineMaterial = new Material(Shader.Find("Custom/SpriteOutline"));
 		outlineRenderers = new SpriteRenderer[4];
+		outlineMPBs = new MaterialPropertyBlock[4];
 		for (int i = 0; i < 4; i++) {
 			GameObject go = new GameObject("Outline_" + i);
 			go.transform.SetParent(transform, false);
@@ -49,6 +55,12 @@ public class Player2DVisual : MonoBehaviour {
 			sr.sortingOrder = spriteRenderer.sortingOrder - 1;
 			sr.enabled = false;
 			outlineRenderers[i] = sr;
+
+			//Each child samples main's alpha at (uv - offsetDir * texelSize * thickness); MPB carries the per-child direction.
+			MaterialPropertyBlock mpb = new MaterialPropertyBlock();
+			mpb.SetVector(OffsetDirId, new Vector4(outlineOffsets[i].x, outlineOffsets[i].y, 0f, 0f));
+			sr.SetPropertyBlock(mpb);
+			outlineMPBs[i] = mpb;
 		}
 	}
 
@@ -106,6 +118,24 @@ public class Player2DVisual : MonoBehaviour {
 			Color outCol = g.outlineColor;
 			outCol.a *= outlineT * alpha * g.outlineMaxOpacity;
 			outlineMaterial.SetColor(OutlineColorId, outCol);
+			outlineMaterial.SetFloat(OutlineThicknessId, g.outlineThickness);
+
+			//Pass the current sprite's atlas UV rect so the shader can bounds-check main sampling.
+			if (currentSprite != null && currentSprite.texture != null) {
+				Rect texRect = currentSprite.textureRect;
+				float tw = currentSprite.texture.width;
+				float th = currentSprite.texture.height;
+				outlineMaterial.SetVector(UvMinId, new Vector4(texRect.xMin / tw, texRect.yMin / th, 0f, 0f));
+				outlineMaterial.SetVector(UvMaxId, new Vector4(texRect.xMax / tw, texRect.yMax / th, 0f, 0f));
+			}
+
+			//flipX reverses UV→world X mapping: negate offsetDir.x so main-sampling lands on the correct world pixel.
+			float flipMul = currentFlip ? -1f : 1f;
+			for (int i = 0; i < 4; i++) {
+				Vector2 d = outlineOffsets[i];
+				outlineMPBs[i].SetVector(OffsetDirId, new Vector4(d.x * flipMul, d.y, 0f, 0f));
+				outlineRenderers[i].SetPropertyBlock(outlineMPBs[i]);
+			}
 			for (int i = 0; i < 4; i++) {
 				SpriteRenderer sr = outlineRenderers[i];
 				sr.enabled = true;

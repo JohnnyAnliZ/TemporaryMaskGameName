@@ -109,11 +109,16 @@ public class GameManager : Singleton<GameManager>
 		camera2D.SetActive(true);
 
 		//Sections
-		runner = gameObject.AddComponent<SectionRunner>();
-		runner.Init(cam, follow);
+		#if !UNITY_EDITOR
+		bSpawnFromPanel = true;
+		#endif
+		if (bSpawnFromPanel) {
+			runner = gameObject.AddComponent<SectionRunner>();
+			runner.Init(cam, follow);
 
-		SectionAsset sectionAsset = Resources.Load<SectionAsset>($"Sections/Section_{startSection}");
-		if (sectionAsset != null) runner.PlaySection(sectionAsset);
-		else Log.Warn($"No SectionAsset at Resources/Sections/Section_{startSection}");
+			SectionAsset sectionAsset = Resources.Load<SectionAsset>($"Sections/Section_{startSection}");
+			if (sectionAsset != null) runner.PlaySection(sectionAsset);
+			else Log.Warn($"No SectionAsset at Resources/Sections/Section_{startSection}");
+		}
 	}
 }

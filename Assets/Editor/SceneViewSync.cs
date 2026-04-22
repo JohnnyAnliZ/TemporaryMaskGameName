@@ -69,8 +69,8 @@ static class ViewportSync
 				c.z = g.world2DZ;
 
 				float baseSize = g.cameraOrthoSize;
-				float minSize = Mathf.Max(baseSize - g.zoomMaxFarAmount, 0.1f);
-				float maxSize = baseSize + g.zoomMaxNearAmount;
+				float minSize = Mathf.Max(g.zoomMaxFarSize, 0.1f);
+				float maxSize = g.zoomMaxNearSize;
 
 				DrawViewBox(c, minSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
 				DrawViewBox(c, maxSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);

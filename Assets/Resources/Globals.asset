@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2b430bc7165c243acfb22214189640, type: 3}
   m_Name: Globals
   m_EditorClassIdentifier: Assembly-CSharp::Globals
-  cameraOrthoSize: 1
+  cameraOrthoSize: 4.5
   cameraDeadzoneRight: 1
   cameraDeadzoneLeft: 1
   cameraDeadzoneTop: 1
@@ -55,13 +55,13 @@ MonoBehaviour:
   jumpForceMin: 8
   jumpForceMax: 14
   chargeMoveMulti: 0.5
-  zoomDeadzoneRate: 0.067
-  zoomMinFar: 0.5
+  zoomDeadzoneRate: 0.05
+  zoomMinFar: 0.1
   zoomMaxFar: 8
-  zoomMaxFarAmount: 2
-  zoomMinNear: 0.5
+  zoomMaxFarSize: 3.5
+  zoomMinNear: 0.1
   zoomMaxNear: 8
-  zoomMaxNearAmount: 1.25
+  zoomMaxNearSize: 5.9
   cameraBoundLeft: -17.3
   cameraBoundRight: 1000
   cameraBoundBottom: 1.16
