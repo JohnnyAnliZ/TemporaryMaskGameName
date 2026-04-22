@@ -256,7 +256,7 @@ MonoBehaviour:
         name: IntroPanSubsection
         keyframes:
         - time: 0
-          cameraPos: {x: 181, y: 7}
+          cameraPos: {x: -5, y: 7}
           orthoSize: 5.75
           easeIn:
             serializedVersion: 2
@@ -264,8 +264,8 @@ MonoBehaviour:
             m_PreInfinity: 0
             m_PostInfinity: 0
             m_RotationOrder: 0
-        - time: 16
-          cameraPos: {x: -12, y: 6.4}
+        - time: 2
+          cameraPos: {x: -9.3, y: 6.32}
           orthoSize: 4.5
           easeIn:
             serializedVersion: 2
@@ -274,7 +274,7 @@ MonoBehaviour:
             m_PostInfinity: 0
             m_RotationOrder: 0
         waitForInputAtEnd: 0
-        length: 1
+        length: 2
         speedToStrengthCurve:
           serializedVersion: 2
           m_Curve:
@@ -289,7 +289,7 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 1
-            value: 0.15
+            value: 0
             inSlope: 0
             outSlope: 0
             tangentMode: 0

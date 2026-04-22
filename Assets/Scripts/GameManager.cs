@@ -13,6 +13,17 @@ public class GameManager : Singleton<GameManager>
 		if (runner != null) runner.Advance();
 	}
 
+	public void TeleportPlayer(Vector3 pos) {
+		if (player3D == null) return;
+		if (player3D.TryGetComponent<CharacterController>(out var cc)) {
+			cc.enabled = false;
+			player3D.transform.position = pos;
+			cc.enabled = true;
+		} else {
+			player3D.transform.position = pos;
+		}
+	}
+
 	void Start() {
 		Globals g = Globals.Instance;
 

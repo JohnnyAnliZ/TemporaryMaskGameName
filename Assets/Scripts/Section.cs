@@ -13,19 +13,18 @@ public enum Section {
 }
 
 [Serializable]
+public abstract class Subsection {
+	public string name;
+}
+
+//Intro-----------------------------------
+[Serializable]
 public struct CutsceneKeyframe {
 	public float time;
 	public Vector2 cameraPos;
 	public float orthoSize;
 	public AnimationCurve easeIn;
-	//public UnityEvent onReached;
 }
-
-[Serializable]
-public abstract class Subsection {
-	public string name;
-}
-
 [Serializable]
 public class CutsceneSubsection : Subsection {
 	public List<CutsceneKeyframe> keyframes = new();
@@ -36,11 +35,6 @@ public class CutsceneSubsection : Subsection {
 	public virtual void OnTick(float t) {}
 	public virtual void OnEnd() {}
 }
-
-[Serializable]
-public class GameplaySubsection : Subsection {
-}
-
 [Serializable]
 public class IntroCutscene1Subsection : CutsceneSubsection {
 	public string animationTrigger = "play";
@@ -50,7 +44,6 @@ public class IntroCutscene1Subsection : CutsceneSubsection {
 		animator.SetTrigger(animationTrigger);
 	}
 }
-
 [Serializable]
 public class IntroPanSubsection : CutsceneSubsection {
 	public float length = 1f;
@@ -75,10 +68,8 @@ public class IntroPanSubsection : CutsceneSubsection {
 		if (driver != null) driver.enabled = false;
 	}
 }
-
 [Serializable]
-public class IntroFlowerSubsection : CutsceneSubsection
-{
+public class IntroFlowerSubsection : CutsceneSubsection {
 	public string animationTrigger = "play";
 
 	public override void OnStart() {
@@ -91,6 +82,17 @@ public class IntroFlowerSubsection : CutsceneSubsection
 			//play sound
 		}
 	}
+}
+//Gameplay---------------------------------------------------------------
+public enum GameplayStart {
+	TwoD,
+	TwoDBreak,
+	ThreeD,
+	ThreeDBreak,
+}
+[Serializable]
+public class GameplaySubsection : Subsection {
+	public GameplayStart start;
 }
 
 public class SectionRunner : MonoBehaviour {
@@ -162,6 +164,14 @@ public class SectionRunner : MonoBehaviour {
 	}
 
 	void StartGameplay(GameplaySubsection g) {
+		SectionStart marker = null;
+		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
+			if (s.section == Section.Gameplay && s.gameplayStart == g.start) {
+				marker = s;
+				break;
+			}
+		}
+		GameManager.Instance.TeleportPlayer(marker.transform.position);
 		GameManager.Instance.bInputEnabled = true;
 		//Gameplay advances via external SectionRunner.Advance() call
 	}

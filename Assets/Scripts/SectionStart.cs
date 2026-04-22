@@ -4,11 +4,13 @@ using System.Linq;
 public class SectionStart : MonoBehaviour
 {
 	public Section section;
+	public GameplayStart gameplayStart;
 
 	void OnDrawGizmos() {
-		Gizmos.color = Color.green;
-		Gizmos.DrawWireSphere(transform.position, 0.5f);
-		Gizmos.DrawLine(transform.position, transform.position + Vector3.up * 1.5f);
+		Gizmos.color = Color.darkGreen;
+		Vector3 p = transform.position;
+		Gizmos.DrawWireSphere(p, 0.5f);
+		Gizmos.DrawWireSphere(new Vector3(p.x, p.y, Globals.Instance.world2DZ), 0.5f);
 	}
 }
 
@@ -91,16 +93,19 @@ public class SectionsWindow : UnityEditor.EditorWindow
 		Rect row = new Rect(headerRect.x + 6, headerRect.y + 3, headerRect.width - 12, lineH);
 		Rect deleteRect = new Rect(row.xMax - 26, row.y, 26, row.height);
 		Rect playRect = new Rect(deleteRect.x - 30, row.y, 26, row.height);
-		Rect foldoutRect = new Rect(row.x, row.y, playRect.x - row.x - 4, row.height);
+		Rect arrowRect = new Rect(row.x, row.y, 14, row.height);
+		Rect nameRect = new Rect(arrowRect.xMax + 2, row.y, playRect.x - arrowRect.xMax - 6, row.height);
+
+		element.isExpanded = UnityEditor.EditorGUI.Foldout(arrowRect, element.isExpanded, GUIContent.none, true);
 
 		var nameProp = element.FindPropertyRelative("name");
-		string displayName = nameProp != null && !string.IsNullOrEmpty(nameProp.stringValue)
-			? nameProp.stringValue
-			: $"Subsection {index}";
-
-		var style = new GUIStyle(UnityEditor.EditorStyles.foldout);
-		style.fontStyle = FontStyle.Bold;
-		element.isExpanded = UnityEditor.EditorGUI.Foldout(foldoutRect, element.isExpanded, displayName, true, style);
+		if (nameProp != null) {
+			var nameStyle = new GUIStyle(UnityEditor.EditorStyles.textField);
+			nameStyle.fontStyle = FontStyle.Bold;
+			nameProp.stringValue = UnityEditor.EditorGUI.TextField(nameRect, nameProp.stringValue, nameStyle);
+		} else {
+			UnityEditor.EditorGUI.LabelField(nameRect, $"Subsection {index}");
+		}
 
 		GUI.backgroundColor = new Color(0.3f, 1f, 0.3f);
 		if (GUI.Button(playRect, "▶")) {
