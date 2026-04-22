@@ -16,7 +16,9 @@ MonoBehaviour:
   subsections:
   - rid: 8691557451234803785
   - rid: 8691557451234803786
-  - rid: 8691557451234803787
+  - rid: 8691557459218399301
+  - rid: 8691557459218399304
+  - rid: 8691557459218399305
   references:
     version: 2
     RefIds:
@@ -49,23 +51,7 @@ MonoBehaviour:
             m_PreInfinity: 0
             m_PostInfinity: 0
             m_RotationOrder: 0
-        waitForInputAtEnd: 0
-        animationTrigger: Play
-    - rid: 8691557451234803787
-      type: {class: CutsceneSubsection, ns: , asm: Assembly-CSharp}
-      data:
-        name: Pan
-        keyframes:
-        - time: 0
-          cameraPos: {x: -13.4, y: 6.4}
-          orthoSize: 1.4
-          easeIn:
-            serializedVersion: 2
-            m_Curve: []
-            m_PreInfinity: 0
-            m_PostInfinity: 0
-            m_RotationOrder: 0
-        - time: 4
+        - time: 7
           cameraPos: {x: -12, y: 6.4}
           orthoSize: 3
           easeIn:
@@ -92,7 +78,23 @@ MonoBehaviour:
             m_PreInfinity: 2
             m_PostInfinity: 2
             m_RotationOrder: 0
-        - time: 20
+        waitForInputAtEnd: 0
+        animationTrigger: Play
+    - rid: 8691557459218399301
+      type: {class: IntroPanSubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: IntroPanSubsection
+        keyframes:
+        - time: 0
+          cameraPos: {x: -12, y: 6.4}
+          orthoSize: 3
+          easeIn:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+        - time: 16
           cameraPos: {x: 181, y: 7}
           orthoSize: 5.75
           easeIn:
@@ -108,32 +110,23 @@ MonoBehaviour:
               inWeight: 0
               outWeight: 0
             - serializedVersion: 3
-              time: 1
-              value: 1
-              inSlope: 2
-              outSlope: 2
+              time: 0.31260902
+              value: 0.14152855
+              inSlope: 1.1437362
+              outSlope: 1.1437362
               tangentMode: 0
               weightedMode: 0
-              inWeight: 0
-              outWeight: 0
-            m_PreInfinity: 2
-            m_PostInfinity: 2
-            m_RotationOrder: 0
-        - time: 30
-          cameraPos: {x: 181, y: 7}
-          orthoSize: 4
-          easeIn:
-            serializedVersion: 2
-            m_Curve:
+              inWeight: 0.1768856
+              outWeight: 0.24474718
             - serializedVersion: 3
-              time: 0
-              value: 0
-              inSlope: 0
-              outSlope: 0
-              tangentMode: 0
+              time: 0.66968465
+              value: 0.7725266
+              inSlope: 1.2278912
+              outSlope: 1.2278912
+              tangentMode: 34
               weightedMode: 0
-              inWeight: 0
-              outWeight: 0
+              inWeight: 0.33333334
+              outWeight: 0.33333334
             - serializedVersion: 3
               time: 1
               value: 1
@@ -147,3 +140,186 @@ MonoBehaviour:
             m_PostInfinity: 2
             m_RotationOrder: 0
         waitForInputAtEnd: 0
+        length: 16
+        speedToStrengthCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 2.6792293
+            value: 0.00953948
+            inSlope: 0.014358378
+            outSlope: 0.014358378
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.2633166
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 6.241485
+            value: 0.08624351
+            inSlope: 0.00085835694
+            outSlope: 0.00085835694
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.3196994
+          - serializedVersion: 3
+            time: 10
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        streakLengthCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 2.4936218
+            value: 0.034848094
+            inSlope: 0.034453996
+            outSlope: 0.034453996
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33153814
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 5.9377947
+            value: 0.23375356
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0.33333334
+            outWeight: 0.33333334
+          - serializedVersion: 3
+            time: 10
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+    - rid: 8691557459218399304
+      type: {class: IntroFlowerSubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: IntroFlowerSubsection
+        keyframes:
+        - time: 8
+          cameraPos: {x: 181, y: 7}
+          orthoSize: 5.75
+          easeIn:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+        waitForInputAtEnd: 0
+        animationTrigger: play
+    - rid: 8691557459218399305
+      type: {class: IntroPanSubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: IntroPanSubsection
+        keyframes:
+        - time: 0
+          cameraPos: {x: 181, y: 7}
+          orthoSize: 5.75
+          easeIn:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+        - time: 16
+          cameraPos: {x: -12, y: 6.4}
+          orthoSize: 4.5
+          easeIn:
+            serializedVersion: 2
+            m_Curve: []
+            m_PreInfinity: 0
+            m_PostInfinity: 0
+            m_RotationOrder: 0
+        waitForInputAtEnd: 0
+        length: 1
+        speedToStrengthCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0.15
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0.15
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        streakLengthCurve:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0.25
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 0.25
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4

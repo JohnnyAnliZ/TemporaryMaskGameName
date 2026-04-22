@@ -33,6 +33,7 @@ public class CutsceneSubsection : Subsection {
 
 	public virtual void OnStart() {}
 	public virtual void OnKeyframeReached(int index) {}
+	public virtual void OnTick(float t) {}
 	public virtual void OnEnd() {}
 }
 
@@ -47,6 +48,31 @@ public class IntroCutscene1Subsection : CutsceneSubsection {
 	public override void OnStart() {
 		GameObject.Find("SinkAnim").TryGetComponent<Animator>(out Animator animator);
 		animator.SetTrigger(animationTrigger);
+	}
+}
+
+[Serializable]
+public class IntroPanSubsection : CutsceneSubsection {
+	public float length = 1f;
+	public AnimationCurve speedToStrengthCurve = AnimationCurve.Constant(0f, 1f, 0.15f);
+	public AnimationCurve streakLengthCurve = AnimationCurve.Constant(0f, 1f, 0.25f);
+
+	StreakBlurDriver driver;
+
+	public override void OnStart() {
+		driver = UnityEngine.Object.FindAnyObjectByType<StreakBlurDriver>();
+		if (driver != null) driver.enabled = true;
+	}
+
+	public override void OnTick(float t) {
+		if (driver == null) return;
+		float u = length > 0f ? Mathf.Clamp01(t / length) : 0f;
+		driver.speedToStrength = speedToStrengthCurve.Evaluate(u);
+		driver.streakLength = streakLengthCurve.Evaluate(u);
+	}
+
+	public override void OnEnd() {
+		if (driver != null) driver.enabled = false;
 	}
 }
 
@@ -88,10 +114,10 @@ public class SectionRunner : MonoBehaviour {
 		this.follow = follow;
 	}
 
-	public void PlaySection(SectionAsset asset, Action onComplete = null) {
+	public void PlaySection(SectionAsset asset, int startSubsection = 0, Action onComplete = null) {
 		currentAsset = asset;
 		onSectionComplete = onComplete;
-		subsectionIndex = -1;
+		subsectionIndex = startSubsection - 1;
 		Advance();
 	}
 
@@ -152,6 +178,7 @@ public class SectionRunner : MonoBehaviour {
 		if (kfs.Count == 0) return;
 
 		t += Time.deltaTime;
+		currentCutscene.OnTick(t);
 
 		while (nextEventIndex < kfs.Count && t >= kfs[nextEventIndex].time) {
 			currentCutscene.OnKeyframeReached(nextEventIndex);
