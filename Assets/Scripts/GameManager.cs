@@ -92,6 +92,7 @@ public class GameManager : Singleton<GameManager>
 		camera3D.AddComponent<Camera>();
 		camera3D.AddComponent<CompositeCamera>().index = 1;
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
+		camera3D.AddComponent<AudioListener>();
 		camera3D.SetActive(true);
 
 		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
