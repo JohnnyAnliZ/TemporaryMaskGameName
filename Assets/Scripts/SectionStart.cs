@@ -32,7 +32,7 @@ public class SectionsWindow : UnityEditor.EditorWindow
 		UnityEditor.EditorGUILayout.BeginHorizontal();
 		foreach (Section s in System.Enum.GetValues(typeof(Section))) {
 			bool isSel = s == selected;
-			GUI.backgroundColor = isSel ? Color.cyan : Color.white;
+			GUI.backgroundColor = isSel ? Color.darkBlue : Color.white;
 			if (GUILayout.Button(s.ToString(), GUILayout.Height(28))) {
 				selected = s;
 			}
@@ -42,17 +42,7 @@ public class SectionsWindow : UnityEditor.EditorWindow
 
 		UnityEditor.EditorGUILayout.Space();
 
-		//Play button
-		GUI.backgroundColor = new Color(0.7f, 1f, 0.7f);
-		if (GUILayout.Button($"▶ Play at {selected}", GUILayout.Height(36))) {
-			UnityEditor.SessionState.SetInt("startSection", (int)selected);
-			if (!UnityEditor.EditorApplication.isPlaying) UnityEditor.EditorApplication.isPlaying = true;
-		}
-		GUI.backgroundColor = Color.white;
-
-		UnityEditor.EditorGUILayout.Space();
-
-		//Subsections only
+		//Subsections
 		SectionAsset asset = LoadOrCreateSectionAsset(selected);
 		if (cachedAsset != asset || cachedSerializedAsset == null) {
 			cachedAsset = asset;
@@ -60,7 +50,17 @@ public class SectionsWindow : UnityEditor.EditorWindow
 		}
 		scroll = UnityEditor.EditorGUILayout.BeginScrollView(scroll);
 		cachedSerializedAsset.Update();
-		UnityEditor.EditorGUILayout.PropertyField(cachedSerializedAsset.FindProperty("subsections"), includeChildren: true);
+		var subsectionsProp = cachedSerializedAsset.FindProperty("subsections");
+		int pendingDelete = -1;
+		for (int i = 0; i < subsectionsProp.arraySize; i++) {
+			if (DrawSubsection(subsectionsProp.GetArrayElementAtIndex(i), i)) pendingDelete = i;
+		}
+		if (pendingDelete >= 0) {
+			UnityEditor.Undo.RecordObject(asset, "Delete Subsection");
+			asset.subsections.RemoveAt(pendingDelete);
+			UnityEditor.EditorUtility.SetDirty(asset);
+			cachedSerializedAsset.Update();
+		}
 		cachedSerializedAsset.ApplyModifiedProperties();
 		UnityEditor.EditorGUILayout.EndScrollView();
 
@@ -81,6 +81,53 @@ public class SectionsWindow : UnityEditor.EditorWindow
 			}
 			menu.ShowAsContext();
 		}
+	}
+
+	bool DrawSubsection(UnityEditor.SerializedProperty element, int index) {
+		float lineH = UnityEditor.EditorGUIUtility.singleLineHeight;
+		Rect headerRect = UnityEditor.EditorGUILayout.GetControlRect(false, lineH + 6);
+		UnityEditor.EditorGUI.DrawRect(headerRect, new Color(0.21f, 0.31f, 0.5f));
+
+		Rect row = new Rect(headerRect.x + 6, headerRect.y + 3, headerRect.width - 12, lineH);
+		Rect deleteRect = new Rect(row.xMax - 26, row.y, 26, row.height);
+		Rect playRect = new Rect(deleteRect.x - 30, row.y, 26, row.height);
+		Rect foldoutRect = new Rect(row.x, row.y, playRect.x - row.x - 4, row.height);
+
+		var nameProp = element.FindPropertyRelative("name");
+		string displayName = nameProp != null && !string.IsNullOrEmpty(nameProp.stringValue)
+			? nameProp.stringValue
+			: $"Subsection {index}";
+
+		var style = new GUIStyle(UnityEditor.EditorStyles.foldout);
+		style.fontStyle = FontStyle.Bold;
+		element.isExpanded = UnityEditor.EditorGUI.Foldout(foldoutRect, element.isExpanded, displayName, true, style);
+
+		GUI.backgroundColor = new Color(0.3f, 1f, 0.3f);
+		if (GUI.Button(playRect, "▶")) {
+			UnityEditor.SessionState.SetInt("startSection", (int)selected);
+			UnityEditor.SessionState.SetInt("startSubsection", index);
+			if (!UnityEditor.EditorApplication.isPlaying) UnityEditor.EditorApplication.isPlaying = true;
+		}
+
+		GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
+		bool deleteRequested = GUI.Button(deleteRect, "×");
+		GUI.backgroundColor = Color.white;
+
+		if (element.isExpanded) {
+			UnityEditor.EditorGUI.indentLevel++;
+			var end = element.GetEndProperty();
+			var child = element.Copy();
+			bool enter = true;
+			while (child.NextVisible(enter) && !UnityEditor.SerializedProperty.EqualContents(child, end)) {
+				enter = false;
+				if (child.name == "name") continue;
+				UnityEditor.EditorGUILayout.PropertyField(child, true);
+			}
+			UnityEditor.EditorGUI.indentLevel--;
+			UnityEditor.EditorGUILayout.Space(2);
+		}
+
+		return deleteRequested;
 	}
 
 	static SectionAsset LoadOrCreateSectionAsset(Section section) {

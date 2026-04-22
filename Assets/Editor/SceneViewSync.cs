@@ -64,17 +64,17 @@ static class ViewportSync
 				}
 
 				//2D camera preview
-				float aspect = 16f / 9f;
-				Vector3 c = view.pivot;
-				c.z = g.world2DZ;
+				// float aspect = 16f / 9f;
+				// Vector3 c = view.pivot;
+				// c.z = g.world2DZ;
 
-				float baseSize = g.cameraOrthoSize;
-				float minSize = Mathf.Max(g.zoomMaxFarSize, 0.1f);
-				float maxSize = g.zoomMaxNearSize;
+				// float baseSize = g.cameraOrthoSize;
+				// float minSize = Mathf.Max(g.zoomMaxFarSize, 0.1f);
+				// float maxSize = g.zoomMaxNearSize;
 
-				DrawViewBox(c, minSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
-				DrawViewBox(c, maxSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
-				DrawViewBox(c, baseSize, aspect, Color.yellow, 0.5f);
+				// DrawViewBox(c, minSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
+				// DrawViewBox(c, maxSize, aspect, new Color(1f, 0.5f, 0f, 0.4f), 0.5f);
+				// DrawViewBox(c, baseSize, aspect, Color.yellow, 0.5f);
 			} else {
 				//2d projection bounding boxes
 				GameObject parent2D = GameObject.Find("2DScene");

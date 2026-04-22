@@ -16,6 +16,12 @@ public class CameraFollow2D : MonoBehaviour
 		transform.rotation = Quaternion.identity;
 	}
 
+	void OnEnable() {
+		//When re-enabled (e.g. cutscene handing control back), pick up from wherever the camera is
+		Vector3 p = transform.position;
+		smoothPosition = new Vector3(p.x, p.y, Globals.Instance.cameraZOffset);
+	}
+
 	void LateUpdate() {
 		if (target == null) return;
 
