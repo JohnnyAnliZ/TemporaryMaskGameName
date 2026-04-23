@@ -83,6 +83,19 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a157cc14beaa1e7409638759c0850b6c, type: 3}
   footstepVolume: 0.4
   footstepInterval: 0.4
+  impactClips2D:
+  - {fileID: 8300000, guid: d278a0a33ee61464c9ef2e07d5995290, type: 3}
+  - {fileID: 8300000, guid: 19f4370451e9b5a488204c4237fb7de3, type: 3}
+  - {fileID: 8300000, guid: 87a05f7c369b1194da19a3b813b5640e, type: 3}
+  impactClipsTrans:
+  - {fileID: 8300000, guid: e02ec1db9563fc54e8ef91d5dba8c085, type: 3}
+  - {fileID: 8300000, guid: 60c4b65947fb589489e6f88df8f2fc2c, type: 3}
+  - {fileID: 8300000, guid: 14e0f86f3c399904f968403795227e09, type: 3}
+  impactClips3D:
+  - {fileID: 8300000, guid: 23c81ef747f25a04593572057d8951b8, type: 3}
+  - {fileID: 8300000, guid: a9802532274af494299c19d9b3ab0a95, type: 3}
+  - {fileID: 8300000, guid: 0c995fb2075496547b455b91473c8fb5, type: 3}
+  impactVolume: 0.5
 --- !u!82 &1871322857511142886
 AudioSource:
   m_ObjectHideFlags: 0
