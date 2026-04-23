@@ -19,9 +19,9 @@ MonoBehaviour:
   cameraFollowSpeed: 8
   cameraZOffset: -2
   cameraSnapToPixelGrid: 0
-  numBreaks: 8
-  shardSize: 1.5
-  maskBlurRadius: 2
+  numBreaks: 7
+  shardSize: 1.1
+  maskBlurRadius: 5
   shatterBias: 3
   shatterStagger: 0.4
   shardSpeedRange: {x: 0.5, y: 2}
@@ -38,14 +38,14 @@ MonoBehaviour:
   zOffset: -18
   projectionSize: 4
   playerScale: 5.9
-  playerMin: 0.5
-  playerMax: 1.5
+  playerMin: 0.7
+  playerMax: 1.3
   depthScale: 20
   fadeDistance: 16
-  minOpacity: 0.5
-  farBrightness: 0.4
+  minOpacity: 0.3
+  farBrightness: 0.2
   nearDistance: 16
-  nearBrightness: 1.3
+  nearBrightness: 1.6
   spriteZPerPlayerZ: 2
   fallThreshold: -10
   moveSpeed: 3.5
@@ -53,14 +53,14 @@ MonoBehaviour:
   riseGravityMulti: 0.8
   fallGravityMulti: 2
   fallGravityBlend: 3
-  jumpForwardBoost: 6
+  jumpForwardBoost: 5
   airControl: 0.8
   coyoteTime: 0.1
   jumpBufferTime: 0.1
   jumpTapWindow: 0.2
   jumpChargeTime: 0.7
-  jumpForceMin: 6
-  jumpForceMax: 8
+  jumpForceMin: 5.5
+  jumpForceMax: 11
   chargeMoveMulti: 0.5
   cameraOrthoSize: 4.5
   zoomMaxNearSize: 5.9
@@ -74,7 +74,7 @@ MonoBehaviour:
   cameraBoundRight: 1000
   cameraBoundBottom: 1.16
   cameraBoundTop: 12.8
-  outlineColor: {r: 0.5754717, g: 0.44512045, b: 0.24158953, a: 1}
+  outlineColor: {r: 0.5018867, g: 0.4805802, b: 0.43086502, a: 1}
   outlineThickness: 0.5
   outlineMaxOpacity: 0.4
   angleFull: 6
