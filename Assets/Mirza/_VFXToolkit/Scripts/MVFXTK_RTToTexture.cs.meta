@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: cd7c5bb23c6c61a49a7c47b09a08a1f2
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277702
+  packageName: AERO - Volumetric Fog and Mist
+  packageVersion: 1.0
+  assetPath: Assets/Mirza/_VFXToolkit/Scripts/MVFXTK_RTToTexture.cs
+  uploadId: 862318
