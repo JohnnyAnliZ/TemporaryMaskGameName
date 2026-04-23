@@ -48,7 +48,7 @@ public class CameraFollow2D : MonoBehaviour
 
 		//Zoom (clamp orthoSize so frustum fits within bounds)
 		float zOffset = player3D.position.z - g.world3DZ;
-		float desiredOrtho = Mathf.Max(g.cameraOrthoSize - ComputeZoomDelta(zOffset, g), 0.1f);
+		float desiredOrtho = Mathf.Max(g.cameraOrthoSize - ComputeZoomDelta(zOffset), 0.1f);
 		float maxOrthoFromH = (g.cameraBoundTop - g.cameraBoundBottom) * 0.5f;
 		float maxOrthoFromW = (g.cameraBoundRight - g.cameraBoundLeft) * 0.5f / Mathf.Max(cam.aspect, 0.001f);
 		desiredOrtho = Mathf.Min(desiredOrtho, Mathf.Min(maxOrthoFromH, maxOrthoFromW));
@@ -68,7 +68,8 @@ public class CameraFollow2D : MonoBehaviour
 		transform.position = g.cameraSnapToPixelGrid ? SnapToGrid(finalPosition) : finalPosition;
 	}
 
-	static float ComputeZoomDelta(float z, Globals g) {
+	float ComputeZoomDelta(float z) {
+		Globals g = Globals.Instance;
 		if (z >= 0f) {
 			float endDelta = g.cameraOrthoSize - g.zoomMaxFarSize;
 			if (z <= g.zoomMinFar) return z * g.zoomDeadzoneRate;
