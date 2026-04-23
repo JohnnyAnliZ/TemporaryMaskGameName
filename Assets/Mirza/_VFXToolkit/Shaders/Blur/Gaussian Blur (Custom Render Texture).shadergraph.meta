@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 6ac0f1e70130b1049be6f145b43500da
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277702
+  packageName: AERO - Volumetric Fog and Mist
+  packageVersion: 1.0
+  assetPath: Assets/Mirza/_VFXToolkit/Shaders/Blur/Gaussian Blur (Custom Render Texture).shadergraph
+  uploadId: 862318

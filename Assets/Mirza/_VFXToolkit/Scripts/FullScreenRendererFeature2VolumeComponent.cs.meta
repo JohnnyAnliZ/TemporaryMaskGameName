@@ -1,0 +1,9 @@
+fileFormatVersion: 2
+guid: ccf98a4a63d53254f8d6557c59e24b49
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277702
+  packageName: AERO - Volumetric Fog and Mist
+  packageVersion: 1.0
+  assetPath: Assets/Mirza/_VFXToolkit/Scripts/FullScreenRendererFeature2VolumeComponent.cs
+  uploadId: 862318
