@@ -14,6 +14,7 @@ public class Globals : ScriptableObject {
 	[Header("2D Break")]
 	public int numBreaks = 8;
 	public float shardSize = 1f;
+	public float maskBlurRadius = 2f;
 	public Vector2 shardSpeedRange = new Vector2(0.5f, 2f);
 	public Vector2 shardSpinRange = new Vector2(-180f, 180f);
 
