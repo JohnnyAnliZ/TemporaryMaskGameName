@@ -17,7 +17,10 @@ public class Globals : ScriptableObject {
 	public Vector2 shardSpeedRange = new Vector2(0.5f, 2f);
 	public Vector2 shardSpinRange = new Vector2(-180f, 180f);
 
-	[Header("3D Camera")]
+	[Header("3D Break")]
+	public int num3DBreaks = 3;
+
+    [Header("3D Camera")]
 	public float mouseSensitivity = 2f;
 	public float eyeOffset = 0.6f;
 	public float pitchClamp = 85f;

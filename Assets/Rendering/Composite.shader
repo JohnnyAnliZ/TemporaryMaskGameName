@@ -85,6 +85,11 @@ Shader "Custom/Composite"
 				half4 colA = SampleAStreaked(i.uv);
 				half4 colB = SAMPLE_TEXTURE2D_X(_CameraB_Tex, sampler_CameraB_Tex, i.uv);
 				half mask = SAMPLE_TEXTURE2D_X(_MaskTex, sampler_MaskTex, i.uv).r;
+				half blackness = SAMPLE_TEXTURE2D_X(_MaskTex, sampler_MaskTex, i.uv).g;
+
+				if(blackness == 1.0) {
+					return half4(0.0,0.0,0.0,1.0);
+				}				
 				return lerp(colA, colB, mask);
 			}
 			ENDHLSL

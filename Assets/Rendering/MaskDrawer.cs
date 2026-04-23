@@ -20,6 +20,8 @@ public class MaskDrawer : MonoBehaviour
 	Transform shardParent;
 	PhysicsMaterial shardPhysMat;
 
+	RenderTexture blackRT;
+
 	void Start() {
 		circleMaskMaterial = new Material(Shader.Find("Custom/CircleMask"));
 		shardMaterial = new Material(Shader.Find("Custom/Shard"));
@@ -44,9 +46,12 @@ public class MaskDrawer : MonoBehaviour
 		float halfW = halfH * cam2D.aspect;
 		cmd.SetGlobalVector("_CameraPos", new Vector4(cam2D.transform.position.x, cam2D.transform.position.y, halfW, halfH));
 		cmd.SetGlobalFloat("_CellSize", Globals.Instance.shardSize);
-		cmd.SetGlobalInt("_NumPasses", Globals.Instance.numBreaks);
-		cmd.SetGlobalInt("_PassIndex", currentPass);
-		cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
+		cmd.SetGlobalInt("_Num2DTo3DPasses", Globals.Instance.numBreaks);
+		cmd.SetGlobalInt("_Num3DToBlackPasses", 3);
+        cmd.SetGlobalInt("_PassIndex", currentPass);
+
+
+        cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
 		Graphics.ExecuteCommandBuffer(cmd);
 	}
 
