@@ -25,6 +25,9 @@ public class DebugInput : MonoBehaviour
 		if (mouse.leftButton.wasPressedThisFrame) {
 			maskDrawer.Do_Shatter();
 		}
+		if (keyboard.yKey.wasPressedThisFrame) {
+			maskDrawer.Do_ShrinkToBlack();
+		}
 
 		if (keyboard.cKey.wasPressedThisFrame) {
 			maskDrawer.ResetMask();

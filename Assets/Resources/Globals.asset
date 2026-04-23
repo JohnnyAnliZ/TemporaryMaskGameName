@@ -26,7 +26,8 @@ MonoBehaviour:
   shatterStagger: 0.4
   shardSpeedRange: {x: 0.5, y: 2}
   shardSpinRange: {x: -180, y: 180}
-  num3DBreaks: 3
+  num3DBreaks: 4
+  shrinkTime: 0.25
   mouseSensitivity: 0.25
   eyeOffset: 0.6
   pitchClamp: 85
