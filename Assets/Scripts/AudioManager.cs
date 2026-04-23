@@ -25,9 +25,18 @@ public class AudioManager : Singleton<AudioManager>
     public float footstepVolume = 1.0f;
     public float footstepInterval = 0.5f;
 
+    [Header("Impact Settings")]
+    public AudioClip[] impactClips2D;
+    public AudioClip[] impactClipsTrans;
+    public AudioClip[] impactClips3D;
+    public float impactVolume = 1.0f;
+
     private AudioClip[] footstepClips;
 
+    private AudioClip[] impactClips;
+
     private AudioSource footstepSource;
+    private AudioSource impactSource;
     private AudioSource ambienceSource;
     private AudioSource track2DIntroSource;
     private AudioSource track2DSource;
@@ -46,6 +55,9 @@ public class AudioManager : Singleton<AudioManager>
 
         footstepClips = footstepClips2D;
         footstepSource = CreateChildAudioSource("footstepSource", footstepVolume, footstepClips[0], false);
+
+        impactClips = impactClips2D;
+        impactSource = CreateChildAudioSource("impactSource", impactVolume, impactClips[0], false);
 
         track2DIntroSource = CreateChildAudioSource("track2DIntroSource", 1, track2DIntro, true);
         track2DSource = CreateChildAudioSource("track2DSource", 0, track2D, true);
@@ -73,6 +85,13 @@ public class AudioManager : Singleton<AudioManager>
         if (footstepClips == null || footstepClips.Length == 0 || footstepSource == null) return;
         AudioClip randomClip = footstepClips[Random.Range(0, footstepClips.Length)];
         footstepSource.PlayOneShot(randomClip, footstepVolume);
+    }
+
+    public void PlayImpact()
+    {
+        if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
+        AudioClip randomClip = impactClips[Random.Range(0, impactClips.Length)];
+        impactSource.PlayOneShot(randomClip, impactVolume);
     }
 
     private void Update()
