@@ -54,7 +54,7 @@ MonoBehaviour:
   trackRealLife: {fileID: 8300000, guid: 4315057e0d9ea7843812e025c7a5a738, type: 3}
   crumble: {fileID: 8300000, guid: fe5a4fea6d793e54289e9ebe282d063b, type: 3}
   ambience: {fileID: 8300000, guid: f09a64ea389055d4ba1d13b85340414e, type: 3}
-  footstepClips:
+  footstepClips2D:
   - {fileID: 8300000, guid: de97960e1e5c38a438f4f7df6641e9b5, type: 3}
   - {fileID: 8300000, guid: a078ee256d9faec489cc75179447161d, type: 3}
   - {fileID: 8300000, guid: bba7316d336fb6445a5b3610cac54756, type: 3}
@@ -63,8 +63,26 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 83fa4a88bec996148969eba8846be3b8, type: 3}
   - {fileID: 8300000, guid: 6ecd4c1a1eb09294795c2d7fa85aff4d, type: 3}
   - {fileID: 8300000, guid: 6f2ca0b48b76c60488a0567884530b17, type: 3}
-  footstepVolume: 0.3
-  footstepInterval: 0.5
+  footstepClipsTrans:
+  - {fileID: 8300000, guid: a02a39e59282daa49a1aac80115b0d81, type: 3}
+  - {fileID: 8300000, guid: 6790dd760044dd845acebc5b9001237d, type: 3}
+  - {fileID: 8300000, guid: f4ccac76811c433498c4143d49886142, type: 3}
+  - {fileID: 8300000, guid: 258d55abcd1a7c844acd3721fc4e16c4, type: 3}
+  - {fileID: 8300000, guid: 9a197976bec4dc349927b7279cac7bfa, type: 3}
+  - {fileID: 8300000, guid: c410f9c582f94e84c8c5e1bfc1eba4bc, type: 3}
+  - {fileID: 8300000, guid: e798f1d446a56d54e8a95bb631e0b0b0, type: 3}
+  - {fileID: 8300000, guid: 8bd7e0a4ba572fe4680a31b766e590fb, type: 3}
+  footstepClips3D:
+  - {fileID: 8300000, guid: f00833ba517c8a143be666df998b6bb7, type: 3}
+  - {fileID: 8300000, guid: 1e21b4b99af888a47a8512384256dae2, type: 3}
+  - {fileID: 8300000, guid: 4fbfbaf4bb5c59d4dba287cf4e233ec4, type: 3}
+  - {fileID: 8300000, guid: fe19cba13ff074a4e9061d498e1bec58, type: 3}
+  - {fileID: 8300000, guid: 48d2975fd01d4ce41a7ce0c468616eec, type: 3}
+  - {fileID: 8300000, guid: 105ee1e2ff4bf134cb5e8b25b115f3a7, type: 3}
+  - {fileID: 8300000, guid: c6e2300b15c97d5438be56b38d41a86d, type: 3}
+  - {fileID: 8300000, guid: a157cc14beaa1e7409638759c0850b6c, type: 3}
+  footstepVolume: 0.4
+  footstepInterval: 0.4
 --- !u!82 &1871322857511142886
 AudioSource:
   m_ObjectHideFlags: 0
