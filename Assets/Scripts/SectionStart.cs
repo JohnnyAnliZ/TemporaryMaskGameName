@@ -137,7 +137,12 @@ public class SectionsWindow : UnityEditor.EditorWindow
 		if (GUI.Button(playRect, "▶")) {
 			UnityEditor.SessionState.SetInt("startSection", (int)selected);
 			UnityEditor.SessionState.SetInt("startSubsection", index);
-			if (!UnityEditor.EditorApplication.isPlaying) UnityEditor.EditorApplication.isPlaying = true;
+			if (UnityEditor.EditorApplication.isPlaying) {
+				UnityEditor.EditorApplication.playModeStateChanged += RestartAfterExit;
+				UnityEditor.EditorApplication.ExitPlaymode();
+			} else {
+				UnityEditor.EditorApplication.EnterPlaymode();
+			}
 		}
 
 		GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
@@ -159,6 +164,12 @@ public class SectionsWindow : UnityEditor.EditorWindow
 		}
 
 		return action;
+	}
+
+	static void RestartAfterExit(UnityEditor.PlayModeStateChange state) {
+		if (state != UnityEditor.PlayModeStateChange.EnteredEditMode) return;
+		UnityEditor.EditorApplication.playModeStateChanged -= RestartAfterExit;
+		UnityEditor.EditorApplication.EnterPlaymode();
 	}
 
 	static SectionAsset LoadOrCreateSectionAsset(Section section) {

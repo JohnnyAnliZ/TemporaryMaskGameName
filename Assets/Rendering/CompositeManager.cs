@@ -9,7 +9,7 @@ public class CompositeManager : Singleton<CompositeManager>
 	int lastWidth, lastHeight;
 	bool initialized = false;
 	RenderTexture maskRT;
-	MaskDrawer maskDrawer;
+	public MaskDrawer maskDrawer;
 
 	//Sorta lazy initialization where the cameras find this manager and only then initializes
 	public void RegisterCamera(Camera cam, int index) {

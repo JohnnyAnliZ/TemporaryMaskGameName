@@ -4,7 +4,8 @@ using UnityEngine.InputSystem;
 public class FirstPersonLook : MonoBehaviour
 {
 	Transform target;
-	float yaw, pitch;
+	float yaw = 90f;
+	float pitch;
 	Vector2 mouseDelta;
 
 	public void Init(Transform target) {

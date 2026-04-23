@@ -15,6 +15,8 @@ public class Globals : ScriptableObject {
 	public int numBreaks = 8;
 	public float shardSize = 1f;
 	public float maskBlurRadius = 2f;
+	public float shatterBias = 1.5f;
+	public float shatterStagger = 0.4f;
 	public Vector2 shardSpeedRange = new Vector2(0.5f, 2f);
 	public Vector2 shardSpinRange = new Vector2(-180f, 180f);
 

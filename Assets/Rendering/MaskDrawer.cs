@@ -46,6 +46,7 @@ public class MaskDrawer : MonoBehaviour
 		float halfW = halfH * cam2D.aspect;
 		cmd.SetGlobalVector("_CameraPos", new Vector4(cam2D.transform.position.x, cam2D.transform.position.y, halfW, halfH));
 		cmd.SetGlobalFloat("_CellSize", Globals.Instance.shardSize);
+		cmd.SetGlobalFloat("_ShatterBias", Globals.Instance.shatterBias);
 		cmd.SetGlobalInt("_NumPasses", Globals.Instance.numBreaks);
 		cmd.SetGlobalInt("_PassIndex", currentPass);
 		cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
@@ -87,8 +88,12 @@ public class MaskDrawer : MonoBehaviour
 		currentPass = 0;
 	}
 
+	public void Do_ShatterAll() {
+		while (currentPass < Globals.Instance.numBreaks) Do_Shatter();
+	}
 	public void Do_Shatter() {
 		if (cam2D == null) return;
+		if (currentPass >= Globals.Instance.numBreaks) return;
 
 		int revealingPass = currentPass;
 		currentPass++;
@@ -347,7 +352,7 @@ public class MaskDrawer : MonoBehaviour
 	int AssignPass(int cx, int cy) {
 		uint h = Hash2D(cx, cy);
 		float noise = h / 4294967295f;
-		float biased = 1f - Mathf.Pow(noise, 1.5f);
+		float biased = 1f - Mathf.Pow(noise, Globals.Instance.shatterBias);
 		return Mathf.Min((int)(biased * Globals.Instance.numBreaks), Globals.Instance.numBreaks - 1);
 	}
 }

@@ -4,6 +4,10 @@ public class Platform : MonoBehaviour {
 	[HideInInspector]
 	public Transform spawnPoint;
 
+	public bool bCanBreak;
+	public bool bLastBreak;
+	[HideInInspector] public bool bIsBroken;
+
 	void Reset() {
 		if (spawnPoint == null) {
 			Transform found = transform.Find("SpawnPoint");

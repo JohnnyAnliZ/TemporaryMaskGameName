@@ -49,8 +49,11 @@ public class AudioManager : Singleton<AudioManager>
     private double startTime = 100000;
     private bool hasTransitioned = false;
 
-    private void Start()
+    protected override void Awake()
     {
+        base.Awake();
+        if (Instance != this) return;
+
         ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience, true);
 
         footstepClips = footstepClips2D;
@@ -67,14 +70,14 @@ public class AudioManager : Singleton<AudioManager>
         trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife, true);
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
 
-        ambienceSource.Play(); 
+        ambienceSource.Play();
     }
 
     public void StartMusic()
     {
-        track2DIntroSource.time = 3.75f; 
+        track2DIntroSource.time = 3.75f;
         track2DIntroSource.Play();
-        track2DSource.time = 3.75f; 
+        track2DSource.time = 3.75f;
         track2DSource.Play();
 
         startTime = AudioSettings.dspTime;

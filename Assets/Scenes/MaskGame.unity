@@ -1008,6 +1008,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1375515186}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &34360661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1422,6 +1425,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 893818626}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &69831603
 GameObject:
   m_ObjectHideFlags: 0
@@ -2616,6 +2622,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1397682013}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &109894763
 GameObject:
   m_ObjectHideFlags: 0
@@ -3793,7 +3802,7 @@ Transform:
   m_Children:
   - {fileID: 864596764}
   - {fileID: 1624956975}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &147453283
 MonoBehaviour:
@@ -3808,6 +3817,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 864596764}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &149328969
 GameObject:
   m_ObjectHideFlags: 0
@@ -5806,7 +5818,7 @@ Transform:
   m_GameObject: {fileID: 243776757}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 106.19, y: 7.29, z: -0.9299927}
+  m_LocalPosition: {x: 87.31, y: 5.95, z: -4.65}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6173,6 +6185,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 985192803}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &276104539
 GameObject:
   m_ObjectHideFlags: 0
@@ -7372,7 +7387,7 @@ Transform:
   - {fileID: 4068358}
   - {fileID: 1330041762}
   - {fileID: 681203350}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &325725712
 MonoBehaviour:
@@ -7387,6 +7402,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1783112510}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &338072091
 GameObject:
   m_ObjectHideFlags: 0
@@ -7658,6 +7676,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 2113245927}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &351091950
 GameObject:
   m_ObjectHideFlags: 0
@@ -8475,6 +8496,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 362598490}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &379202481
 GameObject:
   m_ObjectHideFlags: 0
@@ -8878,7 +8902,7 @@ Transform:
   m_GameObject: {fileID: 396723043}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 75.9, y: 4.99, z: -0.9299927}
+  m_LocalPosition: {x: 42.46, y: 4.94, z: -3.45}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8945,6 +8969,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1303060431}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &404438895
 GameObject:
   m_ObjectHideFlags: 0
@@ -10409,6 +10436,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1349560058}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &460834530
 GameObject:
   m_ObjectHideFlags: 0
@@ -12258,6 +12288,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1751446543}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &533629776
 GameObject:
   m_ObjectHideFlags: 0
@@ -12561,6 +12594,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 211343343}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &539782960
 GameObject:
   m_ObjectHideFlags: 0
@@ -14109,7 +14145,7 @@ Transform:
   - {fileID: 439681531}
   - {fileID: 1846727635}
   - {fileID: 1484458494}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &613226999
 MonoBehaviour:
@@ -14124,6 +14160,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 553943860}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &615128253
 GameObject:
   m_ObjectHideFlags: 0
@@ -15889,6 +15928,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1731790948}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &677543751
 GameObject:
   m_ObjectHideFlags: 0
@@ -16884,6 +16926,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 248541329}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!114 &696768949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17939,6 +17984,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 906009460}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &732608417
 GameObject:
   m_ObjectHideFlags: 0
@@ -20047,6 +20095,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 406119524}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!65 &839979513
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -20683,6 +20734,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 895391414}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &864596763
 GameObject:
   m_ObjectHideFlags: 0
@@ -21716,6 +21770,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 131775663}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &895391413
 GameObject:
   m_ObjectHideFlags: 0
@@ -23975,6 +24032,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 943746958}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1005545753
 GameObject:
   m_ObjectHideFlags: 0
@@ -24815,6 +24875,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 568116167}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1065414341
 GameObject:
   m_ObjectHideFlags: 0
@@ -25866,6 +25929,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 34360662}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1124516919
 GameObject:
   m_ObjectHideFlags: 0
@@ -26865,6 +26931,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 396393009}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1162681724
 GameObject:
   m_ObjectHideFlags: 0
@@ -27814,14 +27883,15 @@ Transform:
   m_GameObject: {fileID: 1216553791}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 51.73, y: 2.11, z: -14.944809}
+  m_LocalPosition: {x: 51.73, y: 2.1099997, z: -14.944809}
   m_LocalScale: {x: 0.4282217, y: 0.34961683, z: 4.0218105}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 144541478}
   - {fileID: 886816021}
   - {fileID: 1287305173}
-  m_Father: {fileID: 1774381922}
+  - {fileID: 1372436221}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1216553793
 MonoBehaviour:
@@ -27836,6 +27906,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 144541478}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1224983262
 GameObject:
   m_ObjectHideFlags: 0
@@ -28975,6 +29048,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 162908337}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1267516280
 GameObject:
   m_ObjectHideFlags: 0
@@ -29243,6 +29319,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 959406162}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1276601760
 GameObject:
   m_ObjectHideFlags: 0
@@ -29886,6 +29965,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 863771199}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1296398829
 GameObject:
   m_ObjectHideFlags: 0
@@ -30188,6 +30270,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 2088165623}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1322543899
 GameObject:
   m_ObjectHideFlags: 0
@@ -30570,37 +30655,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SectionStart
   section: 1
   gameplayStart: 3
---- !u!1 &1333918690
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1333918691}
-  m_Layer: 0
-  m_Name: SpawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1333918691
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1333918690}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -9.93, y: -2.1, z: 1.847}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1410232384}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1339261242
 GameObject:
   m_ObjectHideFlags: 0
@@ -31021,6 +31075,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 2048217070}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1363624753
 GameObject:
   m_ObjectHideFlags: 0
@@ -31434,11 +31491,11 @@ Transform:
   m_GameObject: {fileID: 1372436220}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -9.73, y: -5, z: 1.532}
-  m_LocalScale: {x: 2.6709528, y: 3.4422386, z: 1.9275182}
+  m_LocalPosition: {x: -6.5428185, y: -6.9057655, z: 1.5319985}
+  m_LocalScale: {x: 3.7448096, y: 3.198631, z: 1.9275184}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1410232384}
+  m_Father: {fileID: 1216553792}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &1372436222
 BoxCollider:
@@ -32017,6 +32074,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1287378332}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1408105921
 GameObject:
   m_ObjectHideFlags: 0
@@ -32129,53 +32189,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1408105921}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1410232383
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1410232384}
-  - component: {fileID: 1410232385}
-  m_Layer: 0
-  m_Name: Platform (41)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1410232384
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410232383}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 54.77, y: 1.32, z: -14.944809}
-  m_LocalScale: {x: 0.6003883, y: 0.32487443, z: 4.0218105}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1333918691}
-  - {fileID: 1372436221}
-  m_Father: {fileID: 1774381922}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1410232385
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1410232383}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e666e174d043e4ba15b0371d78e013, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Platform
-  spawnPoint: {fileID: 1333918691}
 --- !u!1 &1412503576
 GameObject:
   m_ObjectHideFlags: 0
@@ -32430,6 +32443,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1229743610}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1423909899
 GameObject:
   m_ObjectHideFlags: 0
@@ -34260,7 +34276,7 @@ Transform:
   m_GameObject: {fileID: 1489604560}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 55.36, y: 2.72, z: -14.944809}
+  m_LocalPosition: {x: 55.36, y: 2.7200003, z: -14.944809}
   m_LocalScale: {x: 0.45093918, y: 0.38935, z: 4.0218105}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -34271,7 +34287,7 @@ Transform:
   - {fileID: 633233577}
   - {fileID: 508475085}
   - {fileID: 1638750456}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1489604562
 MonoBehaviour:
@@ -34286,6 +34302,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 394294619}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1491972868
 GameObject:
   m_ObjectHideFlags: 0
@@ -35116,6 +35135,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1113389542}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1518629253
 GameObject:
   m_ObjectHideFlags: 0
@@ -36761,6 +36783,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1389394227}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1610467693
 GameObject:
   m_ObjectHideFlags: 0
@@ -36920,6 +36945,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 714890999}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1624956974
 GameObject:
   m_ObjectHideFlags: 0
@@ -37216,7 +37244,7 @@ Transform:
   m_GameObject: {fileID: 1630958092}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 67.06, y: 5.66, z: -7.53}
+  m_LocalPosition: {x: 67.06, y: 5.66, z: -7.529999}
   m_LocalScale: {x: 0.7526825, y: 0.54396087, z: 4.0218105}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -37224,7 +37252,7 @@ Transform:
   - {fileID: 1553670885}
   - {fileID: 1130326261}
   - {fileID: 598472816}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1630958094
 MonoBehaviour:
@@ -37239,6 +37267,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1182990233}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1632756610
 GameObject:
   m_ObjectHideFlags: 0
@@ -37286,6 +37317,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 859571848}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1637817814
 GameObject:
   m_ObjectHideFlags: 0
@@ -37804,6 +37838,45 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1647730272}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1647863763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1647863764}
+  m_Layer: 0
+  m_Name: Breakers
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1647863764
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1647863763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 147453282}
+  - {fileID: 1216553792}
+  - {fileID: 1489604561}
+  - {fileID: 613226998}
+  - {fileID: 1630958093}
+  - {fileID: 325725711}
+  - {fileID: 2106468146}
+  - {fileID: 2134650276}
+  m_Father: {fileID: 1774381922}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1659370180
 GameObject:
   m_ObjectHideFlags: 0
@@ -39722,6 +39795,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1545523404}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1731790947
 GameObject:
   m_ObjectHideFlags: 0
@@ -40518,17 +40594,9 @@ Transform:
   - {fileID: 378157014}
   - {fileID: 1362493386}
   - {fileID: 1730911512}
-  - {fileID: 147453282}
-  - {fileID: 325725711}
-  - {fileID: 1489604561}
-  - {fileID: 1617032522}
-  - {fileID: 1216553792}
-  - {fileID: 1410232384}
   - {fileID: 1518275473}
-  - {fileID: 613226998}
-  - {fileID: 1630958093}
-  - {fileID: 2134650276}
-  - {fileID: 2106468146}
+  - {fileID: 1617032522}
+  - {fileID: 1647863764}
   - {fileID: 1120590808}
   - {fileID: 864083022}
   - {fileID: 347141081}
@@ -41853,6 +41921,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 2136041144}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1832498756
 GameObject:
   m_ObjectHideFlags: 0
@@ -42103,6 +42174,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 537223889}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1844463155
 GameObject:
   m_ObjectHideFlags: 0
@@ -42545,6 +42619,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1286183264}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1855487796
 GameObject:
   m_ObjectHideFlags: 0
@@ -44036,6 +44113,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1601926311}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &1933189534
 GameObject:
   m_ObjectHideFlags: 0
@@ -46263,7 +46343,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -12.5, y: 4.44, z: 1.45}
-  m_LocalScale: {x: 200, y: 1.3903725, z: 6.726178}
+  m_LocalScale: {x: 20, y: 1.3903725, z: 6.726178}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 378157014}
@@ -47315,6 +47395,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 733046079}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &2050162981
 GameObject:
   m_ObjectHideFlags: 0
@@ -47544,6 +47627,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1855487797}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &2053699495
 GameObject:
   m_ObjectHideFlags: 0
@@ -48394,7 +48480,7 @@ Transform:
   m_GameObject: {fileID: 2106468145}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 76.26, y: 1.54, z: -4.78}
+  m_LocalPosition: {x: 76.26, y: 1.54, z: -4.779999}
   m_LocalScale: {x: 0.7526825, y: 0.54396087, z: 4.3322225}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -48417,7 +48503,7 @@ Transform:
   - {fileID: 1983450682}
   - {fileID: 1323330609}
   - {fileID: 684130139}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2106468147
 MonoBehaviour:
@@ -48432,6 +48518,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 235983364}
+  bCanBreak: 1
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &2113245926
 GameObject:
   m_ObjectHideFlags: 0
@@ -48510,6 +48599,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1096687361}
+  bCanBreak: 0
+  bLastBreak: 0
+  bIsBroken: 0
 --- !u!1 &2124124055
 GameObject:
   m_ObjectHideFlags: 0
@@ -49038,7 +49130,7 @@ Transform:
   m_GameObject: {fileID: 2134650275}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 89.91, y: 4.86, z: -27.21}
+  m_LocalPosition: {x: 89.91, y: 4.8600006, z: -27.210007}
   m_LocalScale: {x: 0.968415, y: 0.54396087, z: 4.0218105}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -49050,7 +49142,7 @@ Transform:
   - {fileID: 1283301186}
   - {fileID: 555212040}
   - {fileID: 1515430602}
-  m_Father: {fileID: 1774381922}
+  m_Father: {fileID: 1647863764}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2134650277
 MonoBehaviour:
@@ -49065,6 +49157,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Platform
   spawnPoint: {fileID: 1637817815}
+  bCanBreak: 1
+  bLastBreak: 1
+  bIsBroken: 0
 --- !u!1 &2136041143
 GameObject:
   m_ObjectHideFlags: 0

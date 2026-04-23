@@ -9,21 +9,6 @@ public class GameManager : Singleton<GameManager>
 	public GameObject player3DPrefab, player2DPrefab;
 	public GameObject player3D, player2D;
 
-	public void AdvanceSubsection() {
-		if (runner != null) runner.Advance();
-	}
-
-	public void TeleportPlayer(Vector3 pos) {
-		if (player3D == null) return;
-		if (player3D.TryGetComponent<CharacterController>(out var cc)) {
-			cc.enabled = false;
-			player3D.transform.position = pos;
-			cc.enabled = true;
-		} else {
-			player3D.transform.position = pos;
-		}
-	}
-
 	void PlaySection(Section section, int startSubsection = 0) {
 		SectionAsset asset = Resources.Load<SectionAsset>($"Sections/Section_{section}");
 		if (asset == null || asset.subsections.Count == 0) {
@@ -35,6 +20,15 @@ public class GameManager : Singleton<GameManager>
 			Section next = all[(System.Array.IndexOf(all, section) + 1) % all.Length];
 			PlaySection(next);
 		});
+	}
+	public void AdvanceSubsection() {
+		runner.Advance();
+	}
+	public void TeleportPlayer(Vector3 pos) {
+		CharacterController cc = player3D.GetComponent<CharacterController>();
+		cc.enabled = false;
+		player3D.transform.position = pos;
+		cc.enabled = true;
 	}
 
 	void Start() {
