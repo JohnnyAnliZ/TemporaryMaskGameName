@@ -19,9 +19,13 @@ public class AudioManager : Singleton<AudioManager>
     public AudioClip ambience;
 
     [Header("Footstep Settings")]
-    public AudioClip[] footstepClips;
+    public AudioClip[] footstepClips2D;
+    public AudioClip[] footstepClipsTrans;
+    public AudioClip[] footstepClips3D;
     public float footstepVolume = 1.0f;
     public float footstepInterval = 0.5f;
+
+    private AudioClip[] footstepClips;
 
     private AudioSource footstepSource;
     private AudioSource ambienceSource;
@@ -33,13 +37,14 @@ public class AudioManager : Singleton<AudioManager>
     private AudioSource trackTransToRealLifeSource;
     private AudioSource trackRealLifeSource;
 
-    private double startTime;
+    private double startTime = 100000;
     private bool hasTransitioned = false;
 
     private void Start()
     {
         ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience, true);
 
+        footstepClips = footstepClips2D;
         footstepSource = CreateChildAudioSource("footstepSource", footstepVolume, footstepClips[0], false);
 
         track2DIntroSource = CreateChildAudioSource("track2DIntroSource", 1, track2DIntro, true);
@@ -50,8 +55,14 @@ public class AudioManager : Singleton<AudioManager>
         trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife, true);
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
 
-        ambienceSource.Play();
+        ambienceSource.Play(); 
+    }
+
+    public void StartMusic()
+    {
+        track2DIntroSource.time = 3.75f; 
         track2DIntroSource.Play();
+        track2DSource.time = 3.75f; 
         track2DSource.Play();
 
         startTime = AudioSettings.dspTime;
@@ -68,7 +79,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         double elapsedTime = AudioSettings.dspTime - startTime;
 
-        if (elapsedTime >= 40 && !hasTransitioned)
+        if (elapsedTime >= 36.25f && !hasTransitioned)
         {
             hasTransitioned = true;
             FadeOutMusic(track2DIntroSource, 8);

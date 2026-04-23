@@ -16,7 +16,7 @@ public class Player3DController : MonoBehaviour
 
 	// Footstep audio
 	float footstepTimer;
-	public float footstepInterval = 0.5f;
+	float footstepInterval;
 
 	void Awake() {
 		controller = GetComponent<CharacterController>();
@@ -24,6 +24,7 @@ public class Player3DController : MonoBehaviour
 
 	void Start() {
 		lookTransform = FindAnyObjectByType<FirstPersonLook>().transform;
+		footstepInterval = AudioManager.Instance.footstepInterval;
 	}
 
 	void Update() {
