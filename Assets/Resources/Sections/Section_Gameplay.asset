@@ -13,7 +13,31 @@ MonoBehaviour:
   m_Name: Section_Gameplay
   m_EditorClassIdentifier: Assembly-CSharp::SectionAsset
   section: 1
-  subsections: []
+  subsections:
+  - rid: 8691557471280431173
+  - rid: 8691557471280431174
+  - rid: 8691557471280431175
+  - rid: 8691557471280431176
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 8691557471280431173
+      type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: 2D
+        start: 0
+    - rid: 8691557471280431174
+      type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: 2DBreak
+        start: 1
+    - rid: 8691557471280431175
+      type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: 3D
+        start: 2
+    - rid: 8691557471280431176
+      type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: 3DBreak
+        start: 3
