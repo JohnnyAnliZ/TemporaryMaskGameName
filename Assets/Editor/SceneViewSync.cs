@@ -152,16 +152,16 @@ static class ViewportSync
 					}
 				}
 
-				//World3DZ plane
-				float extent = 10000f;
-				Vector3[] plane = {
-					new Vector3(-extent, -extent, g.world3DZ),
-					new Vector3(extent, -extent, g.world3DZ),
-					new Vector3(extent, extent, g.world3DZ),
-					new Vector3(-extent, extent, g.world3DZ),
-				};
-				Handles.color = Color.white; //reset from previous use of Handles
-				Handles.DrawSolidRectangleWithOutline(plane, new Color(1, 0, 0, 0.02f), Color.clear);
+				// //World3DZ plane
+				// float extent = 10000f;
+				// Vector3[] plane = {
+				// 	new Vector3(-extent, -extent, g.world3DZ),
+				// 	new Vector3(extent, -extent, g.world3DZ),
+				// 	new Vector3(extent, extent, g.world3DZ),
+				// 	new Vector3(-extent, extent, g.world3DZ),
+				// };
+				// Handles.color = Color.white; //reset from previous use of Handles
+				// Handles.DrawSolidRectangleWithOutline(plane, new Color(1, 0, 0, 0.02f), Color.clear);
 			}
 		}
 

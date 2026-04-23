@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class CompositeManager : Singleton<CompositeManager>
 {
@@ -30,6 +31,7 @@ public class CompositeManager : Singleton<CompositeManager>
 			outputCam.allowHDR = false;
 			outputCam.allowMSAA = false;
 			outputCam.useOcclusionCulling = false;
+			outputCam.GetUniversalAdditionalCameraData().SetRenderer(2);
 
 			maskDrawer = gameObject.AddComponent<MaskDrawer>();
 

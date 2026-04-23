@@ -1502,7 +1502,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 61295639}
-  - component: {fileID: 61295640}
   m_Layer: 0
   m_Name: Flower_Platform
   m_TagString: Untagged
@@ -1526,22 +1525,6 @@ Transform:
   - {fileID: 1460858507}
   m_Father: {fileID: 1774381922}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &61295640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 61295638}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e666e174d043e4ba15b0371d78e013, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Platform
-  spawnPoint: {fileID: 0}
-  bCanBreak: 0
-  bLastBreak: 0
-  bIsBroken: 0
 --- !u!1 &69831603
 GameObject:
   m_ObjectHideFlags: 0
@@ -22838,6 +22821,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 899751299}
+  - component: {fileID: 899751300}
   m_Layer: 0
   m_Name: 3DScene
   m_TagString: Untagged
@@ -22865,6 +22849,20 @@ Transform:
   - {fileID: 1885354106}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &899751300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 899751298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4e4b5b3996032e4681cda701e89f62f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Mirza.AERO.VolumetricFogController
+  material: {fileID: 2100000, guid: fedf334cf2cc1b44d9ae7b524decb528, type: 2}
+  additionalLightCountBase: 0
 --- !u!1 &903369321
 GameObject:
   m_ObjectHideFlags: 0
@@ -31483,7 +31481,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1309548927}
-  - component: {fileID: 1309548928}
   m_Layer: 0
   m_Name: Backwall Blocks
   m_TagString: Untagged
@@ -31521,22 +31518,6 @@ Transform:
   - {fileID: 1912739176}
   m_Father: {fileID: 1774381922}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1309548928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1309548926}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e666e174d043e4ba15b0371d78e013, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Platform
-  spawnPoint: {fileID: 0}
-  bCanBreak: 0
-  bLastBreak: 0
-  bIsBroken: 0
 --- !u!1 &1315999895
 GameObject:
   m_ObjectHideFlags: 0

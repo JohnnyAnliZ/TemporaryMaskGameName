@@ -44,5 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729bb7279e6534a42bd34c6f03505da1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  bInputEnabled: 1
   player3DPrefab: {fileID: 5617624884923952783, guid: 6e422ac394f288c4d9e3cdeac6a501c3, type: 3}
   player2DPrefab: {fileID: 9218459499147378574, guid: 4d9bc2bcabd7d7c41a6ca7d48f75dc0d, type: 3}
+  player3D: {fileID: 0}
+  player2D: {fileID: 0}
+  volumetricFogMaterial: {fileID: 2100000, guid: fedf334cf2cc1b44d9ae7b524decb528, type: 2}
