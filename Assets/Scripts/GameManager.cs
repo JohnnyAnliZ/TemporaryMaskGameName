@@ -7,6 +7,7 @@ public class GameManager : Singleton<GameManager>
 	SectionRunner runner;
 
 	public GameObject player3DPrefab, player2DPrefab;
+	[HideInInspector]
 	public GameObject player3D, player2D;
 
 	void PlaySection(Section section, int startSubsection = 0) {
@@ -111,7 +112,8 @@ public class GameManager : Singleton<GameManager>
 
 		GameObject camera3D = new GameObject("3DCamera");
 		camera3D.SetActive(false);
-		camera3D.AddComponent<Camera>();
+		Camera cam3D = camera3D.AddComponent<Camera>();
+		cam3D.GetUniversalAdditionalCameraData().SetRenderer(1);
 		camera3D.AddComponent<CompositeCamera>().index = 1;
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
 		camera3D.AddComponent<AudioListener>();
@@ -126,10 +128,11 @@ public class GameManager : Singleton<GameManager>
 		cam.orthographicSize = g.cameraOrthoSize;
 		cam.nearClipPlane = g.camera2DNearClip;
 		cam.farClipPlane = g.camera2DFarClip;
+		cam.GetUniversalAdditionalCameraData().SetRenderer(0);
+		cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 		camera2D.AddComponent<CompositeCamera>().index = 0;
 		CameraFollow2D follow = camera2D.AddComponent<CameraFollow2D>();
 		follow.Init(player2D.transform, player3D.transform);
-		cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 		camera2D.AddComponent<StreakBlurDriver>().enabled = false;
 		camera2D.SetActive(true);
 
