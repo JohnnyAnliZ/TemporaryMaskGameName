@@ -14,12 +14,20 @@ public class Player3DController : MonoBehaviour
 	Vector3 jumpBoost;
 	Platform lastPlatform;
 
+	// Footstep audio
+	float footstepTimer;
+	float footstepInterval;
+
+	// Impact logic
+	bool isFalling = false;
+
 	void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
 
 	void Start() {
 		lookTransform = FindAnyObjectByType<FirstPersonLook>().transform;
+		footstepInterval = AudioManager.Instance.footstepInterval;
 	}
 
 	void Update() {
@@ -82,7 +90,31 @@ public class Player3DController : MonoBehaviour
 			}
 		}
 
-		if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -1f; //ensure grounding
+		
+
+		if (controller.isGrounded) {
+			if (isFalling) {
+				Debug.Log($"{verticalVelocity}");
+				if (verticalVelocity > -8f) {
+					AudioManager.Instance.impactVolume = 0.2f;
+				} else if (verticalVelocity <= -8f && verticalVelocity >= -20f) {
+					AudioManager.Instance.impactVolume = 0.2f + ((-verticalVelocity - 8f) * 0.067f); // scale by velocity
+				} else {
+					AudioManager.Instance.impactVolume = 1f;
+				}
+				Debug.Log($"{AudioManager.Instance.impactVolume}");
+				AudioManager.Instance.PlayImpact();
+				isFalling = false;
+			}
+		}
+
+		if (!controller.isGrounded && verticalVelocity < -8f) {
+			isFalling = true;
+		}
+
+		if (controller.isGrounded && verticalVelocity < 0f) {
+			verticalVelocity = -1f; //ensure grounding
+		}
 
 		//Dynamic gravity
 		float blendTime = Mathf.Clamp01(Mathf.InverseLerp(g.fallGravityBlend, -g.fallGravityBlend, verticalVelocity));
@@ -109,11 +141,30 @@ public class Player3DController : MonoBehaviour
 			verticalVelocity = 0f;
 			controller.enabled = true;
 		}
+
+		// Update sounds
+		UpdateFootsteps(inputDir);
+	}
+
+	void UpdateFootsteps(Vector3 movementDirection) {
+		// Only play footsteps if grounded and moving
+		bool isMoving = movementDirection != Vector3.zero && controller.isGrounded;
+
+		if (isMoving) {
+			footstepTimer -= Time.deltaTime;
+
+			if (footstepTimer <= 0f) {
+				AudioManager.Instance.PlayFootstep();
+				footstepTimer = footstepInterval;
+			}
+		} else {
+			footstepTimer = 0f;
+		}
 	}
 
 	void OnControllerColliderHit(ControllerColliderHit hit) {
-		if (hit.gameObject.TryGetComponent<PlatformPortalTrigger>(out PlatformPortalTrigger trigger)) {
-			trigger.TryTrigger(transform.position);
+		if (hit.gameObject) {
+
 		}
 	}
 

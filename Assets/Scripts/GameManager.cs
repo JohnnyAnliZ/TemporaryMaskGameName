@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class GameManager : Singleton<GameManager>
 {
@@ -6,10 +7,34 @@ public class GameManager : Singleton<GameManager>
 	SectionRunner runner;
 
 	public GameObject player3DPrefab, player2DPrefab;
-	GameObject player3D, player2D;
+	public GameObject player3D, player2D;
 
 	public void AdvanceSubsection() {
 		if (runner != null) runner.Advance();
+	}
+
+	public void TeleportPlayer(Vector3 pos) {
+		if (player3D == null) return;
+		if (player3D.TryGetComponent<CharacterController>(out var cc)) {
+			cc.enabled = false;
+			player3D.transform.position = pos;
+			cc.enabled = true;
+		} else {
+			player3D.transform.position = pos;
+		}
+	}
+
+	void PlaySection(Section section, int startSubsection = 0) {
+		SectionAsset asset = Resources.Load<SectionAsset>($"Sections/Section_{section}");
+		if (asset == null || asset.subsections.Count == 0) {
+			Log.Warn($"Skipping empty section {section}");
+			return;
+		}
+		runner.PlaySection(asset, startSubsection, onComplete: () => {
+			Section[] all = (Section[])System.Enum.GetValues(typeof(Section));
+			Section next = all[(System.Array.IndexOf(all, section) + 1) % all.Length];
+			PlaySection(next);
+		});
 	}
 
 	void Start() {
@@ -18,9 +43,12 @@ public class GameManager : Singleton<GameManager>
 		//Section panel -> GameManager
 		bool bSpawnFromPanel = false;
 		Section startSection = Section.Intro;
+		int startSubsection = 0;
 		#if UNITY_EDITOR
 		int raw = UnityEditor.SessionState.GetInt("startSection", -1);
+		startSubsection = UnityEditor.SessionState.GetInt("startSubsection", 0);
 		UnityEditor.SessionState.SetInt("startSection", -1); //reset back to "false" value cuz session state is until editor close
+		UnityEditor.SessionState.SetInt("startSubsection", 0);
 		bSpawnFromPanel = raw >= 0;
 		if (bSpawnFromPanel) startSection = (Section)raw;
 		#endif
@@ -92,6 +120,7 @@ public class GameManager : Singleton<GameManager>
 		camera3D.AddComponent<Camera>();
 		camera3D.AddComponent<CompositeCamera>().index = 1;
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
+		camera3D.AddComponent<AudioListener>();
 		camera3D.SetActive(true);
 
 		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
@@ -106,6 +135,8 @@ public class GameManager : Singleton<GameManager>
 		camera2D.AddComponent<CompositeCamera>().index = 0;
 		CameraFollow2D follow = camera2D.AddComponent<CameraFollow2D>();
 		follow.Init(player2D.transform, player3D.transform);
+		cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+		camera2D.AddComponent<StreakBlurDriver>().enabled = false;
 		camera2D.SetActive(true);
 
 		//Sections
@@ -113,12 +144,10 @@ public class GameManager : Singleton<GameManager>
 		bSpawnFromPanel = true;
 		#endif
 		if (bSpawnFromPanel) {
+			player2D.SetActive(false);
 			runner = gameObject.AddComponent<SectionRunner>();
 			runner.Init(cam, follow);
-
-			SectionAsset sectionAsset = Resources.Load<SectionAsset>($"Sections/Section_{startSection}");
-			if (sectionAsset != null) runner.PlaySection(sectionAsset);
-			else Log.Warn($"No SectionAsset at Resources/Sections/Section_{startSection}");
+			PlaySection(startSection, startSubsection);
 		}
 	}
 }

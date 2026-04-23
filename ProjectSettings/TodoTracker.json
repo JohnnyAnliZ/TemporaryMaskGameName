@@ -11,7 +11,7 @@
         {
             "id": "f99e11e7",
             "text": "game flow",
-            "done": false,
+            "done": true,
             "urgency": 2,
             "user": 0,
             "createdAt": "2026-04-20"
@@ -75,7 +75,7 @@
         {
             "id": "4d925d38",
             "text": "test light and fog layers",
-            "done": false,
+            "done": true,
             "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-16"
@@ -99,7 +99,7 @@
         {
             "id": "18116e4d",
             "text": "figure out how to do breaking animation",
-            "done": false,
+            "done": true,
             "urgency": 1,
             "user": 3,
             "createdAt": "2026-04-15"
@@ -107,7 +107,7 @@
         {
             "id": "6925aaf9",
             "text": "background parallax system",
-            "done": false,
+            "done": true,
             "urgency": 1,
             "user": 0,
             "createdAt": "2026-04-15"

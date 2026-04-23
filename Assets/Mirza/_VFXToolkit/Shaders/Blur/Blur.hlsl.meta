@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: c97817ca20a7d824aa3d8a1fee5ac96e
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277702
+  packageName: AERO - Volumetric Fog and Mist
+  packageVersion: 1.0
+  assetPath: Assets/Mirza/_VFXToolkit/Shaders/Blur/Blur.hlsl
+  uploadId: 862318

@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System;
@@ -13,57 +12,88 @@ public enum Section {
 }
 
 [Serializable]
+public abstract class Subsection {
+	public string name;
+	public virtual void OnStart() {}
+	public virtual void OnEnd() {}
+	public virtual void FastForwardToEnd() { OnStart(); OnEnd(); }
+}
+
+//Intro---------------------------------------------
+[Serializable]
 public struct CutsceneKeyframe {
 	public float time;
 	public Vector2 cameraPos;
 	public float orthoSize;
 	public AnimationCurve easeIn;
-	//public UnityEvent onReached;
 }
-
-[Serializable]
-public abstract class Subsection {
-	public string name;
-}
-
 [Serializable]
 public class CutsceneSubsection : Subsection {
 	public List<CutsceneKeyframe> keyframes = new();
 	public bool waitForInputAtEnd = false;
 
-	public virtual void OnStart() {}
-	public virtual void OnKeyframeReached(int index) {}
-	public virtual void OnEnd() {}
+	public virtual void OnKeyframeReached(int index) { }
+	public virtual void OnTick(float t) { }
 }
 
 [Serializable]
-public class GameplaySubsection : Subsection {
+public class IntroIdle : CutsceneSubsection {
+	public override void OnStart() {
+		GameObject.Find("SinkAnim").GetComponent<SpriteRenderer>().enabled = true;
+	}
 }
-
 [Serializable]
 public class IntroCutscene1Subsection : CutsceneSubsection {
-	public string animationTrigger = "play";
-
 	public override void OnStart() {
-		GameObject.Find("SinkAnim").TryGetComponent<Animator>(out Animator animator);
-		animator.SetTrigger(animationTrigger);
+		GameObject.Find("SinkAnim").GetComponent<Animator>().Play("Sink", 0, 0f);
+	}
+	public override void OnEnd() {
+		GameObject.Find("SinkAnim").GetComponent<Animator>().Play("Idle", 0, 0f);
 	}
 }
-
 [Serializable]
-public class IntroFlowerSubsection : CutsceneSubsection
-{
-	public string animationTrigger = "play";
+public class IntroPanSubsection : CutsceneSubsection {
+	public float length = 1f;
+	public AnimationCurve speedToStrengthCurve = AnimationCurve.Constant(0f, 1f, 0f);
+	public AnimationCurve streakLengthCurve = AnimationCurve.Constant(0f, 1f, 0f);
+
+	StreakBlurDriver driver;
 
 	public override void OnStart() {
-		GameObject.Find("SinkAnim").TryGetComponent<Animator>(out Animator animator);
-		animator.SetTrigger(animationTrigger);
+		driver = UnityEngine.Object.FindAnyObjectByType<StreakBlurDriver>();
+		driver.enabled = true;
 	}
+	public override void OnEnd() {
+		driver.enabled = false;
+		GameManager.Instance.player2D.SetActive(true);
+	}
+	public override void OnTick(float t) {
+		float u = length > 0f ? Mathf.Clamp01(t / length) : 0f;
+		driver.speedToStrength = speedToStrengthCurve.Evaluate(u);
+		driver.streakLength = streakLengthCurve.Evaluate(u);
+	}
+}
+[Serializable]
+public class IntroFlowerSubsection : CutsceneSubsection {
+	public override void OnStart() {
+		GameObject.Find("SinkAnim").SetActive(false);
 
-	public override void OnKeyframeReached(int index) {
-		if (index == 10) {
-			//play sound
-		}
+		AudioManager.Instance.StartMusic();
+	}
+}
+//Gameplay---------------------------------------------------------------
+public enum GameplayStart {
+	TwoD,
+	TwoDBreak,
+	ThreeD,
+	ThreeDBreak,
+}
+[Serializable]
+public class GameplaySubsection : Subsection {
+	public GameplayStart start;
+
+	public override void OnStart() {
+		GameManager.Instance.player2D.SetActive(true);
 	}
 }
 
@@ -74,8 +104,9 @@ public class SectionRunner : MonoBehaviour {
 	int subsectionIndex = -1;
 	Action onSectionComplete;
 
+	Subsection currentSubsection;
+
 	//Cutscene playback state
-	CutsceneSubsection currentCutscene;
 	float t;
 	int nextEventIndex;
 	bool bPlayingCutscene;
@@ -88,16 +119,31 @@ public class SectionRunner : MonoBehaviour {
 		this.follow = follow;
 	}
 
-	public void PlaySection(SectionAsset asset, Action onComplete = null) {
+	public void PlaySection(SectionAsset asset, int startSubsection = 0, Action onComplete = null) {
 		currentAsset = asset;
 		onSectionComplete = onComplete;
-		subsectionIndex = -1;
+
+		//Catch up scene state from any subsections we're skipping
+		for (int i = 0; i < startSubsection && i < asset.subsections.Count; i++) {
+			asset.subsections[i].FastForwardToEnd();
+		}
+
+		subsectionIndex = startSubsection - 1;
 		Advance();
 	}
 
 	//Call to end the current subsection and move to the next (e.g., from a gameplay end trigger)
 	public void Advance() {
-		if (bPlayingCutscene) StopCutsceneInternal();
+		//End current subsection
+		if (bPlayingCutscene) {
+			bPlayingCutscene = false;
+			if (follow != null) follow.enabled = true;
+			GameManager.Instance.bInputEnabled = true;
+		}
+		if (currentSubsection != null) {
+			currentSubsection.OnEnd();
+			currentSubsection = null;
+		}
 		bWaitingForInput = false;
 
 		subsectionIndex++;
@@ -118,7 +164,7 @@ public class SectionRunner : MonoBehaviour {
 
 	void StartCutscene(CutsceneSubsection c) {
 		if (c.keyframes.Count == 0) { Advance(); return; }
-		currentCutscene = c;
+		currentSubsection = c;
 		t = 0f;
 		nextEventIndex = 0;
 		bPlayingCutscene = true;
@@ -127,34 +173,38 @@ public class SectionRunner : MonoBehaviour {
 		c.OnStart();
 	}
 
-	void StopCutsceneInternal() {
-		bPlayingCutscene = false;
-		if (follow != null) follow.enabled = true;
-		GameManager.Instance.bInputEnabled = true;
-		currentCutscene?.OnEnd();
-		currentCutscene = null;
-	}
-
 	void StartGameplay(GameplaySubsection g) {
+		SectionStart marker = null;
+		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
+			if (s.section == Section.Gameplay && s.gameplayStart == g.start) {
+				marker = s;
+				break;
+			}
+		}
+		GameManager.Instance.TeleportPlayer(marker.transform.position);
+		currentSubsection = g;
+		g.OnStart();
 		GameManager.Instance.bInputEnabled = true;
-		//Gameplay advances via external SectionRunner.Advance() call
 	}
 
 	void Update() {
-		if (bWaitingForInput && Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame) {
-			Advance();
-		}
+		if (!bWaitingForInput) return;
+		bool keyPressed = Keyboard.current.anyKey.wasPressedThisFrame;
+		bool mousePressed = Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame;
+		if (keyPressed || mousePressed) Advance();
 	}
 
 	void LateUpdate() {
 		if (!bPlayingCutscene || bWaitingForInput) return;
-		var kfs = currentCutscene.keyframes;
+		CutsceneSubsection cutscene = (CutsceneSubsection)currentSubsection;
+		var kfs = cutscene.keyframes;
 		if (kfs.Count == 0) return;
 
 		t += Time.deltaTime;
+		cutscene.OnTick(t);
 
 		while (nextEventIndex < kfs.Count && t >= kfs[nextEventIndex].time) {
-			currentCutscene.OnKeyframeReached(nextEventIndex);
+			cutscene.OnKeyframeReached(nextEventIndex);
 			nextEventIndex++;
 		}
 
@@ -162,7 +212,7 @@ public class SectionRunner : MonoBehaviour {
 		if (t >= kfs[^1].time) {
 			var last = kfs[^1];
 			Apply(last.cameraPos, last.orthoSize);
-			if (currentCutscene.waitForInputAtEnd) bWaitingForInput = true;
+			if (cutscene.waitForInputAtEnd) bWaitingForInput = true;
 			else Advance();
 			return;
 		}

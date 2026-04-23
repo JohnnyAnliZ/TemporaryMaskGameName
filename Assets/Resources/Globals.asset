@@ -12,14 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c2b430bc7165c243acfb22214189640, type: 3}
   m_Name: Globals
   m_EditorClassIdentifier: Assembly-CSharp::Globals
-  cameraOrthoSize: 4.5
   cameraDeadzoneRight: 1
   cameraDeadzoneLeft: 1
   cameraDeadzoneTop: 1
   cameraDeadzoneBottom: 1
   cameraFollowSpeed: 8
   cameraZOffset: -2
-  cameraSnapToPixelGrid: 1
+  cameraSnapToPixelGrid: 0
+  numBreaks: 8
+  shardSize: 1.5
+  shardSpeedRange: {x: 0.5, y: 2}
+  shardSpinRange: {x: -180, y: 180}
   mouseSensitivity: 0.25
   eyeOffset: 0.6
   pitchClamp: 85
@@ -46,7 +49,7 @@ MonoBehaviour:
   riseGravityMulti: 0.9
   fallGravityMulti: 2
   fallGravityBlend: 3
-  jumpForwardBoost: 1
+  jumpForwardBoost: 4
   airControl: 0.5
   coyoteTime: 0.1
   jumpBufferTime: 0.1
@@ -55,13 +58,14 @@ MonoBehaviour:
   jumpForceMin: 8
   jumpForceMax: 14
   chargeMoveMulti: 0.5
-  zoomDeadzoneRate: 0.1
-  zoomMinFar: 0.1
-  zoomMaxFar: 8
+  cameraOrthoSize: 4.5
+  zoomMaxNearSize: 5.9
   zoomMaxFarSize: 3.4
   zoomMinNear: 0.1
   zoomMaxNear: 8
-  zoomMaxNearSize: 5.9
+  zoomMinFar: 0.1
+  zoomMaxFar: 8
+  zoomDeadzoneRate: 0.1
   cameraBoundLeft: -17.3
   cameraBoundRight: 1000
   cameraBoundBottom: 1.16
