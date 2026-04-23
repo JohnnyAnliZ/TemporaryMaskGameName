@@ -90,11 +90,9 @@ public class Player3DController : MonoBehaviour
 			}
 		}
 
-		
-
 		if (controller.isGrounded) {
 			if (isFalling) {
-				Debug.Log($"{verticalVelocity}");
+				//Debug.Log($"{verticalVelocity}");
 				if (verticalVelocity > -8f) {
 					AudioManager.Instance.impactVolume = 0.2f;
 				} else if (verticalVelocity <= -8f && verticalVelocity >= -20f) {
@@ -102,7 +100,7 @@ public class Player3DController : MonoBehaviour
 				} else {
 					AudioManager.Instance.impactVolume = 1f;
 				}
-				Debug.Log($"{AudioManager.Instance.impactVolume}");
+				//Debug.Log($"{AudioManager.Instance.impactVolume}");
 				AudioManager.Instance.PlayImpact();
 				isFalling = false;
 			}

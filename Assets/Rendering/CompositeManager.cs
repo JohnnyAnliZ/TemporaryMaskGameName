@@ -60,6 +60,7 @@ public class CompositeManager : Singleton<CompositeManager>
 		var maskDesc = new RenderTextureDescriptor(lastWidth, lastHeight, RenderTextureFormat.R8, 0);
 		maskDesc.sRGB = false; //idk otherwise you get an annoying warning in the log
 		maskRT = new RenderTexture(maskDesc);
+		maskRT.filterMode = FilterMode.Bilinear;
 
 		cameraA.targetTexture = rtA;
 		cameraB.targetTexture = rtB;
