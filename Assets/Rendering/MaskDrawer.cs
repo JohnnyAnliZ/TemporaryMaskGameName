@@ -21,6 +21,8 @@ public class MaskDrawer : MonoBehaviour
 	Transform shardParent;
 	PhysicsMaterial shardPhysMat;
 
+	RenderTexture blackRT;
+
 	void Start() {
 		circleMaskMaterial = new Material(Shader.Find("Custom/CircleMask"));
 		blurMaterial = new Material(Shader.Find("Custom/MaskBlur"));
@@ -81,6 +83,12 @@ public class MaskDrawer : MonoBehaviour
 
 		cmd.ReleaseTemporaryRT(tempId);
 
+		cmd.SetGlobalInt("_Num2DTo3DPasses", Globals.Instance.numBreaks);
+		cmd.SetGlobalInt("_Num3DToBlackPasses", 3);
+        cmd.SetGlobalInt("_PassIndex", currentPass);
+
+
+        cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
 		Graphics.ExecuteCommandBuffer(cmd);
 	}
 
