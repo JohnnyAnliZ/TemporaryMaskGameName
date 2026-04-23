@@ -22,6 +22,9 @@ public class Globals : ScriptableObject {
 
 	[Header("3D Break")]
 	public int num3DBreaks = 3;
+	public float shrinkTime = 0.25f;
+	public float branching = 0.12f;
+	public int maxTips = 50;
 
     [Header("3D Camera")]
 	public float mouseSensitivity = 2f;

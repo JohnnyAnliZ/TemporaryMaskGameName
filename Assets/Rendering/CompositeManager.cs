@@ -11,6 +11,7 @@ public class CompositeManager : Singleton<CompositeManager>
 	bool initialized = false;
 	RenderTexture maskRT;
 	public MaskDrawer maskDrawer;
+	public Camera outputCam;
 
 	//Sorta lazy initialization where the cameras find this manager and only then initializes
 	public void RegisterCamera(Camera cam, int index) {
@@ -24,7 +25,7 @@ public class CompositeManager : Singleton<CompositeManager>
 		} else if (cameraA != null && cameraB != null) {
 			var go = new GameObject("CompositeOutputCamera");
 			go.transform.SetParent(transform);
-			var outputCam = go.AddComponent<Camera>();
+			outputCam = go.AddComponent<Camera>();
 			outputCam.depth = 420; //after the main 2 cameras
 			outputCam.cullingMask = 0;
 			outputCam.clearFlags = CameraClearFlags.Nothing;
@@ -32,6 +33,7 @@ public class CompositeManager : Singleton<CompositeManager>
 			outputCam.allowMSAA = false;
 			outputCam.useOcclusionCulling = false;
 			outputCam.GetUniversalAdditionalCameraData().SetRenderer(2);
+			go.AddComponent<AspectRatioLocker>();
 
 			maskDrawer = gameObject.AddComponent<MaskDrawer>();
 
@@ -63,6 +65,12 @@ public class CompositeManager : Singleton<CompositeManager>
 		maskDesc.sRGB = false; //idk otherwise you get an annoying warning in the log
 		maskRT = new RenderTexture(maskDesc);
 		maskRT.filterMode = FilterMode.Bilinear;
+		maskRT.Create();
+		// var clearCmd = new UnityEngine.Rendering.CommandBuffer();
+		// clearCmd.SetRenderTarget(maskRT);
+		// clearCmd.ClearRenderTarget(false, true, Color.black);
+		// Graphics.ExecuteCommandBuffer(clearCmd);
+		// clearCmd.Release();
 
 		cameraA.targetTexture = rtA;
 		cameraB.targetTexture = rtB;
