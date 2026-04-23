@@ -4,6 +4,7 @@ using UnityEngine.Rendering;
 public class MaskDrawer : MonoBehaviour
 {
 	Material circleMaskMaterial;
+	Material blurMaterial;
 	Material shardMaterial;
 
 	float shardMinSpawnDistance = 0.1f;
@@ -24,6 +25,7 @@ public class MaskDrawer : MonoBehaviour
 
 	void Start() {
 		circleMaskMaterial = new Material(Shader.Find("Custom/CircleMask"));
+		blurMaterial = new Material(Shader.Find("Custom/MaskBlur"));
 		shardMaterial = new Material(Shader.Find("Custom/Shard"));
 	}
 
@@ -46,6 +48,40 @@ public class MaskDrawer : MonoBehaviour
 		float halfW = halfH * cam2D.aspect;
 		cmd.SetGlobalVector("_CameraPos", new Vector4(cam2D.transform.position.x, cam2D.transform.position.y, halfW, halfH));
 		cmd.SetGlobalFloat("_CellSize", Globals.Instance.shardSize);
+		cmd.SetGlobalInt("_NumPasses", Globals.Instance.numBreaks);
+		cmd.SetGlobalInt("_PassIndex", currentPass);
+		cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
+
+		//Blur mask texture
+		int tempId = Shader.PropertyToID("_MaskBlurTmp");
+		var desc = maskRT.descriptor;
+		desc.depthBufferBits = 0;
+		desc.sRGB = false; //will throw an error
+		cmd.GetTemporaryRT(tempId, desc, FilterMode.Bilinear);
+
+		Vector4 texelSize = new Vector4(1f / maskRT.width, 1f / maskRT.height, maskRT.width, maskRT.height);
+		cmd.SetGlobalVector("_MainTex_TexelSize", texelSize);
+		cmd.SetGlobalFloat("_BlurRadius", Globals.Instance.maskBlurRadius);
+
+		//Twice for smoothness
+		for (int i = 0; i < 2; i++) {
+			//Horizontal
+			cmd.SetGlobalTexture("_MainTex", maskRT);
+			cmd.SetGlobalVector("_BlurDir", new Vector4(1f, 0f, 0f, 0f));
+			cmd.SetRenderTarget(tempId);
+			cmd.ClearRenderTarget(false, true, Color.black);
+			cmd.DrawProcedural(Matrix4x4.identity, blurMaterial, 0, MeshTopology.Triangles, 3, 1);
+
+			//Vertical
+			cmd.SetGlobalTexture("_MainTex", tempId);
+			cmd.SetGlobalVector("_BlurDir", new Vector4(0f, 1f, 0f, 0f));
+			cmd.SetRenderTarget(maskRT);
+			cmd.ClearRenderTarget(false, true, Color.black);
+			cmd.DrawProcedural(Matrix4x4.identity, blurMaterial, 0, MeshTopology.Triangles, 3, 1);
+		}
+
+		cmd.ReleaseTemporaryRT(tempId);
+
 		cmd.SetGlobalInt("_Num2DTo3DPasses", Globals.Instance.numBreaks);
 		cmd.SetGlobalInt("_Num3DToBlackPasses", 3);
         cmd.SetGlobalInt("_PassIndex", currentPass);
