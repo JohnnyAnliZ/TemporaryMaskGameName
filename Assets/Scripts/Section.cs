@@ -77,11 +77,8 @@ public class IntroPanSubsection : CutsceneSubsection {
 public class IntroFlowerSubsection : CutsceneSubsection {
 	public override void OnStart() {
 		GameObject.Find("SinkAnim").SetActive(false);
-	}
-	public override void OnKeyframeReached(int index) {
-		if (index == 10) {
-			//FIXME: start playing music
-		}
+
+		AudioManager.Instance.StartMusic();
 	}
 }
 //Gameplay---------------------------------------------------------------

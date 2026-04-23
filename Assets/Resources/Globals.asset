@@ -46,7 +46,7 @@ MonoBehaviour:
   riseGravityMulti: 0.9
   fallGravityMulti: 2
   fallGravityBlend: 3
-  jumpForwardBoost: 1
+  jumpForwardBoost: 4
   airControl: 0.5
   coyoteTime: 0.1
   jumpBufferTime: 0.1
