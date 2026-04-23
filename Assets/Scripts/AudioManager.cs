@@ -14,6 +14,7 @@ public class AudioManager : Singleton<AudioManager>
 
     [Header("SFX Clips")]
     public AudioClip crumble;
+    public AudioClip[] shatterClips;
 
     [Header("Ambience Clips")]
     public AudioClip ambience;
@@ -31,13 +32,7 @@ public class AudioManager : Singleton<AudioManager>
     public AudioClip[] impactClips3D;
     public float impactVolume = 1.0f;
 
-    private AudioClip[] footstepClips;
-
-    private AudioClip[] impactClips;
-
-    private AudioSource footstepSource;
-    private AudioSource impactSource;
-    private AudioSource ambienceSource;
+    // Music sources
     private AudioSource track2DIntroSource;
     private AudioSource track2DSource;
     private AudioSource trackTransTo3DSource;
@@ -46,6 +41,19 @@ public class AudioManager : Singleton<AudioManager>
     private AudioSource trackTransToRealLifeSource;
     private AudioSource trackRealLifeSource;
 
+    // SFX sources
+    private AudioSource sfxSource;
+    private AudioSource ambienceSource;
+    private AudioSource footstepSource;
+    private AudioSource impactSource;
+    
+    // Vars
+    private int shattersPlayed = 0;
+    private float shatterVol = 0.1f;
+
+    private AudioClip[] footstepClips;
+    private AudioClip[] impactClips;
+
     private double startTime = 100000;
     private bool hasTransitioned = false;
 
@@ -53,6 +61,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         base.Awake();
         if (Instance != this) return;
+
+        sfxSource = CreateChildAudioSource("sfxSource", 0.5f, null, false);
 
         ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience, true);
 
@@ -95,6 +105,15 @@ public class AudioManager : Singleton<AudioManager>
         if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
         AudioClip randomClip = impactClips[Random.Range(0, impactClips.Length)];
         impactSource.PlayOneShot(randomClip, impactVolume);
+    }
+
+    public void PlayShatter()
+    {
+        if (shatterClips == null || shatterClips.Length == 0 || sfxSource == null || shattersPlayed >= Globals.Instance.numBreaks) return;
+        AudioClip currClip = shatterClips[shattersPlayed];
+        sfxSource.PlayOneShot(currClip, shatterVol);
+        shattersPlayed += 1;
+        shatterVol += 0.1f;
     }
 
     private void Update()
