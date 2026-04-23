@@ -64,7 +64,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 6ecd4c1a1eb09294795c2d7fa85aff4d, type: 3}
   - {fileID: 8300000, guid: 6f2ca0b48b76c60488a0567884530b17, type: 3}
   footstepVolume: 0.3
-  footstepInterval: 0.01
+  footstepInterval: 0.5
 --- !u!82 &1871322857511142886
 AudioSource:
   m_ObjectHideFlags: 0

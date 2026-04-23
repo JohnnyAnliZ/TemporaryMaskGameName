@@ -33,7 +33,7 @@ public class AudioManager : Singleton<AudioManager>
     private AudioSource trackTransToRealLifeSource;
     private AudioSource trackRealLifeSource;
 
-    private double startTime;
+    private double startTime = 100000;
     private bool hasTransitioned = false;
 
     private void Start()
@@ -51,7 +51,13 @@ public class AudioManager : Singleton<AudioManager>
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
 
         ambienceSource.Play();
+    }
+
+    public void StartMusic()
+    {
+        track2DIntroSource.time = 3.75f; 
         track2DIntroSource.Play();
+        track2DSource.time = 3.75f; 
         track2DSource.Play();
 
         startTime = AudioSettings.dspTime;
@@ -68,7 +74,7 @@ public class AudioManager : Singleton<AudioManager>
     {
         double elapsedTime = AudioSettings.dspTime - startTime;
 
-        if (elapsedTime >= 40 && !hasTransitioned)
+        if (elapsedTime >= 36.25f && !hasTransitioned)
         {
             hasTransitioned = true;
             FadeOutMusic(track2DIntroSource, 8);
