@@ -122,7 +122,7 @@ public class Player3DController : MonoBehaviour
 	void UpdateFootsteps(Vector3 movementDirection) {
 		// Only play footsteps if grounded and moving
 		bool isMoving = movementDirection != Vector3.zero && controller.isGrounded;
-		
+
 		if (isMoving) {
 			footstepTimer -= Time.deltaTime;
 
@@ -137,8 +137,8 @@ public class Player3DController : MonoBehaviour
 	}
 
 	void OnControllerColliderHit(ControllerColliderHit hit) {
-		if (hit.gameObject.TryGetComponent<PlatformPortalTrigger>(out PlatformPortalTrigger trigger)) {
-			trigger.TryTrigger(transform.position);
+		if (hit.gameObject) {
+
 		}
 	}
 

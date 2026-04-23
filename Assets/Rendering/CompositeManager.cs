@@ -8,8 +8,8 @@ public class CompositeManager : Singleton<CompositeManager>
 	RenderTexture rtB;
 	int lastWidth, lastHeight;
 	bool initialized = false;
-
-	public RenderTexture maskRT;
+	RenderTexture maskRT;
+	MaskDrawer maskDrawer;
 
 	//Sorta lazy initialization where the cameras find this manager and only then initializes
 	public void RegisterCamera(Camera cam, int index) {
@@ -30,6 +30,8 @@ public class CompositeManager : Singleton<CompositeManager>
 			outputCam.allowHDR = false;
 			outputCam.allowMSAA = false;
 			outputCam.useOcclusionCulling = false;
+
+			maskDrawer = gameObject.AddComponent<MaskDrawer>();
 
 			CreateRenderTextures();
 			initialized = true;
@@ -65,6 +67,8 @@ public class CompositeManager : Singleton<CompositeManager>
 		Shader.SetGlobalTexture("_CameraA_Tex", rtA);
 		Shader.SetGlobalTexture("_CameraB_Tex", rtB);
 		Shader.SetGlobalTexture("_MaskTex", maskRT);
+
+		maskDrawer.Configure(cameraA, cameraB, maskRT);
 	}
 
 	void ReleaseRTs() {

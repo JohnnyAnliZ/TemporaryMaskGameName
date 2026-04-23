@@ -3,7 +3,6 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Globals", menuName = "Game/Globals")]
 public class Globals : ScriptableObject {
 	[Header("2D Camera")]
-	public float cameraOrthoSize = 2f;
 	public float cameraDeadzoneRight = 1f;
 	public float cameraDeadzoneLeft = 2f;
 	public float cameraDeadzoneTop = 2f;
@@ -11,6 +10,12 @@ public class Globals : ScriptableObject {
 	public float cameraFollowSpeed = 8f;
 	public float cameraZOffset = -10f;
 	public bool cameraSnapToPixelGrid = true;
+
+	[Header("2D Break")]
+	public int numBreaks = 8;
+	public float shardSize = 1f;
+	public Vector2 shardSpeedRange = new Vector2(0.5f, 2f);
+	public Vector2 shardSpinRange = new Vector2(-180f, 180f);
 
 	[Header("3D Camera")]
 	public float mouseSensitivity = 2f;
@@ -56,13 +61,14 @@ public class Globals : ScriptableObject {
 	public float chargeMoveMulti = 0.3f;
 
 	[Header("Camera Depth Zoom")]
-	public float zoomDeadzoneRate = 0.02f;
-	public float zoomMinFar = 1f;
-	public float zoomMaxFar = 8f;
+	public float cameraOrthoSize = 2f;
+	public float zoomMaxNearSize = 3.2f;
 	public float zoomMaxFarSize = 0.8f;
 	public float zoomMinNear = 1f;
 	public float zoomMaxNear = 8f;
-	public float zoomMaxNearSize = 3.2f;
+	public float zoomMinFar = 1f;
+	public float zoomMaxFar = 8f;
+	public float zoomDeadzoneRate = 0.02f;
 
 	[Header("Camera Bounds")]
 	public float cameraBoundLeft = -1000f;
