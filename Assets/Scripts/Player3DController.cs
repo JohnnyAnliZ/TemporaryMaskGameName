@@ -93,10 +93,10 @@ public class Player3DController : MonoBehaviour
 		if (controller.isGrounded) {
 			if (isFalling) {
 				//Debug.Log($"{verticalVelocity}");
-				if (verticalVelocity > -8f) {
+				if (verticalVelocity > -12f) {
 					AudioManager.Instance.impactVolume = 0.2f;
-				} else if (verticalVelocity <= -8f && verticalVelocity >= -20f) {
-					AudioManager.Instance.impactVolume = 0.2f + ((-verticalVelocity - 8f) * 0.067f); // scale by velocity
+				} else if (verticalVelocity <= -12f && verticalVelocity >= -20f) {
+					AudioManager.Instance.impactVolume = 0.2f + ((-verticalVelocity - 12f) * 0.01f); // scale by velocity
 				} else {
 					AudioManager.Instance.impactVolume = 1f;
 				}
