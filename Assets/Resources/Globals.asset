@@ -22,6 +22,7 @@ MonoBehaviour:
   numBreaks: 8
   shardSize: 1.5
   maskBlurRadius: 2
+  shatterBias: 3
   shardSpeedRange: {x: 0.5, y: 2}
   shardSpinRange: {x: -180, y: 180}
   mouseSensitivity: 0.25

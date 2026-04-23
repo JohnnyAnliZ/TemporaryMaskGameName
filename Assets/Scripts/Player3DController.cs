@@ -128,7 +128,13 @@ public class Player3DController : MonoBehaviour
 
 		if (controller.isGrounded) {
 			if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2f)) {
-				lastPlatform = hit.collider.GetComponentInParent<Platform>();
+				Platform platform = hit.collider.GetComponentInParent<Platform>();
+				if (platform != null && platform != lastPlatform && platform.bCanBreak && !platform.bIsBroken) {
+					platform.bIsBroken = true;
+					if (platform.bLastBreak) CompositeManager.Instance.maskDrawer.Do_ShatterAll();
+					else CompositeManager.Instance.maskDrawer.Do_Shatter();
+				}
+				lastPlatform = platform;
 			}
 		}
 
@@ -157,12 +163,6 @@ public class Player3DController : MonoBehaviour
 			}
 		} else {
 			footstepTimer = 0f;
-		}
-	}
-
-	void OnControllerColliderHit(ControllerColliderHit hit) {
-		if (hit.gameObject) {
-
 		}
 	}
 

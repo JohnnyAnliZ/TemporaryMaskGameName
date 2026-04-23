@@ -16,6 +16,7 @@ Shader "Custom/CircleMask"
 			int _PassIndex;      // 0, 1, 2, ... NumPasses-1
 			int _NumPasses;      // total number of passes to fill the mask
 			float _CellSize;     // size of the Voronoi cells in pixels
+			float _ShatterBias;  // >1 skews toward later passes revealing more cells
 			float4 _CameraPos;   // world-space camera position for stable hashing
 
 			struct Varyings {
@@ -92,7 +93,7 @@ Shader "Custom/CircleMask"
 				float noise = Hash2D(nearestCell) / 4294967295.0;
 
 				// Bias toward higher indices
-				float biased = 1.0 - pow(noise, 1.5); // tweak 0.5
+				float biased = 1.0 - pow(noise, _ShatterBias);
 
 				uint assignedPass = (int)(biased * _NumPasses);
 				assignedPass = min(assignedPass, _NumPasses - 1);
