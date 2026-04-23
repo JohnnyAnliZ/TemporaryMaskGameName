@@ -57,7 +57,7 @@ public class CompositeManager : Singleton<CompositeManager>
 
 		rtA = new RenderTexture(lastWidth, lastHeight, 24);
 		rtB = new RenderTexture(lastWidth, lastHeight, 24);
-		var maskDesc = new RenderTextureDescriptor(lastWidth, lastHeight, RenderTextureFormat.R8, 0);
+		var maskDesc = new RenderTextureDescriptor(lastWidth, lastHeight, RenderTextureFormat.RGInt, 0);
 		maskDesc.sRGB = false; //idk otherwise you get an annoying warning in the log
 		maskRT = new RenderTexture(maskDesc);
 
