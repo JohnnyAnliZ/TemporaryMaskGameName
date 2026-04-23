@@ -18,6 +18,9 @@ public class Player3DController : MonoBehaviour
 	float footstepTimer;
 	float footstepInterval;
 
+	// Impact logic
+	bool isFalling = false;
+
 	void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
@@ -87,7 +90,31 @@ public class Player3DController : MonoBehaviour
 			}
 		}
 
-		if (controller.isGrounded && verticalVelocity < 0f) verticalVelocity = -1f; //ensure grounding
+		
+
+		if (controller.isGrounded) {
+			if (isFalling) {
+				Debug.Log($"{verticalVelocity}");
+				if (verticalVelocity > -8f) {
+					AudioManager.Instance.impactVolume = 0.2f;
+				} else if (verticalVelocity <= -8f && verticalVelocity >= -20f) {
+					AudioManager.Instance.impactVolume = 0.2f + ((-verticalVelocity - 8f) * 0.067f); // scale by velocity
+				} else {
+					AudioManager.Instance.impactVolume = 1f;
+				}
+				Debug.Log($"{AudioManager.Instance.impactVolume}");
+				AudioManager.Instance.PlayImpact();
+				isFalling = false;
+			}
+		}
+
+		if (!controller.isGrounded && verticalVelocity < -8f) {
+			isFalling = true;
+		}
+
+		if (controller.isGrounded && verticalVelocity < 0f) {
+			verticalVelocity = -1f; //ensure grounding
+		}
 
 		//Dynamic gravity
 		float blendTime = Mathf.Clamp01(Mathf.InverseLerp(g.fallGravityBlend, -g.fallGravityBlend, verticalVelocity));
@@ -115,7 +142,7 @@ public class Player3DController : MonoBehaviour
 			controller.enabled = true;
 		}
 
-		// Update footstep sounds
+		// Update sounds
 		UpdateFootsteps(inputDir);
 	}
 
@@ -131,7 +158,6 @@ public class Player3DController : MonoBehaviour
 				footstepTimer = footstepInterval;
 			}
 		} else {
-			// Reset timer if not moving
 			footstepTimer = 0f;
 		}
 	}
