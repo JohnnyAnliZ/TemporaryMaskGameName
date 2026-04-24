@@ -104,10 +104,14 @@ public class Player2DVisual : MonoBehaviour {
 		//Directions. `direction` (walk/jump, 0-3) is pushed by Player3DController from world-space input yaw.
 		//`idleDirection` (0-11) comes from look yaw — idle is pure look-based since there's no movement.
 		float yaw = lookTransform.eulerAngles.y;
-		int idleDirection = Mathf.RoundToInt(yaw / 30f) % 12;
+
+		animator.SetFloat("direction", Mathf.RoundToInt(yaw / 90f) % 4); //blend trees must use float not intd
+
+        int idleDirection = Mathf.RoundToInt(yaw / 30f) % 12;
 		animator.SetFloat("idleDirection", idleDirection);
 
-		int direction = Mathf.RoundToInt(animator.GetFloat("direction"));
+
+        int direction = Mathf.RoundToInt(yaw / 90f) % 4;
 
 		//Idle sprites mirror right→left for clockwise indices 3-5 and 10-11; walk/jump mirror only at cardinal left (dir 3).
 		bool bIsIdle = animator.GetBool("isGrounded") && !animator.GetBool("isMoving");

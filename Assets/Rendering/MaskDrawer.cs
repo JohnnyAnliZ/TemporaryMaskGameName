@@ -142,14 +142,14 @@ public class MaskDrawer : MonoBehaviour
 		for (int i = 0; i < 2; i++) {
 			//Horizontal
 			cmd.SetGlobalTexture("_MainTex", maskRT);
-			cmd.SetGlobalVector("_BlurDir", new Vector4(1f, 0f, 0f, 0f));
+			cmd.SetGlobalVector("_BlurDir", new Vector4(0.1f, 0f, 0f, 0f));
 			cmd.SetRenderTarget(tempId);
 			cmd.ClearRenderTarget(false, true, Color.black);
 			cmd.DrawProcedural(Matrix4x4.identity, blurMaterial, 0, MeshTopology.Triangles, 3, 1);
 
 			//Vertical
 			cmd.SetGlobalTexture("_MainTex", tempId);
-			cmd.SetGlobalVector("_BlurDir", new Vector4(0f, 1f, 0f, 0f));
+			cmd.SetGlobalVector("_BlurDir", new Vector4(0f, 0.1f, 0f, 0f));
 			cmd.SetRenderTarget(maskRT);
 			cmd.ClearRenderTarget(false, true, Color.black);
 			cmd.DrawProcedural(Matrix4x4.identity, blurMaterial, 0, MeshTopology.Triangles, 3, 1);
