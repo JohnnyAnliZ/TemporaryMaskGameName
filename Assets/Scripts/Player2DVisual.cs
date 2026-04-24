@@ -101,9 +101,10 @@ public class Player2DVisual : MonoBehaviour {
 		float rgb = Mathf.Lerp(1f, g.farBrightness, farT) * Mathf.Lerp(1f, g.nearBrightness, nearT);
 		spriteRenderer.color = new Color(rgb, rgb, rgb, alpha);
 
-		//Directions. `direction` (walk/jump, 0-3) is pushed by Player3DController from world-space input yaw.
-		//`idleDirection` (0-11) comes from look yaw — idle is pure look-based since there's no movement.
+		//Directions
 		float yaw = lookTransform.eulerAngles.y;
+		int direction = Mathf.RoundToInt(yaw / 90f) % 4;
+		animator.SetFloat("direction", direction); //blend trees must use float not int
 
 		animator.SetFloat("direction", Mathf.RoundToInt(yaw / 90f) % 4); //blend trees must use float not intd
 
@@ -111,7 +112,7 @@ public class Player2DVisual : MonoBehaviour {
 		animator.SetFloat("idleDirection", idleDirection);
 
 
-        int direction = Mathf.RoundToInt(yaw / 90f) % 4;
+        direction = Mathf.RoundToInt(yaw / 90f) % 4;
 
 		//Idle sprites mirror right→left for clockwise indices 3-5 and 10-11; walk/jump mirror only at cardinal left (dir 3).
 		bool bIsIdle = animator.GetBool("isGrounded") && !animator.GetBool("isMoving");
@@ -121,9 +122,8 @@ public class Player2DVisual : MonoBehaviour {
 			spriteRenderer.flipX = direction == 3;
 		}
 
-		//Outline — cardinal reference is look yaw, not movement, so outline thickens when camera looks axis-aligned.
-		int lookCardinal = ((Mathf.RoundToInt(yaw / 90f) % 4) + 4) % 4;
-		float offCardinal = Mathf.Abs(Mathf.DeltaAngle(yaw, lookCardinal * 90f));
+		//Outline
+		float offCardinal = Mathf.Abs(Mathf.DeltaAngle(yaw, direction * 90f));
 		float outlineT = 1f - Mathf.Clamp01((offCardinal - g.angleFull) / Mathf.Max(g.angleFade, 0.001f));
 		if (outlineT > 0f) {
 			Sprite currentSprite = spriteRenderer.sprite;

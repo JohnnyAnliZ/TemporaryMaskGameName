@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -28,12 +28,12 @@ public class VideoManager : Singleton<VideoManager>
 	public RectTransform blinkTop;
 	public RectTransform blinkBottom;
 	public Image blinkBack;
-	public float blinkDuration = 0.8f;
+	public float blinkDuration = 0.4f;
 
-	public float cursorNormalScale = 0.1f;
-	public float cursorHoverScale = 0.2f;
+	public float cursorNormalScale = 1f;
+	public float cursorHoverScale = 1.5f;
 	public Color cursorNormalColor = Color.white;
-	public Color cursorHoverColor = new Color(0.5f, 0.3f, 0.3f, 1f);
+	public Color cursorHoverColor = new Color(1f, 0.3f, 0.3f, 1f);
 	public float cursorTransitionSpeed = 12f;
 
 	public float[] initialBlinkAmplitudes = new float[] { 0.25f, 0.55f, 0.8f, 1f };
@@ -204,9 +204,6 @@ public class VideoManager : Singleton<VideoManager>
 				if (cursorGraphic != null) cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
 			}
 
-			if (mouse.leftButton.wasPressedThisFrame) {
-				Debug.Log($"[VM] click: isIdle={currentConfig.isIdle} bHover={bHover} currentIndex={currentIndex}");
-			}
 			if (currentConfig.isIdle && bHover && mouse.leftButton.wasPressedThisFrame) {
 				StartCoroutine(BlinkAndAdvance());
 			}
@@ -214,7 +211,6 @@ public class VideoManager : Singleton<VideoManager>
 	}
 
 	IEnumerator BlinkAndAdvance() {
-		Debug.Log($"[VM] BlinkAndAdvance start: currentIndex={currentIndex} blinkDuration={blinkDuration} topOpen={topOpenPos} botOpen={botOpenPos}");
 		bBlinking = true;
 		if (outlineImage != null) outlineImage.enabled = false;
 
@@ -337,31 +333,16 @@ public class VideoManager : Singleton<VideoManager>
 	}
 
 	void OnDrawGizmos() {
-		if (configs == null) return;
-
-		//Prefer canvasRect (so the visualization matches the actual hit-test area).
-		//Fallback to a world-space rect when the canvas is Overlay (its world corners are screen-pixel coords, not useful here).
 		Vector3 bl, right, up;
-		Canvas canvas = canvasRect != null ? canvasRect.GetComponent<Canvas>() : null;
-		bool bUseCanvas = canvasRect != null && (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay);
-
-		if (bUseCanvas) {
-			Vector3[] corners = new Vector3[4];
-			canvasRect.GetWorldCorners(corners);
-			bl = corners[0];
-			right = corners[3] - corners[0];
-			up = corners[1] - corners[0];
-		} else {
-			Vector3 origin = transform.position;
-			bl = origin - new Vector3(2f, 1.125f, 0f);
-			right = new Vector3(4f, 0f, 0f);
-			up = new Vector3(0f, 2.25f, 0f);
-			Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
-			Gizmos.DrawLine(bl, bl + right);
-			Gizmos.DrawLine(bl + right, bl + right + up);
-			Gizmos.DrawLine(bl + right + up, bl + up);
-			Gizmos.DrawLine(bl + up, bl);
-		}
+		Vector3 origin = transform.position;
+		bl = origin - new Vector3(2f, 1.125f, 0f);
+		right = new Vector3(4f, 0f, 0f);
+		up = new Vector3(0f, 2.25f, 0f);
+		Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
+		Gizmos.DrawLine(bl, bl + right);
+		Gizmos.DrawLine(bl + right, bl + right + up);
+		Gizmos.DrawLine(bl + right + up, bl + up);
+		Gizmos.DrawLine(bl + up, bl);
 
 		for (int i = 0; i < configs.Length; i++) {
 			StateConfig c = configs[i];

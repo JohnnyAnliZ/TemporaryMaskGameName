@@ -19,9 +19,10 @@ public class DebugInput : MonoBehaviour
 	}
 
 	void Update() {
+		return;//disable debug input
 		Mouse mouse = Mouse.current;
 		Keyboard keyboard = Keyboard.current;
-
+		
 		if (mouse.leftButton.wasPressedThisFrame) {
 			maskDrawer.Do_Shatter();
 		}
