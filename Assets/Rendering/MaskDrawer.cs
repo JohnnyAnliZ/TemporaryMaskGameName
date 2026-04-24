@@ -537,7 +537,7 @@ public class MaskDrawer : MonoBehaviour
 			Graphics.Blit(camATex, frozenRT);
 		}
 
-		AudioManager.Instance.PlayShatter(); // Play sfx
+		AudioManager.Instance.HandleShatter(); // Handle audio things
 
 		SpawnShardsForPass(revealingPass);
 	}

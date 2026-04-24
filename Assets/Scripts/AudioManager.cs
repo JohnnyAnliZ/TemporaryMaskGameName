@@ -18,6 +18,7 @@ public class AudioManager : Singleton<AudioManager>
 
     [Header("Ambience Clips")]
     public AudioClip ambience;
+    public AudioClip glitchyAmbience;
 
     [Header("Footstep Settings")]
     public AudioClip[] footstepClips2D;
@@ -35,6 +36,7 @@ public class AudioManager : Singleton<AudioManager>
     // Music sources
     private AudioSource track2DIntroSource;
     private AudioSource track2DSource;
+    private AudioLowPassFilter track2DFilter;
     private AudioSource trackTransTo3DSource;
     private AudioSource track3DIntroSource;
     private AudioSource track3DSource;
@@ -44,10 +46,13 @@ public class AudioManager : Singleton<AudioManager>
     // SFX sources
     private AudioSource sfxSource;
     private AudioSource ambienceSource;
+    private AudioSource glitchyAmbienceSource;
     private AudioSource footstepSource;
     private AudioSource impactSource;
     
     // Vars
+	float footstepTimer = 0;
+
     private int shattersPlayed = 0;
     private float shatterVol = 0.1f;
 
@@ -65,6 +70,7 @@ public class AudioManager : Singleton<AudioManager>
         sfxSource = CreateChildAudioSource("sfxSource", 0.5f, null, false);
 
         ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience, true);
+        glitchyAmbienceSource = CreateChildAudioSource("glitchyAmbienceSource", 0.03f, glitchyAmbience, true);
 
         footstepClips = footstepClips2D;
         footstepSource = CreateChildAudioSource("footstepSource", footstepVolume, footstepClips[0], false);
@@ -74,13 +80,16 @@ public class AudioManager : Singleton<AudioManager>
 
         track2DIntroSource = CreateChildAudioSource("track2DIntroSource", 1, track2DIntro, true);
         track2DSource = CreateChildAudioSource("track2DSource", 0, track2D, true);
+        track2DFilter = track2DSource.gameObject.AddComponent<AudioLowPassFilter>();
+        track2DFilter.cutoffFrequency = 22000f;
         trackTransTo3DSource = CreateChildAudioSource("trackTransTo3DSource", 0, trackTransTo3D, true);
-        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0, track3DIntro, true);
+        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 1, track3DIntro, false);
         track3DSource = CreateChildAudioSource("track3DSource", 0, track3D, true);
         trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife, true);
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
 
         ambienceSource.Play();
+        glitchyAmbienceSource.Play();
     }
 
     public void StartMusic()
@@ -89,9 +98,29 @@ public class AudioManager : Singleton<AudioManager>
         track2DIntroSource.Play();
         track2DSource.time = 3.75f;
         track2DSource.Play();
+        trackTransTo3DSource.time = 3.75f;
+        trackTransTo3DSource.Play();
+        track3DSource.time = 3.75f;
+        track3DSource.Play();
 
         startTime = AudioSettings.dspTime;
     }
+
+    public void HandleFootsteps(Vector3 movementDirection, bool isGrounded) {
+		// Only play footsteps if grounded and moving
+		bool isWalking = movementDirection != Vector3.zero && isGrounded;
+
+		if (isWalking) {
+			footstepTimer -= Time.deltaTime;
+
+			if (footstepTimer <= 0f) {
+				PlayFootstep();
+				footstepTimer = footstepInterval;
+			}
+		} else {
+			footstepTimer = 0f;
+		}
+	}
 
     public void PlayFootstep()
     {
@@ -100,20 +129,77 @@ public class AudioManager : Singleton<AudioManager>
         footstepSource.PlayOneShot(randomClip, footstepVolume);
     }
 
-    public void PlayImpact()
+    public void HandleImpact(float verticalVelocity)
     {
+        if (verticalVelocity > -12f) {
+			impactVolume = 0.2f;
+		} else if (verticalVelocity <= -12f && verticalVelocity >= -20f) {
+			impactVolume = 0.2f + ((-verticalVelocity - 12f) * 0.01f); // scale by velocity
+		} else {
+			impactVolume = 1f;
+		}
         if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
         AudioClip randomClip = impactClips[Random.Range(0, impactClips.Length)];
         impactSource.PlayOneShot(randomClip, impactVolume);
     }
 
-    public void PlayShatter()
+    public void HandleShatter()
     {
+        // Play shatter sound effect
         if (shatterClips == null || shatterClips.Length == 0 || sfxSource == null || shattersPlayed >= Globals.Instance.numBreaks) return;
         AudioClip currClip = shatterClips[shattersPlayed];
         sfxSource.PlayOneShot(currClip, shatterVol);
         shattersPlayed += 1;
         shatterVol += 0.1f;
+
+        // Transition music
+        switch (shattersPlayed)
+        {
+            case 1:
+                FadeToVolume(track2DIntroSource, 0f, 8);
+                FadeToVolume(track2DSource, 1f, 8);
+                track2DFilter.cutoffFrequency = 18000f;
+                FadeToVolume(trackTransTo3DSource, 0.05f, 1);
+                glitchyAmbienceSource.volume = 0.06f;
+                break; 
+            case 2:
+                track2DFilter.cutoffFrequency = 14000f;
+                FadeToVolume(trackTransTo3DSource, 0.1f, 1);
+                glitchyAmbienceSource.volume = 0.09f;
+                break;
+            case 3:
+                track2DFilter.cutoffFrequency = 10000f;
+                FadeToVolume(trackTransTo3DSource, 0.15f, 1);
+                glitchyAmbienceSource.volume = 0.12f;
+                break;
+            case 4:
+                track2DFilter.cutoffFrequency = 6000f;
+                FadeToVolume(trackTransTo3DSource, 0.25f, 1);
+                glitchyAmbienceSource.volume = 0.15f;
+                footstepClips = footstepClipsTrans;
+                impactClips = impactClipsTrans;
+                break;
+            case 5:
+                track2DFilter.cutoffFrequency = 3000f;
+                FadeToVolume(trackTransTo3DSource, 0.45f, 1);
+                glitchyAmbienceSource.volume = 0.18f;
+                break;
+            case 6:
+                track2DFilter.cutoffFrequency = 1000f;
+                FadeToVolume(trackTransTo3DSource, 0.7f, 1);
+                glitchyAmbienceSource.volume = 0.21f;
+                break;
+            default:
+                FadeToVolume(track2DSource, 0f, 4);
+                FadeToVolume(trackTransTo3DSource, 1f, 1);
+                glitchyAmbienceSource.volume = 0.24f;
+                footstepClips = footstepClips3D;
+                impactClips = impactClips3D;
+                FadeToVolume(trackTransTo3DSource, 0f, 8);
+                FadeToVolume(track3DSource, 1f, 8);
+                track3DIntroSource.Play();
+                break;
+        }
     }
 
     private void Update()
@@ -123,8 +209,8 @@ public class AudioManager : Singleton<AudioManager>
         if (elapsedTime >= 36.25f && !hasTransitioned)
         {
             hasTransitioned = true;
-            FadeOutMusic(track2DIntroSource, 8);
-            StartCoroutine(FadeInCoroutine(track2DSource, 8));
+            FadeToVolume(track2DIntroSource, 0f, 8);
+            FadeToVolume(track2DSource, 1f, 8);
         }
     }
 
@@ -143,12 +229,12 @@ public class AudioManager : Singleton<AudioManager>
     }
 
 
-    public void FadeOutMusic(AudioSource source, float duration = 2f)
+    public void FadeToVolume(AudioSource source, float targetVolume, float duration = 2f)
     {
-        StartCoroutine(FadeOutCoroutine(source, duration));
+        StartCoroutine(FadeToVolumeCoroutine(source, targetVolume, duration));
     }
 
-    private System.Collections.IEnumerator FadeOutCoroutine(AudioSource source, float duration)
+    private System.Collections.IEnumerator FadeToVolumeCoroutine(AudioSource source, float targetVolume, float duration)
     {
         float startVolume = source.volume;
         float elapsed = 0f;
@@ -156,26 +242,15 @@ public class AudioManager : Singleton<AudioManager>
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            source.volume = Mathf.Lerp(startVolume, 0f, elapsed / duration);
-            yield return null;
-        }
-
-        source.volume = 0f;
-        source.Stop();
-    }
-
-    private System.Collections.IEnumerator FadeInCoroutine(AudioSource source, float duration)
-    {
-        float targetVolume = 1f;
-        float elapsed = 0f;
-
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            source.volume = Mathf.Lerp(0f, targetVolume, elapsed / duration);
+            source.volume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
             yield return null;
         }
 
         source.volume = targetVolume;
+        
+        if (targetVolume == 0f)
+        {
+            source.Stop();
+        }
     }
 }
