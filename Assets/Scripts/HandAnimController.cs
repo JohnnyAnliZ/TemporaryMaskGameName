@@ -19,7 +19,7 @@ public class AnimationController : MonoBehaviour
         if (keyboard.pKey.wasPressedThisFrame)//this triggers hand animation
         {
             // Play a specific state directly by name
-            Debug.Log("Playing TiggerRubFace animation");
+            Debug.Log("Playing rubFaceAction animation");
             anim.Play("rubFaceAction", 0, 0f); // Play the "TiggerRubFace" animation on layer 0, starting at the beginning
         }
     }
