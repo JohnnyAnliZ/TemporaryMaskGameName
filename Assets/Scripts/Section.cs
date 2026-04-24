@@ -96,6 +96,13 @@ public class GameplaySubsection : Subsection {
 		GameManager.Instance.player2D.SetActive(true);
 	}
 }
+[Serializable]
+public class Gameplay3DBreakSubsection : GameplaySubsection {
+	public override void OnStart() {
+		base.OnStart();
+		CompositeManager.Instance.maskDrawer.Do_ShatterAll();
+	}
+}
 
 public class SectionRunner : MonoBehaviour {
 	Camera cam;

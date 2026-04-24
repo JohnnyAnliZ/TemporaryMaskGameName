@@ -62,7 +62,7 @@ public class MaskDrawer : MonoBehaviour
 	Mesh cracksMesh;
 	Material cracksMat;
 
-	void Start() {
+	void Awake() {
 		circleMaskMaterial = new Material(Shader.Find("Custom/CircleMask"));
 		blurMaterial = new Material(Shader.Find("Custom/MaskBlur"));
 		shardMaterial = new Material(Shader.Find("Custom/Shard"));
@@ -230,6 +230,10 @@ public class MaskDrawer : MonoBehaviour
 		int steps = Mathf.Max(1, Globals.Instance.num3DBreaks);
 		float target = Mathf.Min(1f, blackProgress + 1f / steps);
 		StartBlackAnim(target, Globals.Instance.shrinkTime);
+	}
+	public void Do_ShrinkAll() {
+		if (!cracksGenerated) GenerateCracks();
+		StartBlackAnim(1f, Globals.Instance.shrinkTime);
 	}
 	void StartBlackAnim(float target, float duration) {
 		if (blackCoroutine != null) StopCoroutine(blackCoroutine);

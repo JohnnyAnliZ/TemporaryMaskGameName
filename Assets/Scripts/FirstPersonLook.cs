@@ -44,4 +44,27 @@ public class FirstPersonLook : MonoBehaviour
 
 		transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 	}
+
+	public System.Collections.IEnumerator PanTo(float targetYaw, float targetPitch, float duration) {
+		float startYaw = yaw;
+		float startPitch = pitch;
+		targetYaw = startYaw + Mathf.DeltaAngle(startYaw, targetYaw);
+		float t = 0f;
+		while (t < duration) {
+			t += Time.deltaTime;
+			float u = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / duration));
+			yaw = Mathf.Lerp(startYaw, targetYaw, u);
+			pitch = Mathf.Lerp(startPitch, targetPitch, u);
+			yield return null;
+		}
+		yaw = targetYaw;
+		pitch = targetPitch;
+	}
+	public System.Collections.IEnumerator PanToTarget(Transform lookTarget, float duration) {
+		if (lookTarget == null) yield break;
+		Vector3 dir = (lookTarget.position - transform.position).normalized;
+		float targetYaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+		float targetPitch = -Mathf.Asin(Mathf.Clamp(dir.y, -1f, 1f)) * Mathf.Rad2Deg;
+		yield return PanTo(targetYaw, targetPitch, duration);
+	}
 }
