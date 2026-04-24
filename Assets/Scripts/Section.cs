@@ -46,6 +46,7 @@ public class IntroIdle : CutsceneSubsection {
 public class IntroCutscene1Subsection : CutsceneSubsection {
 	public override void OnStart() {
 		GameObject.Find("SinkAnim").GetComponent<Animator>().Play("Sink", 0, 0f);
+		AudioManager.Instance.PlayIntroSink();
 	}
 	public override void OnEnd() {
 		GameObject.Find("SinkAnim").GetComponent<Animator>().Play("Idle", 0, 0f);

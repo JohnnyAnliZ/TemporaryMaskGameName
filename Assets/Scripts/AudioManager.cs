@@ -13,7 +13,7 @@ public class AudioManager : Singleton<AudioManager>
     public AudioClip trackRealLife;
 
     [Header("SFX Clips")]
-    public AudioClip crumble;
+    public AudioClip introSink;
     public AudioClip[] shatterClips;
     public AudioClip[] crackingClips;
     public AudioClip sinkIdle;
@@ -119,6 +119,7 @@ public class AudioManager : Singleton<AudioManager>
         trackTransToRealLifeFilter.cutoffFrequency = 0;
 
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
+        trackRealLifeSource.panStereo = 0.5f;
 
         // Start ambience
         ambienceSource.Play();
@@ -142,6 +143,11 @@ public class AudioManager : Singleton<AudioManager>
         trackRealLifeSource.Play();
 
         startTime = AudioSettings.dspTime;
+    }
+
+    public void PlayIntroSink()
+    {
+        sfxSource.PlayOneShot(introSink, 1f);
     }
 
     public void HandleFootsteps(Vector3 movementDirection, bool isGrounded) {
@@ -246,51 +252,58 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-    public void HandleShrink()
+    public void HandleShrink(bool isFinal)
     {
-        // Play cracking sound effect
-        if (crackingClips == null || crackingClips.Length == 0 || sfxSource == null || cracksPlayed >= Globals.Instance.num3DBreaks) return;
-        AudioClip currClip = crackingClips[cracksPlayed];
-        sfxSource.PlayOneShot(currClip, crackVol);
-        cracksPlayed += 1;
-        crackVol += 0.15f;
+        while (isFinal || cracksPlayed < 4) {
+            // Play cracking sound effect
+            if (crackingClips == null || crackingClips.Length == 0 || sfxSource == null || cracksPlayed >= Globals.Instance.num3DBreaks) return;
+            AudioClip currClip = crackingClips[cracksPlayed];
+            sfxSource.PlayOneShot(currClip, crackVol);
+            cracksPlayed += 1;
+            crackVol += 0.15f;
 
-        // Transition music
-        switch (cracksPlayed)
-        {
-            case 1:
-                FadeToVolume(track3DIntroSource, 0f, 8);
-                trackTransToRealLifeFilter.cutoffFrequency = 300f;
-                FadeToVolume(trackTransToRealLifeSource, 0.4f, 1);
-                FadeLowPassFilterCutoff(track3DFilter, 1000f, 0.2f);
-                ambienceSource.volume = 0.75f;
-                glitchyAmbienceSource.volume = 0.18f;
-                break; 
-            case 2:
-                trackTransToRealLifeFilter.cutoffFrequency = 400f;
-                FadeToVolume(trackTransToRealLifeSource, 0.6f, 1);
-                FadeLowPassFilterCutoff(track3DFilter, 600f, 0.2f);
-                ambienceSource.volume = 0.50f;
-                glitchyAmbienceSource.volume = 0.12f;
+            // Transition music
+            switch (cracksPlayed)
+            {
+                case 1:
+                    FadeToVolume(track3DIntroSource, 0f, 8);
+                    trackTransToRealLifeFilter.cutoffFrequency = 300f;
+                    FadeToVolume(trackTransToRealLifeSource, 0.4f, 1);
+                    FadeLowPassFilterCutoff(track3DFilter, 1000f, 0.2f);
+                    ambienceSource.volume = 0.75f;
+                    glitchyAmbienceSource.volume = 0.18f;
+                    break; 
+                case 2:
+                    trackTransToRealLifeFilter.cutoffFrequency = 400f;
+                    FadeToVolume(trackTransToRealLifeSource, 0.6f, 1);
+                    FadeLowPassFilterCutoff(track3DFilter, 600f, 0.2f);
+                    ambienceSource.volume = 0.50f;
+                    glitchyAmbienceSource.volume = 0.12f;
+                    break;
+                case 3:
+                    trackTransToRealLifeFilter.cutoffFrequency = 500f;
+                    FadeToVolume(trackTransToRealLifeSource, 0.8f, 1);
+                    FadeLowPassFilterCutoff(track3DFilter, 400f, 0.2f);
+                    ambienceSource.volume = 0.25f;
+                    glitchyAmbienceSource.volume = 0.06f;
+                    break;
+                default:
+                    trackTransToRealLifeFilter.cutoffFrequency = 5000f;
+                    FadeToVolume(trackTransToRealLifeSource, 1f, 1);
+                    track3DFilter.cutoffFrequency = 300f;
+                    FadeLowPassFilterCutoff(track3DFilter, 0f, 4);
+                    FadeToVolume(track3DSource, 0, 8);
+                    ambienceSource.volume = 0;
+                    glitchyAmbienceSource.volume = 0;
+                    FadeToVolume(trackTransToRealLifeSource, 0f, 4);
+                    FadeToVolume(trackRealLifeSource, 1f, 4);
+                    break;
+            }
+            if (!isFinal) {
                 break;
-            case 3:
-                trackTransToRealLifeFilter.cutoffFrequency = 500f;
-                FadeToVolume(trackTransToRealLifeSource, 0.8f, 1);
-                FadeLowPassFilterCutoff(track3DFilter, 400f, 0.2f);
-                ambienceSource.volume = 0.25f;
-                glitchyAmbienceSource.volume = 0.06f;
+            } else if (cracksPlayed >= 4) {
                 break;
-            default:
-                trackTransToRealLifeFilter.cutoffFrequency = 5000f;
-                FadeToVolume(trackTransToRealLifeSource, 1f, 1);
-                track3DFilter.cutoffFrequency = 300f;
-                FadeLowPassFilterCutoff(track3DFilter, 0f, 4);
-                FadeToVolume(track3DSource, 0, 8);
-                ambienceSource.volume = 0;
-                glitchyAmbienceSource.volume = 0;
-                FadeToVolume(trackTransToRealLifeSource, 0f, 4);
-                FadeToVolume(trackRealLifeSource, 1f, 4);
-                break;
+            }
         }
     }
 
