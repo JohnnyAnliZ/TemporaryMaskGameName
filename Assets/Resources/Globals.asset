@@ -87,8 +87,10 @@ MonoBehaviour:
   angleFade: 6
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
+  - {fileID: 102900000, guid: 49ab26784e8134c49ab4f23908a9e839, type: 3}
   gameLevels:
   - MaskGame
+  - 
   pixelsPerUnit: 100
   parallaxLayers:
   - z: 25
