@@ -230,6 +230,7 @@ public class MaskDrawer : MonoBehaviour
 		int steps = Mathf.Max(1, Globals.Instance.num3DBreaks);
 		float target = Mathf.Min(1f, blackProgress + 1f / steps);
 		StartBlackAnim(target, Globals.Instance.shrinkTime);
+		AudioManager.Instance.HandleShrink(); 
 	}
 	public void Do_ShrinkAll() {
 		if (!cracksGenerated) GenerateCracks();

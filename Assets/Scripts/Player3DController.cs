@@ -6,6 +6,7 @@ public class Player3DController : MonoBehaviour
 {
 	CharacterController controller;
 	Transform lookTransform;
+	Animator animator;
 	float verticalVelocity;
 	float coyoteTimer;
 	float jumpBufferTimer;
@@ -35,6 +36,10 @@ public class Player3DController : MonoBehaviour
 
 	void Start() {
 		lookTransform = FindAnyObjectByType<FirstPersonLook>().transform;
+	}
+
+	public void Init(Animator animator) {
+		this.animator = animator;
 	}
 
 	void Update() {
@@ -119,7 +124,7 @@ public class Player3DController : MonoBehaviour
 			}
 		}
 
-		if (!controller.isGrounded && verticalVelocity < -8f) {
+		if (!controller.isGrounded && verticalVelocity < -1f) {
 			isFalling = true;
 		}
 
@@ -167,6 +172,20 @@ public class Player3DController : MonoBehaviour
 
 		// Handle footstepsounds
 		AudioManager.Instance.HandleFootsteps(inputDir, controller.isGrounded);
+
+		//Drive 2D animator state. Walk `direction` is world-space movement yaw (not look yaw) so strafing/backpedaling
+		//plays the correct sprite. Only updated while moving — when idle, the last facing is preserved (doesn't matter
+		//since Idle state uses idleDirection instead).
+		if (animator != null) {
+			animator.SetBool("isGrounded", controller.isGrounded);
+			bool bMoving = inputDir.sqrMagnitude > 0.01f;
+			animator.SetBool("isMoving", bMoving);
+			if (bMoving) {
+				float moveYaw = Mathf.Atan2(inputDir.x, inputDir.z) * Mathf.Rad2Deg;
+				int dir = ((Mathf.RoundToInt(moveYaw / 90f) % 4) + 4) % 4;
+				animator.SetFloat("direction", dir);
+			}
+		}
 	}
 
 	void OnDrawGizmos() {
