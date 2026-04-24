@@ -47,7 +47,7 @@ MonoBehaviour:
   nearDistance: 16
   nearBrightness: 1.6
   spriteZPerPlayerZ: 2
-  fallThreshold: -10
+  fallThreshold: -6
   moveSpeed: 3.5
   gravity: -20
   riseGravityMulti: 0.8
