@@ -28,12 +28,12 @@ public class VideoManager : Singleton<VideoManager>
 	public RectTransform blinkTop;
 	public RectTransform blinkBottom;
 	public Image blinkBack;
-	public float blinkDuration = 0.4f;
+	public float blinkDuration = 0.8f;
 
-	public float cursorNormalScale = 0.3f;
-	public float cursorHoverScale = 0.5f;
+	public float cursorNormalScale = 0.1f;
+	public float cursorHoverScale = 0.2f;
 	public Color cursorNormalColor = Color.white;
-	public Color cursorHoverColor = new Color(0.6f, 0.3f, 0.3f, 1f);
+	public Color cursorHoverColor = new Color(0.5f, 0.3f, 0.3f, 1f);
 	public float cursorTransitionSpeed = 12f;
 
 	public float[] initialBlinkAmplitudes = new float[] { 0.25f, 0.55f, 0.8f, 1f };
@@ -196,6 +196,9 @@ public class VideoManager : Singleton<VideoManager>
 				if (cursorGraphic != null) cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
 			}
 
+			if (mouse.leftButton.wasPressedThisFrame) {
+				Debug.Log($"[VM] click: isIdle={currentConfig.isIdle} bHover={bHover} currentIndex={currentIndex}");
+			}
 			if (currentConfig.isIdle && bHover && mouse.leftButton.wasPressedThisFrame) {
 				StartCoroutine(BlinkAndAdvance());
 			}
@@ -203,6 +206,7 @@ public class VideoManager : Singleton<VideoManager>
 	}
 
 	IEnumerator BlinkAndAdvance() {
+		Debug.Log($"[VM] BlinkAndAdvance start: currentIndex={currentIndex} blinkDuration={blinkDuration} topOpen={topOpenPos} botOpen={botOpenPos}");
 		bBlinking = true;
 		if (outlineImage != null) outlineImage.enabled = false;
 
