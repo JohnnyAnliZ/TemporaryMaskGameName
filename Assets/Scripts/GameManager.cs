@@ -122,6 +122,7 @@ public class GameManager : Singleton<GameManager>
 		camera3D.SetActive(true);
 
 		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
+		player3D.GetComponent<Player3DController>().Init(player2D.GetComponent<Animator>());
 
 		GameObject camera2D = new GameObject("2DCamera");
 		camera2D.SetActive(false); //so that OnEnable runs after CompositeCamera component is added
