@@ -119,7 +119,7 @@ public class Player3DController : MonoBehaviour
 			}
 		}
 
-		if (!controller.isGrounded && verticalVelocity < -8f) {
+		if (!controller.isGrounded && verticalVelocity < -1f) {
 			isFalling = true;
 		}
 

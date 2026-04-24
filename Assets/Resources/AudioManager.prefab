@@ -61,6 +61,18 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ca5f11e2639e1f645808fa740a746f74, type: 3}
   - {fileID: 8300000, guid: d5783deeedb2dc84585b23f02c5c8e6a, type: 3}
   - {fileID: 8300000, guid: 19e28f18ec734e84fb593326019fbea1, type: 3}
+  crackingClips:
+  - {fileID: 8300000, guid: 8ee2954243f1fc24885d2b51225527cd, type: 3}
+  - {fileID: 8300000, guid: e492ec9ecf75f1c48b315cb9687ae6d0, type: 3}
+  - {fileID: 8300000, guid: a29de057aae7abe4eb3617db62f52bfe, type: 3}
+  - {fileID: 8300000, guid: 912e0b346f4e60547a6785881087ed5e, type: 3}
+  sinkIdle: {fileID: 8300000, guid: ff23a0e17df7a0f44958eff8c2303b42, type: 3}
+  sinkIdleHands: {fileID: 8300000, guid: 59ef9013bcf124542b25ee3f8501629c, type: 3}
+  washFace: {fileID: 8300000, guid: a99daac5a765e954ca911832251344f7, type: 3}
+  pills: {fileID: 8300000, guid: 00e47c238f3c2d748927bfe196de13ea, type: 3}
+  mirrorLookDown: {fileID: 8300000, guid: 534e05f4f8312844f8b209ddeb24f1f9, type: 3}
+  mirrorIdle: {fileID: 8300000, guid: 92f9fee3c8016434b9a4cc7ff27a59a0, type: 3}
+  mirrorCheck: {fileID: 8300000, guid: 67350d5220bce5c418c00768757d78e9, type: 3}
   ambience: {fileID: 8300000, guid: 7841d022be8ae384f9040acb16b4de96, type: 3}
   glitchyAmbience: {fileID: 8300000, guid: d2c76e5609e1a2c4c939c270d953ffa4, type: 3}
   footstepClips2D:
@@ -90,7 +102,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 105ee1e2ff4bf134cb5e8b25b115f3a7, type: 3}
   - {fileID: 8300000, guid: c6e2300b15c97d5438be56b38d41a86d, type: 3}
   - {fileID: 8300000, guid: a157cc14beaa1e7409638759c0850b6c, type: 3}
-  footstepVolume: 0.4
+  footstepVolume: 0.3
   footstepInterval: 0.4
   impactClips2D:
   - {fileID: 8300000, guid: d278a0a33ee61464c9ef2e07d5995290, type: 3}
