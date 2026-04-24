@@ -120,10 +120,18 @@ public class GameManager : Singleton<GameManager>
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
 		camera3D.AddComponent<AudioListener>();
 		camera3D.SetActive(true);
+        cam3D.nearClipPlane = 0.01f;
 
-		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
+        GameObject hand3D = GameObject.Find("hand");
+		hand3D.transform.SetParent(camera3D.transform);
+		//move hand in from of camera to debug
+		hand3D.transform.localPosition = new Vector3(0, -0.4f, 0.1f);
+
+
+        player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
 
 		GameObject camera2D = new GameObject("2DCamera");
+
 		camera2D.SetActive(false); //so that OnEnable runs after CompositeCamera component is added
 		Camera cam = camera2D.AddComponent<Camera>();
 		cam.orthographic = true;
@@ -138,6 +146,7 @@ public class GameManager : Singleton<GameManager>
 		follow.Init(player2D.transform, player3D.transform);
 		camera2D.AddComponent<StreakBlurDriver>().enabled = false;
 		camera2D.SetActive(true);
+
 
 		//Sections
 		#if !UNITY_EDITOR

@@ -1376,7 +1376,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1375515186}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &34587603
 GameObject:
   m_ObjectHideFlags: 0
@@ -1489,6 +1491,91 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 34587603}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &41446191
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -10.86793
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 7.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 190.44644
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_Name
+      value: hand
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: d8b246d14ce2b254499dba5911840709, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 41446193}
+  m_SourcePrefab: {fileID: 100100000, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+--- !u!1 &41446192 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+  m_PrefabInstance: {fileID: 41446191}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &41446193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 41446192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9f19ace5ce649c42b2fc5726556c384, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
 --- !u!1 &45983846
 GameObject:
   m_ObjectHideFlags: 0
@@ -2956,7 +3043,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1397682013}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &109894763
 GameObject:
   m_ObjectHideFlags: 0
@@ -3959,6 +4048,63 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 133917922}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1001 &137225411
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -12.31
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.22
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 199.24
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.5036488
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.50364876
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.4963243
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.4963245
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 89.161
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
+      propertyPath: m_Name
+      value: sink
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: f9dabe9a66fc7cb4d8f7e0416ccc3a46, type: 3}
 --- !u!1 &144541477
 GameObject:
   m_ObjectHideFlags: 0
@@ -4039,7 +4185,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 864596764}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &149328969
 GameObject:
   m_ObjectHideFlags: 0
@@ -5135,7 +5283,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1295508622}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &196783880
 GameObject:
   m_ObjectHideFlags: 0
@@ -6578,7 +6728,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 985192803}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &276104539
 GameObject:
   m_ObjectHideFlags: 0
@@ -8146,7 +8298,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1783112510}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &341700638
 GameObject:
   m_ObjectHideFlags: 0
@@ -8308,7 +8462,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 2113245927}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &351091950
 GameObject:
   m_ObjectHideFlags: 0
@@ -9263,7 +9419,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 362598490}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &379202481
 GameObject:
   m_ObjectHideFlags: 0
@@ -9736,7 +9894,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1303060431}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &404438895
 GameObject:
   m_ObjectHideFlags: 0
@@ -10882,7 +11042,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 950006151}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &451173313
 GameObject:
   m_ObjectHideFlags: 0
@@ -11561,7 +11723,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1349560058}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &460834530
 GameObject:
   m_ObjectHideFlags: 0
@@ -13633,7 +13797,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1751446543}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &533629776
 GameObject:
   m_ObjectHideFlags: 0
@@ -13940,7 +14106,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 211343343}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &539782960
 GameObject:
   m_ObjectHideFlags: 0
@@ -15805,7 +15973,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 553943860}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &615074436
 GameObject:
   m_ObjectHideFlags: 0
@@ -18218,7 +18388,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1731790948}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &677543751
 GameObject:
   m_ObjectHideFlags: 0
@@ -19252,7 +19424,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 248541329}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!114 &696768949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20422,7 +20596,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 906009460}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &732608417
 GameObject:
   m_ObjectHideFlags: 0
@@ -23026,7 +23202,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 406119524}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!65 &839979513
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -23837,7 +24015,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 376790372}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &863771198
 GameObject:
   m_ObjectHideFlags: 0
@@ -23918,7 +24098,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 895391414}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &864596763
 GameObject:
   m_ObjectHideFlags: 0
@@ -25014,7 +25196,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 131775663}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &895391413
 GameObject:
   m_ObjectHideFlags: 0
@@ -25404,7 +25588,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1062863787}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &909156699
 GameObject:
   m_ObjectHideFlags: 0
@@ -27647,7 +27833,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 943746958}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1005545753
 GameObject:
   m_ObjectHideFlags: 0
@@ -28524,7 +28712,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 0}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1062863786
 GameObject:
   m_ObjectHideFlags: 0
@@ -30137,7 +30327,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 2110642823}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1141713878
 GameObject:
   m_ObjectHideFlags: 0
@@ -30757,7 +30949,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 396393009}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1162681724
 GameObject:
   m_ObjectHideFlags: 0
@@ -31768,7 +31962,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 144541478}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1224983262
 GameObject:
   m_ObjectHideFlags: 0
@@ -33000,7 +33196,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 162908337}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1267516280
 GameObject:
   m_ObjectHideFlags: 0
@@ -33141,7 +33339,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 255802805}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1272672379
 GameObject:
   m_ObjectHideFlags: 0
@@ -33318,7 +33518,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 959406162}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1276601760
 GameObject:
   m_ObjectHideFlags: 0
@@ -34086,7 +34288,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 863771199}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1296398829
 GameObject:
   m_ObjectHideFlags: 0
@@ -34573,7 +34777,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 2088165623}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1309548926
 GameObject:
   m_ObjectHideFlags: 0
@@ -36048,7 +36254,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 2048217070}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1363624753
 GameObject:
   m_ObjectHideFlags: 0
@@ -37083,7 +37291,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1287378332}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1408105921
 GameObject:
   m_ObjectHideFlags: 0
@@ -37449,7 +37659,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1229743610}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1423909899
 GameObject:
   m_ObjectHideFlags: 0
@@ -39450,7 +39662,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 394294619}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1491972868
 GameObject:
   m_ObjectHideFlags: 0
@@ -40282,7 +40496,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1113389542}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1518629253
 GameObject:
   m_ObjectHideFlags: 0
@@ -42112,7 +42328,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1389394227}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1610467693
 GameObject:
   m_ObjectHideFlags: 0
@@ -42365,7 +42583,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 714890999}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1624956974
 GameObject:
   m_ObjectHideFlags: 0
@@ -42798,7 +43018,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1182990233}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1632756610
 GameObject:
   m_ObjectHideFlags: 0
@@ -42848,7 +43070,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 859571848}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1637817814
 GameObject:
   m_ObjectHideFlags: 0
@@ -44009,7 +44233,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 367103610}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1671101921
 GameObject:
   m_ObjectHideFlags: 0
@@ -45575,7 +45801,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1545523404}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1731790947
 GameObject:
   m_ObjectHideFlags: 0
@@ -47632,7 +47860,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 2136041144}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1832498756
 GameObject:
   m_ObjectHideFlags: 0
@@ -47885,7 +48115,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 537223889}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1844463155
 GameObject:
   m_ObjectHideFlags: 0
@@ -48447,7 +48679,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1286183264}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1855487796
 GameObject:
   m_ObjectHideFlags: 0
@@ -50033,7 +50267,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1601926311}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &1933189534
 GameObject:
   m_ObjectHideFlags: 0
@@ -53719,7 +53955,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 733046079}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &2050162981
 GameObject:
   m_ObjectHideFlags: 0
@@ -53951,7 +54189,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1855487797}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &2053699495
 GameObject:
   m_ObjectHideFlags: 0
@@ -54933,7 +55173,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 235983364}
   bCanBreak: 1
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &2110642822
 GameObject:
   m_ObjectHideFlags: 0
@@ -55157,7 +55399,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1096687361}
   bCanBreak: 0
   bLastBreak: 0
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &2124124055
 GameObject:
   m_ObjectHideFlags: 0
@@ -55843,7 +56087,9 @@ MonoBehaviour:
   spawnPoint: {fileID: 1637817815}
   bCanBreak: 1
   bLastBreak: 1
+  bShrinkToBlack: 0
   bIsBroken: 0
+  bHasShrunk: 0
 --- !u!1 &2136041143
 GameObject:
   m_ObjectHideFlags: 0
@@ -56084,3 +56330,5 @@ SceneRoots:
   m_Roots:
   - {fileID: 948165497}
   - {fileID: 899751299}
+  - {fileID: 137225411}
+  - {fileID: 41446191}
