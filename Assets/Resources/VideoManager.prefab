@@ -128,9 +128,9 @@ MonoBehaviour:
     isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 0.3
-      y: 0.5
-      width: 0.3
+      x: 0.4
+      y: 0.3
+      width: 0.2
       height: 0.5
   - mainClip: {fileID: 32900000, guid: 202099da7a64486418a979b80909bbff, type: 3}
     outlineClip: {fileID: 0}
@@ -146,10 +146,10 @@ MonoBehaviour:
     isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
+      x: 0.4
+      y: 0.3
+      width: 0.2
+      height: 0.5
   - mainClip: {fileID: 32900000, guid: 5c404cdec7125ea41942572ef254d8b1, type: 3}
     outlineClip: {fileID: 0}
     isIdle: 0
@@ -160,14 +160,14 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 147b56dddcc42cc4ab41c068eca6d02f, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 98382fcd818b5fc46bf37b510a4e066c, type: 3}
     isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
+      x: 0.4
+      y: 0.3
+      width: 0.2
+      height: 0.5
   - mainClip: {fileID: 32900000, guid: 4cce348ba936ab34e9f27870e4701a0a, type: 3}
     outlineClip: {fileID: 0}
     isIdle: 0

@@ -23,4 +23,4 @@ MonoBehaviour:
       data:
         name: LiveActionSubsection
         fadeInFactor: 1.5
-        startIndex: 0
+        startIndex: 4
