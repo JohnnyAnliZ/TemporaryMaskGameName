@@ -102,13 +102,13 @@ public class AudioManager : Singleton<AudioManager>
         // Music
         track2DIntroSource = CreateChildAudioSource("track2DIntroSource", 0, track2DIntro, true);
 
-        track2DSource = CreateChildAudioSource("track2DSource", 1, track2D, true);
+        track2DSource = CreateChildAudioSource("track2DSource", 0, track2D, true);
         track2DFilter = track2DSource.gameObject.AddComponent<AudioLowPassFilter>();
         track2DFilter.cutoffFrequency = 22000f;
 
         trackTransTo3DSource = CreateChildAudioSource("trackTransTo3DSource", 0, trackTransTo3D, true);
 
-        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0, track3DIntro, false);
+        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0.6f, track3DIntro, false);
 
         track3DSource = CreateChildAudioSource("track3DSource", 0, track3D, true);
         track3DFilter = track3DSource.gameObject.AddComponent<AudioLowPassFilter>();
@@ -123,12 +123,11 @@ public class AudioManager : Singleton<AudioManager>
         // Start ambience
         ambienceSource.Play();
         glitchyAmbienceSource.Play();
-
-        StartMusic();
     }
 
     public void StartMusic()
     {
+        track2DIntroSource.volume = 1.0f;
         track2DIntroSource.time = 3.75f;
         track2DIntroSource.Play();
         track2DSource.time = 3.75f;
@@ -170,15 +169,18 @@ public class AudioManager : Singleton<AudioManager>
 
     public void HandleImpact(float verticalVelocity)
     {
+        AudioClip randomClip;
         if (verticalVelocity > -12f) {
-			impactVolume = 0.2f;
+			impactVolume = 0.4f;
+            randomClip = impactClips[impactClips.Length-1];
 		} else if (verticalVelocity <= -12f && verticalVelocity >= -20f) {
 			impactVolume = 0.2f + ((-verticalVelocity - 12f) * 0.01f); // scale by velocity
+            randomClip = impactClips[Random.Range(0, impactClips.Length-1)];
 		} else {
 			impactVolume = 1f;
+            randomClip = impactClips[Random.Range(0, impactClips.Length-1)];
 		}
         if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
-        AudioClip randomClip = impactClips[Random.Range(0, impactClips.Length)];
         impactSource.PlayOneShot(randomClip, impactVolume);
     }
 
