@@ -29,7 +29,8 @@ public class ShrinkTrigger : MonoBehaviour {
 		if (handAnimator != null && !string.IsNullOrEmpty(handAnimTrigger)) handAnimator.SetTrigger(handAnimTrigger);
 		if (handAnimDuration > 0f) yield return new WaitForSeconds(handAnimDuration);
 
-		yield return new WaitForSeconds(g.waitDuration);
 		CompositeManager.Instance.maskDrawer.Do_ShrinkAll();
+		yield return new WaitForSeconds(g.waitDuration);
+		GameManager.Instance.AdvanceSubsection();
 	}
 }

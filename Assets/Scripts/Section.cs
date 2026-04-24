@@ -103,6 +103,16 @@ public class Gameplay3DBreakSubsection : GameplaySubsection {
 		CompositeManager.Instance.maskDrawer.Do_ShatterAll();
 	}
 }
+//Live Action---------------------------------------------------------------------------
+[Serializable]
+public class LiveActionSubsection : Subsection {
+	public float fadeInFactor = 1f;
+	public int startIndex = 0;
+
+	public override void OnStart() {
+		VideoManager.Instance.FadeIn(fadeInFactor, startIndex);
+	}
+}
 
 public class SectionRunner : MonoBehaviour {
 	Camera cam;
@@ -166,7 +176,14 @@ public class SectionRunner : MonoBehaviour {
 		switch (currentAsset.subsections[subsectionIndex]) {
 			case CutsceneSubsection c: StartCutscene(c); break;
 			case GameplaySubsection g: StartGameplay(g); break;
+			case LiveActionSubsection la: StartLiveAction(la); break;
 		}
+	}
+
+	void StartLiveAction(LiveActionSubsection la) {
+		currentSubsection = la;
+		GameManager.Instance.bInputEnabled = false;
+		la.OnStart();
 	}
 
 	void StartCutscene(CutsceneSubsection c) {

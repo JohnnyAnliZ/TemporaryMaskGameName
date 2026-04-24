@@ -250,7 +250,10 @@ public class MaskDrawer : MonoBehaviour
 		blackProgress = target;
 		blackCoroutine = null;
 
-		if (blackProgress >= 0.999f) Do_ShatterCracks();
+		if (blackProgress >= 0.999f) {
+			yield return new WaitForSeconds(0.5f);
+			Do_ShatterCracks();
+		}
 	}
 
 	public void Do_ShatterCracks() {
