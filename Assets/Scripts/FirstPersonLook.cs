@@ -14,6 +14,12 @@ public class FirstPersonLook : MonoBehaviour
 		Cursor.visible = false;
 	}
 
+	public void Unlock()
+	{
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;	
+    }
+
 	void Update() {
 		if (Keyboard.current.escapeKey.wasPressedThisFrame) {
 			bool locked = Cursor.lockState == CursorLockMode.Locked;

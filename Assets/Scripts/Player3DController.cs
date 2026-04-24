@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -30,7 +31,20 @@ public class Player3DController : MonoBehaviour
 		GameManager.Instance.bInputEnabled = false;
 	}
 
-	void Awake() {
+    public void Reset()
+    {
+		Debug.Log("Player reset");
+        FindAnyObjectByType<FirstPersonLook>().Unlock();
+        transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);
+        FindAnyObjectByType<FirstPersonLook>().transform.rotation = new quaternion(0.0f, 0.0f, 1.0f, 0.0f); //face the other way	
+        verticalVelocity = 0f;
+        controller.enabled = true;
+		
+
+    }
+
+
+    void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
 
@@ -164,10 +178,21 @@ public class Player3DController : MonoBehaviour
 
 		if (transform.position.y < g.fallThreshold) {
 			controller.enabled = false;
-			transform.position = lastPlatform.spawnPoint.position;
-			lookTransform.rotation = Quaternion.identity;
-			verticalVelocity = 0f;
-			controller.enabled = true;
+
+			if (lastPlatform != null && lastPlatform.spawnPoint != null)
+			{
+				transform.position = lastPlatform.spawnPoint.position;
+				lookTransform.rotation = Quaternion.identity;
+				verticalVelocity = 0f;
+				controller.enabled = true;
+                Reset();
+            }
+			else
+			{
+				Reset();
+			}
+
+            
 		}
 
 		// Handle footstepsounds

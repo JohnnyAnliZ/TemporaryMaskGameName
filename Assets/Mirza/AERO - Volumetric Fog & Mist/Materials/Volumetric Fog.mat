@@ -17,7 +17,7 @@ Material:
   - _INTERNAL_ADDITIONAL_LIGHT_SHADOWS
   - _INTERNAL_MAIN_LIGHT_SHADOWS
   - _MAIN_LIGHT
-  - _OUTPUT_COMPOSITE
+  - _OUTPUT_LIGHTING
   m_InvalidKeywords:
   - _SHADOWS
   m_LightmapFlags: 4
@@ -125,7 +125,7 @@ Material:
     - _MAIN_LIGHT: 1
     - _Max_Distance: 115
     - _Metallic: 0
-    - _OUTPUT: 0
+    - _OUTPUT: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
