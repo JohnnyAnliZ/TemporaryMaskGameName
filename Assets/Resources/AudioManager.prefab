@@ -54,7 +54,6 @@ MonoBehaviour:
   trackRealLife: {fileID: 8300000, guid: 4315057e0d9ea7843812e025c7a5a738, type: 3}
   crumble: {fileID: 8300000, guid: fe5a4fea6d793e54289e9ebe282d063b, type: 3}
   shatterClips:
-  - {fileID: 8300000, guid: 314d50a706bd2814b80c1b5613cbe28f, type: 3}
   - {fileID: 8300000, guid: c16cf15365f2338428531b58f4dc6cc8, type: 3}
   - {fileID: 8300000, guid: 314d50a706bd2814b80c1b5613cbe28f, type: 3}
   - {fileID: 8300000, guid: d058f41e4459b8042a157d6cdf367c72, type: 3}
@@ -62,7 +61,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: ca5f11e2639e1f645808fa740a746f74, type: 3}
   - {fileID: 8300000, guid: d5783deeedb2dc84585b23f02c5c8e6a, type: 3}
   - {fileID: 8300000, guid: 19e28f18ec734e84fb593326019fbea1, type: 3}
-  ambience: {fileID: 8300000, guid: f09a64ea389055d4ba1d13b85340414e, type: 3}
+  ambience: {fileID: 8300000, guid: 7841d022be8ae384f9040acb16b4de96, type: 3}
+  glitchyAmbience: {fileID: 8300000, guid: d2c76e5609e1a2c4c939c270d953ffa4, type: 3}
   footstepClips2D:
   - {fileID: 8300000, guid: de97960e1e5c38a438f4f7df6641e9b5, type: 3}
   - {fileID: 8300000, guid: a078ee256d9faec489cc75179447161d, type: 3}
