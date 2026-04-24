@@ -167,7 +167,7 @@ public class Player3DController : MonoBehaviour
 
 			if (lastPlatform != null && lastPlatform.spawnPoint != null)
 				transform.position = lastPlatform.spawnPoint.position;
-			else transform.position = new Vector3(-10.0f, 6.220761f, 195.6229f);
+			else transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);
 
             lookTransform.rotation = Quaternion.identity;
 			verticalVelocity = 0f;
