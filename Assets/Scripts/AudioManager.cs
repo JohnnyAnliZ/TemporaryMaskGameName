@@ -64,6 +64,8 @@ public class AudioManager : Singleton<AudioManager>
     private AudioSource impactSource;
     
     // Vars
+    bool musicStarted = false;
+
 	float footstepTimer = 0;
 
     private int shattersPlayed = 0;
@@ -76,6 +78,8 @@ public class AudioManager : Singleton<AudioManager>
     private AudioClip[] impactClips;
 
     private double startTime = 100000;
+    private double elapsedTime = 0;
+    private float transTime = 36.25f;
     private bool hasTransitioned = false;
 
     protected override void Awake()
@@ -126,23 +130,74 @@ public class AudioManager : Singleton<AudioManager>
         glitchyAmbienceSource.Play();
     }
 
-    public void StartMusic()
+    public void HandleSubsection(string subsection)
     {
-        track2DIntroSource.volume = 1.0f;
-        track2DIntroSource.time = 3.75f;
-        track2DIntroSource.Play();
-        track2DSource.time = 3.75f;
-        track2DSource.Play();
-        trackTransTo3DSource.time = 3.75f;
-        trackTransTo3DSource.Play();
-        track3DSource.time = 3.75f;
-        track3DSource.Play();
-        trackTransToRealLifeSource.time = 3.75f;
-        trackTransToRealLifeSource.Play();
-        trackRealLifeSource.time = 3.75f;
-        trackRealLifeSource.Play();
+        switch (subsection)
+        {
+            case "IntroFlowerSubsection":
+                sfxSource.Stop();
+                track2DIntroSource.volume = 1.0f;
+                ambienceSource.volume = 1.0f;
+                glitchyAmbienceSource.volume = 0.03f;
+                StartMusic(3.75f);
+                startTime = AudioSettings.dspTime;
+                break; 
+            case "TwoD":
+                track2DIntroSource.volume = 1.0f;
+                ambienceSource.volume = 1.0f;
+                glitchyAmbienceSource.volume = 0.03f;
+                if (!musicStarted) {
+                    startTime = AudioSettings.dspTime;
+                    transTime -= 8.0f;
+                }
+                StartMusic(3.75f + 8.0f);
+                break; 
+            case "TwoDBreak":
+                track2DSource.volume = 1.0f;
+                ambienceSource.volume = 1.0f;
+                glitchyAmbienceSource.volume = 0.03f;
+                StartMusic();
+                break; 
+            case "ThreeD":
+            case "ThreeDBreak":
+                track3DSource.volume = 1.0f;
+                ambienceSource.volume = 1.0f;
+                glitchyAmbienceSource.volume = 0.24f;
+                footstepClips = footstepClips3D;
+                footstepSource.volume += 0.05f;
+                impactClips = impactClips3D;
+                StartMusic();
+                break; 
+            case "LiveActionSubsection":
+                trackRealLifeSource.volume = 1.0f;
+                ambienceSource.volume = 0.0f;
+                glitchyAmbienceSource.volume = 0.0f;
+                StartMusic();
+                break; 
+            default:
+                Debug.Log($"HandleSubsection {subsection}");
+                break;
+        }
+    }
 
-        startTime = AudioSettings.dspTime;
+    private void StartMusic(float startTime = 0.0f)
+    {
+        if (!musicStarted) {
+            track2DIntroSource.time = startTime;
+            track2DIntroSource.Play();
+            track2DSource.time = startTime;
+            track2DSource.Play();
+            trackTransTo3DSource.time = startTime;
+            trackTransTo3DSource.Play();
+            track3DSource.time = startTime;
+            track3DSource.Play();
+            trackTransToRealLifeSource.time = startTime;
+            trackTransToRealLifeSource.Play();
+            trackRealLifeSource.time = startTime;
+            trackRealLifeSource.Play();
+
+            musicStarted = true;
+        }
     }
 
     public void PlayIntroSink()
@@ -309,9 +364,9 @@ public class AudioManager : Singleton<AudioManager>
 
     private void Update()
     {
-        double elapsedTime = AudioSettings.dspTime - startTime;
+        elapsedTime = AudioSettings.dspTime - startTime;
 
-        if (elapsedTime >= 36.25f && !hasTransitioned)
+        if (elapsedTime >= transTime && !hasTransitioned)
         {
             hasTransitioned = true;
             FadeToVolume(track2DIntroSource, 0f, 8);

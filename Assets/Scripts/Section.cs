@@ -78,8 +78,7 @@ public class IntroPanSubsection : CutsceneSubsection {
 public class IntroFlowerSubsection : CutsceneSubsection {
 	public override void OnStart() {
 		GameObject.Find("SinkAnim").SetActive(false);
-
-		AudioManager.Instance.StartMusic();
+		AudioManager.Instance.HandleSubsection("IntroFlowerSubsection");
 	}
 }
 //Gameplay---------------------------------------------------------------
@@ -95,6 +94,7 @@ public class GameplaySubsection : Subsection {
 
 	public override void OnStart() {
 		GameManager.Instance.player2D.SetActive(true);
+		AudioManager.Instance.HandleSubsection($"{start}");
 	}
 }
 [Serializable]
@@ -112,6 +112,7 @@ public class LiveActionSubsection : Subsection {
 
 	public override void OnStart() {
 		VideoManager.Instance.FadeIn(fadeInFactor, startIndex);
+		AudioManager.Instance.HandleSubsection("LiveActionSubsection");
 	}
 }
 
