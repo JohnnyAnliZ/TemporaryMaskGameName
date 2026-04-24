@@ -164,8 +164,12 @@ public class Player3DController : MonoBehaviour
 
 		if (transform.position.y < g.fallThreshold) {
 			controller.enabled = false;
-			transform.position = lastPlatform.spawnPoint.position;
-			lookTransform.rotation = Quaternion.identity;
+
+			if (lastPlatform != null && lastPlatform.spawnPoint != null)
+				transform.position = lastPlatform.spawnPoint.position;
+			else transform.position = new Vector3(-10.0f, 6.220761f, 195.6229f);
+
+            lookTransform.rotation = Quaternion.identity;
 			verticalVelocity = 0f;
 			controller.enabled = true;
 		}
