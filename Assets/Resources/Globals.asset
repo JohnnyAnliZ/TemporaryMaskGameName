@@ -28,6 +28,11 @@ MonoBehaviour:
   shardSpinRange: {x: -180, y: 180}
   num3DBreaks: 4
   shrinkTime: 0.25
+  branching: 0.12
+  maxTips: 50
+  freezeDuration: 3
+  panDuration: 5
+  waitDuration: 3
   mouseSensitivity: 0.25
   eyeOffset: 0.6
   pitchClamp: 85

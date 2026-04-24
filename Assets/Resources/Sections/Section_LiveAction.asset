@@ -13,7 +13,14 @@ MonoBehaviour:
   m_Name: Section_LiveAction
   m_EditorClassIdentifier: Assembly-CSharp::SectionAsset
   section: 2
-  subsections: []
+  subsections:
+  - rid: 8691557490844500041
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 8691557490844500041
+      type: {class: LiveActionSubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: LiveActionSubsection
+        fadeInFactor: 2
+        startIndex: 0
