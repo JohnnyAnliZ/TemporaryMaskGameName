@@ -22,5 +22,5 @@ MonoBehaviour:
       type: {class: LiveActionSubsection, ns: , asm: Assembly-CSharp}
       data:
         name: LiveActionSubsection
-        fadeInFactor: 2
+        fadeInFactor: 1.5
         startIndex: 0
