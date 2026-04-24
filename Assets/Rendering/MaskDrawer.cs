@@ -224,8 +224,18 @@ public class MaskDrawer : MonoBehaviour
 		cracksGenerated = false;
 	}
 
-	//3d to live------------------------------------------------------------------------
-	public void Do_ShrinkToBlack() {
+    public void ResetMask3D()
+    {
+        currentPass = 7;
+        if (blackCoroutine != null) StopCoroutine(blackCoroutine);
+        blackProgress = 0f;
+        cracks.Clear();
+        crackShards.Clear();
+        cracksGenerated = false;
+    }
+
+    //3d to live------------------------------------------------------------------------
+    public void Do_ShrinkToBlack() {
 		if (!cracksGenerated) GenerateCracks();
 		int steps = Mathf.Max(1, Globals.Instance.num3DBreaks);
 		float target = Mathf.Min(1f, blackProgress + 1f / steps);

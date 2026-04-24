@@ -137,9 +137,9 @@ public class VideoManager : Singleton<VideoManager>
 			//TODO: move player back to sink, set the animation of hand at the point where it covers the screen
 			GameObject player3D = GameManager.Instance.player3D;
 			GameManager.Instance.bInputEnabled = true;
-
-            player3D.transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);
-
+            CompositeManager.Instance.maskDrawer.ResetMask3D();
+            player3D.GetComponent<Player3DController>().Reset();
+			GameObject.Find("hand").GetComponent<AnimationController>().play = true;
             //hide canvas
             canvasGroup.alpha = 0;
             return;
