@@ -11,6 +11,7 @@ public static class Bootstrap {
 		LoadPrefab<CompositeManager>("CompositeManager");
 		LoadPrefab<GameManager>("GameManager");
 		LoadPrefab<AudioManager>("AudioManager");
+		LoadPrefab<VideoManager>("VideoManager");
 	}
 
 	static void LoadPrefab<T>(string resourceName) where T : MonoBehaviour {

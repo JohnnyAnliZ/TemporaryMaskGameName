@@ -6,7 +6,9 @@ public class Platform : MonoBehaviour {
 
 	public bool bCanBreak;
 	public bool bLastBreak;
+	public bool bShrinkToBlack;
 	[HideInInspector] public bool bIsBroken;
+	[HideInInspector] public bool bHasShrunk;
 
 	void Reset() {
 		if (spawnPoint == null) {

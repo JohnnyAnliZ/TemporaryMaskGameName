@@ -25,8 +25,11 @@ public class Globals : ScriptableObject {
 	public float shrinkTime = 0.25f;
 	public float branching = 0.12f;
 	public int maxTips = 50;
+	public float freezeDuration = 3f;
+	public float panDuration = 5f;
+	public float waitDuration = 2f;
 
-    [Header("3D Camera")]
+	[Header("3D Camera")]
 	public float mouseSensitivity = 2f;
 	public float eyeOffset = 0.6f;
 	public float pitchClamp = 85f;

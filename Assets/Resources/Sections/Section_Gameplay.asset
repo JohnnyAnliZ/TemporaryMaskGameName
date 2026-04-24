@@ -17,7 +17,7 @@ MonoBehaviour:
   - rid: 8691557471280431173
   - rid: 8691557471280431174
   - rid: 8691557471280431175
-  - rid: 8691557471280431176
+  - rid: 8691557490844500040
   references:
     version: 2
     RefIds:
@@ -36,8 +36,8 @@ MonoBehaviour:
       data:
         name: 3D
         start: 2
-    - rid: 8691557471280431176
-      type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
+    - rid: 8691557490844500040
+      type: {class: Gameplay3DBreakSubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: 3DBreak
+        name: Gameplay3DBreakSubsection
         start: 3

@@ -27,9 +27,9 @@
         {
             "id": "9846ebd8",
             "text": "foreground foliage",
-            "done": false,
+            "done": true,
             "urgency": 1,
-            "user": 0,
+            "user": 2,
             "createdAt": "2026-04-20"
         },
         {

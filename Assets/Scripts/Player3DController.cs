@@ -21,6 +21,18 @@ public class Player3DController : MonoBehaviour
 	// Impact logic
 	bool isFalling = false;
 
+	float slowdownElapsed;
+	float slowdownDuration;
+	bool bSlowing;
+	public void BeginFreeze(float duration) {
+		slowdownElapsed = 0f;
+		float gravityMag = Mathf.Max(Mathf.Abs(Globals.Instance.gravity), 0.01f);
+		float arcBonus = Mathf.Max(0f, verticalVelocity) / gravityMag * 2f;
+		slowdownDuration = Mathf.Max(0.001f, duration + arcBonus);
+		bSlowing = true;
+		GameManager.Instance.bInputEnabled = false;
+	}
+
 	void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
@@ -31,25 +43,40 @@ public class Player3DController : MonoBehaviour
 	}
 
 	void Update() {
-		if (!GameManager.Instance.bInputEnabled) return;
-
 		Globals g = Globals.Instance;
+
+		float simScale = 1f;
+		if (bSlowing) {
+			slowdownElapsed += Time.deltaTime;
+			float st = Mathf.Clamp01(slowdownElapsed / slowdownDuration);
+			float u = 1f - st;
+			simScale = u * u * u;
+			if (slowdownElapsed >= slowdownDuration) bSlowing = false;
+		}
+		bool bInputOn = GameManager.Instance.bInputEnabled;
+		if (!bInputOn && !bSlowing) return;
+
+		float dt = Time.deltaTime * simScale;
+
 		Keyboard keyboard = Keyboard.current;
 
 		float forward = 0f, horizontal = 0f;
-		if (keyboard.wKey.isPressed) forward += 1f;
-		if (keyboard.sKey.isPressed) forward -= 1f;
-		if (keyboard.aKey.isPressed) horizontal -= 1f;
-		if (keyboard.dKey.isPressed) horizontal += 1f;
-		bool bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
+		bool bSpaceJustPressed = false;
+		if (bInputOn) {
+			if (keyboard.wKey.isPressed) forward += 1f;
+			if (keyboard.sKey.isPressed) forward -= 1f;
+			if (keyboard.aKey.isPressed) horizontal -= 1f;
+			if (keyboard.dKey.isPressed) horizontal += 1f;
+			bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
+		}
 
 		//Coyote
 		if (controller.isGrounded) coyoteTimer = g.coyoteTime;
-		else coyoteTimer -= Time.deltaTime;
+		else coyoteTimer -= dt;
 
 		//Jump buffer
 		if (bSpaceJustPressed) jumpBufferTimer = g.jumpBufferTime;
-		else jumpBufferTimer -= Time.deltaTime;
+		else jumpBufferTimer -= dt;
 
 		//Input
 		Vector3 inputDir = new Vector3(horizontal, 0f, forward);
@@ -73,9 +100,9 @@ public class Player3DController : MonoBehaviour
 		}
 
 		if (bIsHoldingSpace) {
-			spaceTimer = Mathf.Min(spaceTimer + Time.deltaTime, g.jumpChargeTime);
+			spaceTimer = Mathf.Min(spaceTimer + dt, g.jumpChargeTime);
 			//Release
-			if (!keyboard.spaceKey.isPressed) {
+			if (bInputOn && !keyboard.spaceKey.isPressed) {
 				//Charge
 				float chargeTime = 0f;
 				if (spaceTimer > g.jumpTapWindow) {
@@ -118,21 +145,27 @@ public class Player3DController : MonoBehaviour
 		float blendTime = Mathf.Clamp01(Mathf.InverseLerp(g.fallGravityBlend, -g.fallGravityBlend, verticalVelocity));
 		blendTime = blendTime * blendTime * (3f - 2f * blendTime); //cubic smoothstep
 		float effectiveGravity = g.gravity * Mathf.Lerp(g.riseGravityMulti, g.fallGravityMulti, blendTime);
-		verticalVelocity += effectiveGravity * Time.deltaTime;
+		verticalVelocity += effectiveGravity * dt;
 
 		float multiplier = controller.isGrounded ? 1f : g.airControl;
 		if (bIsHoldingSpace && (spaceTimer > g.jumpTapWindow)) multiplier *= g.chargeMoveMulti; //slow walk when charging
 		Vector3 move = inputDir * g.moveSpeed * multiplier + jumpBoost;
 		move.y = verticalVelocity;
-		controller.Move(move * Time.deltaTime);
+		controller.Move(move * dt);
 
 		if (controller.isGrounded) {
 			if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2f)) {
 				Platform platform = hit.collider.GetComponentInParent<Platform>();
-				if (platform != null && platform != lastPlatform && platform.bCanBreak && !platform.bIsBroken) {
-					platform.bIsBroken = true;
-					if (platform.bLastBreak) CompositeManager.Instance.maskDrawer.Do_ShatterAll();
-					else CompositeManager.Instance.maskDrawer.Do_Shatter();
+				if (platform != null && platform != lastPlatform) {
+					if (platform.bCanBreak && !platform.bIsBroken) {
+						platform.bIsBroken = true;
+						if (platform.bLastBreak) CompositeManager.Instance.maskDrawer.Do_ShatterAll();
+						else CompositeManager.Instance.maskDrawer.Do_Shatter();
+					}
+					if (platform.bShrinkToBlack && !platform.bHasShrunk) {
+						platform.bHasShrunk = true;
+						CompositeManager.Instance.maskDrawer.Do_ShrinkToBlack();
+					}
 				}
 				lastPlatform = platform;
 			}
