@@ -30,10 +30,10 @@ public class VideoManager : Singleton<VideoManager>
 	public Image blinkBack;
 	public float blinkDuration = 0.4f;
 
-	public float cursorNormalScale = 1f;
-	public float cursorHoverScale = 1.5f;
+	public float cursorNormalScale = 0.3f;
+	public float cursorHoverScale = 0.5f;
 	public Color cursorNormalColor = Color.white;
-	public Color cursorHoverColor = new Color(1f, 0.3f, 0.3f, 1f);
+	public Color cursorHoverColor = new Color(0.6f, 0.3f, 0.3f, 1f);
 	public float cursorTransitionSpeed = 12f;
 
 	public float[] initialBlinkAmplitudes = new float[] { 0.25f, 0.55f, 0.8f, 1f };
@@ -246,20 +246,114 @@ public class VideoManager : Singleton<VideoManager>
 		bBlinking = false;
 	}
 
-	void OnDrawGizmos() {
-		Vector3 bl, right, up;
-		Vector3 origin = transform.position;
-		bl = origin - new Vector3(2f, 1.125f, 0f);
-		right = new Vector3(4f, 0f, 0f);
-		up = new Vector3(0f, 2.25f, 0f);
-		Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
-		Gizmos.DrawLine(bl, bl + right);
-		Gizmos.DrawLine(bl + right, bl + right + up);
-		Gizmos.DrawLine(bl + right + up, bl + up);
-		Gizmos.DrawLine(bl + up, bl);
+	//Runtime (Game view) visualization — edit hotspots in the inspector while playing and watch them update live.
+	//Stop play and re-author the final values back into the prefab.
+	void OnGUI() {
+		#if !UNITY_EDITOR
+		return;
+		#endif
+		if (configs == null || canvasRect == null) return;
+
+		Vector3[] corners = new Vector3[4];
+		canvasRect.GetWorldCorners(corners);
+		Canvas canvas = canvasRect.GetComponent<Canvas>();
+		Camera worldCam = (canvas != null) ? canvas.worldCamera : null;
+
+		//Canvas BL + local right/up axes in SCREEN space (handles canvas rotation correctly)
+		Vector2 blS = WorldToGuiScreen(corners[0], canvas, worldCam);
+		Vector2 brS = WorldToGuiScreen(corners[3], canvas, worldCam);
+		Vector2 tlS = WorldToGuiScreen(corners[1], canvas, worldCam);
+		Vector2 rightS = brS - blS;
+		Vector2 upS    = tlS - blS;
 
 		for (int i = 0; i < configs.Length; i++) {
 			StateConfig c = configs[i];
+			if (c == null) continue;
+			Rect h = c.hotspot;
+			//Four hotspot corners in screen-GUI coords
+			Vector2 p0 = blS + rightS * h.x + upS * h.y;
+			Vector2 p1 = blS + rightS * (h.x + h.width) + upS * h.y;
+			Vector2 p2 = blS + rightS * (h.x + h.width) + upS * (h.y + h.height);
+			Vector2 p3 = blS + rightS * h.x + upS * (h.y + h.height);
+
+			Color col = (c == currentConfig) ? Color.yellow : new Color(1f, 1f, 1f, 0.5f);
+			DrawGuiLine(p0, p1, col, 2f);
+			DrawGuiLine(p1, p2, col, 2f);
+			DrawGuiLine(p2, p3, col, 2f);
+			DrawGuiLine(p3, p0, col, 2f);
+
+			GUI.color = col;
+			GUI.Label(new Rect(p0.x + 4, p0.y - 18, 80, 20), i.ToString());
+			GUI.color = Color.white;
+		}
+
+		//Cursor UV readout so you can match hotspot values to where the mouse actually lands
+		Mouse mouse = Mouse.current;
+		if (mouse != null) {
+			Vector2 screenPos = mouse.position.ReadValue();
+			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
+			Rect rect = canvasRect.rect;
+			float uvx = (localPos.x - rect.xMin) / rect.width;
+			float uvy = (localPos.y - rect.yMin) / rect.height;
+			GUI.color = Color.yellow;
+			GUI.Label(new Rect(10, 10, 400, 20), $"cursor UV: ({uvx:F3}, {uvy:F3})");
+			GUI.color = Color.white;
+		}
+	}
+
+	//World-space RectTransform corner → screen-GUI coord (top-left origin, y flipped)
+	static Vector2 WorldToGuiScreen(Vector3 world, Canvas canvas, Camera cam) {
+		Vector2 sp;
+		if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay) sp = world;
+		else if (cam != null) sp = cam.WorldToScreenPoint(world);
+		else sp = Vector2.zero;
+		return new Vector2(sp.x, Screen.height - sp.y);
+	}
+
+	static void DrawGuiLine(Vector2 a, Vector2 b, Color c, float thickness) {
+		Vector2 d = b - a;
+		float len = d.magnitude;
+		if (len < 0.5f) return;
+		float angle = Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg;
+		Matrix4x4 prevMatrix = GUI.matrix;
+		Color prevColor = GUI.color;
+		GUI.color = c;
+		GUIUtility.RotateAroundPivot(angle, a);
+		GUI.DrawTexture(new Rect(a.x, a.y - thickness * 0.5f, len, thickness), Texture2D.whiteTexture);
+		GUI.matrix = prevMatrix;
+		GUI.color = prevColor;
+	}
+
+	void OnDrawGizmos() {
+		if (configs == null) return;
+
+		//Prefer canvasRect (so the visualization matches the actual hit-test area).
+		//Fallback to a world-space rect when the canvas is Overlay (its world corners are screen-pixel coords, not useful here).
+		Vector3 bl, right, up;
+		Canvas canvas = canvasRect != null ? canvasRect.GetComponent<Canvas>() : null;
+		bool bUseCanvas = canvasRect != null && (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay);
+
+		if (bUseCanvas) {
+			Vector3[] corners = new Vector3[4];
+			canvasRect.GetWorldCorners(corners);
+			bl = corners[0];
+			right = corners[3] - corners[0];
+			up = corners[1] - corners[0];
+		} else {
+			Vector3 origin = transform.position;
+			bl = origin - new Vector3(2f, 1.125f, 0f);
+			right = new Vector3(4f, 0f, 0f);
+			up = new Vector3(0f, 2.25f, 0f);
+			Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
+			Gizmos.DrawLine(bl, bl + right);
+			Gizmos.DrawLine(bl + right, bl + right + up);
+			Gizmos.DrawLine(bl + right + up, bl + up);
+			Gizmos.DrawLine(bl + up, bl);
+		}
+
+		for (int i = 0; i < configs.Length; i++) {
+			StateConfig c = configs[i];
+			if (c == null) continue;
 			Rect h = c.hotspot;
 			Vector3 p0 = bl + right * h.x + up * h.y;
 			Vector3 p1 = bl + right * (h.x + h.width) + up * h.y;
