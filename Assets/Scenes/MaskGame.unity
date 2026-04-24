@@ -16534,7 +16534,6 @@ GameObject:
   - component: {fileID: 634258830}
   - component: {fileID: 634258829}
   - component: {fileID: 634258828}
-  - component: {fileID: 634258831}
   m_Layer: 0
   m_Name: Cube (30)
   m_TagString: Untagged
@@ -16554,8 +16553,7 @@ Transform:
   m_LocalPosition: {x: 30.84097, y: 1.5846903, z: -0.84086174}
   m_LocalScale: {x: 12.160447, y: 1.4365227, z: 5.257737}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1019059690}
+  m_Children: []
   m_Father: {fileID: 1141376822}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!65 &634258828
@@ -16636,24 +16634,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 634258826}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &634258831
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 634258826}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e666e174d043e4ba15b0371d78e013, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Platform
-  spawnPoint: {fileID: 1019059690}
-  bCanBreak: 0
-  bLastBreak: 0
-  bShrinkToBlack: 1
-  bIsBroken: 0
-  bHasShrunk: 0
 --- !u!1 &634705809
 GameObject:
   m_ObjectHideFlags: 0
@@ -24314,7 +24294,6 @@ GameObject:
   - component: {fileID: 880984457}
   - component: {fileID: 880984456}
   - component: {fileID: 880984455}
-  - component: {fileID: 880984458}
   m_Layer: 0
   m_Name: Cube (17)
   m_TagString: Untagged
@@ -24331,7 +24310,7 @@ Transform:
   m_GameObject: {fileID: 880984453}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.3, y: 1.9425395, z: -1.04}
+  m_LocalPosition: {x: 7.875686, y: 1.9425395, z: -1.0663451}
   m_LocalScale: {x: 13.358285, y: 1.4365227, z: 5.257737}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -24416,24 +24395,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 880984453}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &880984458
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 880984453}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e666e174d043e4ba15b0371d78e013, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Platform
-  spawnPoint: {fileID: 1697612949}
-  bCanBreak: 0
-  bLastBreak: 0
-  bShrinkToBlack: 1
-  bIsBroken: 0
-  bHasShrunk: 0
 --- !u!1 &881380301
 GameObject:
   m_ObjectHideFlags: 0
@@ -28139,37 +28100,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1018064025}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1 &1019059689
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1019059690}
-  m_Layer: 0
-  m_Name: SpawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1019059690
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1019059689}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.00000031369714, y: 1.9196024, z: 0}
-  m_LocalScale: {x: 0.9112118, y: 1.2797344, z: 0.16311173}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 634258827}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1026703668
 GameObject:
   m_ObjectHideFlags: 0
@@ -41981,7 +41911,6 @@ GameObject:
   - component: {fileID: 1600823302}
   - component: {fileID: 1600823301}
   - component: {fileID: 1600823300}
-  - component: {fileID: 1600823303}
   m_Layer: 0
   m_Name: Cube (30)
   m_TagString: Untagged
@@ -42083,24 +42012,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1600823298}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &1600823303
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1600823298}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e666e174d043e4ba15b0371d78e013, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Platform
-  spawnPoint: {fileID: 1667402745}
-  bCanBreak: 0
-  bLastBreak: 0
-  bShrinkToBlack: 1
-  bIsBroken: 0
-  bHasShrunk: 0
 --- !u!1 &1601643406
 GameObject:
   m_ObjectHideFlags: 0
@@ -47550,6 +47461,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: hand
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 3bede26a1217e414e9ee50e7363cd681, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: d8b246d14ce2b254499dba5911840709, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
