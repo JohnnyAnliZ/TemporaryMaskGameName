@@ -14,10 +14,6 @@ public class Player3DController : MonoBehaviour
 	Vector3 jumpBoost;
 	Platform lastPlatform;
 
-	// Footstep audio
-	float footstepTimer;
-	float footstepInterval;
-
 	// Impact logic
 	bool isFalling = false;
 
@@ -39,7 +35,6 @@ public class Player3DController : MonoBehaviour
 
 	void Start() {
 		lookTransform = FindAnyObjectByType<FirstPersonLook>().transform;
-		footstepInterval = AudioManager.Instance.footstepInterval;
 	}
 
 	void Update() {
@@ -119,16 +114,7 @@ public class Player3DController : MonoBehaviour
 
 		if (controller.isGrounded) {
 			if (isFalling) {
-				//Debug.Log($"{verticalVelocity}");
-				if (verticalVelocity > -12f) {
-					AudioManager.Instance.impactVolume = 0.2f;
-				} else if (verticalVelocity <= -12f && verticalVelocity >= -20f) {
-					AudioManager.Instance.impactVolume = 0.2f + ((-verticalVelocity - 12f) * 0.01f); // scale by velocity
-				} else {
-					AudioManager.Instance.impactVolume = 1f;
-				}
-				//Debug.Log($"{AudioManager.Instance.impactVolume}");
-				AudioManager.Instance.PlayImpact();
+				AudioManager.Instance.HandleImpact(verticalVelocity);
 				isFalling = false;
 			}
 		}
@@ -179,24 +165,8 @@ public class Player3DController : MonoBehaviour
 			controller.enabled = true;
 		}
 
-		// Update sounds
-		UpdateFootsteps(inputDir);
-	}
-
-	void UpdateFootsteps(Vector3 movementDirection) {
-		// Only play footsteps if grounded and moving
-		bool isMoving = movementDirection != Vector3.zero && controller.isGrounded;
-
-		if (isMoving) {
-			footstepTimer -= Time.deltaTime;
-
-			if (footstepTimer <= 0f) {
-				AudioManager.Instance.PlayFootstep();
-				footstepTimer = footstepInterval;
-			}
-		} else {
-			footstepTimer = 0f;
-		}
+		// Handle footstepsounds
+		AudioManager.Instance.HandleFootsteps(inputDir, controller.isGrounded);
 	}
 
 	void OnDrawGizmos() {
