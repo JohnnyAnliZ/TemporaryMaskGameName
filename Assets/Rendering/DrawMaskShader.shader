@@ -13,12 +13,12 @@ Shader "Custom/CircleMask"
 			#pragma fragment Frag
 			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
 
-			int _PassIndex;      // 0, 1, 2, ... NumPasses-1
-			int _Num2DTo3DPasses;      // total number of passes to fill the mask for 2D to 3D conversion
-			int _Num3DToBlackPasses;   // total number of steps for the sequence from 3D to black
-			float _CellSize;     // size of the Voronoi cells in pixels
-			float _ShatterBias;  // >1 skews toward later passes revealing more cells
-			float4 _CameraPos;   // world-space camera position for stable hashing
+			int _PassIndex;		// 0, 1, 2, ... _Num2DTo3DPasses-1
+			int _Num2DTo3DPasses;		// total number of passes to fill the mask for 2D to 3D conversion
+			float _BlackProgress;	// 0-1, float for animation
+			float _CellSize;	// size of the Voronoi cells in pixels
+			float _ShatterBias;	// >1 skews toward later passes revealing more cells
+			float4 _CameraPos;	// world-space camera position for stable hashing
 
 			struct Varyings {
 				float4 positionHCS : SV_POSITION;
@@ -103,21 +103,18 @@ Shader "Custom/CircleMask"
 
 				half4 ret = half4(1.0, 0.0, 0.0, 0.0);//set the first channel(2D to 3D)
 
-
-				int toBlack_index = _PassIndex - _Num2DTo3DPasses - 1;
 				float video_width_uv = 0.3; // the width of the video in UV space, tweak to taste
-				if (toBlack_index >= 0) {
-					float progress = (toBlack_index + 1.0) / _Num3DToBlackPasses;
-					progress = saturate(progress);
-
+				if (_BlackProgress >= 1.0) {
+					ret.g = 1.0;
+				} else if (_BlackProgress > 0.0) {
 					// half-width of the visible middle strip:
 					// starts at 0.5 (whole screen visible), ends at video_width_uv/2
-					float visibleHalfWidth = lerp(0.5, video_width_uv * 0.5, progress);
+					float visibleHalfWidth = lerp(0.5, video_width_uv * 0.5, saturate(_BlackProgress));
 
 					float distFromCenter = abs(i.uv.x - 0.5);
 
 					if (distFromCenter > visibleHalfWidth) {
-						ret = half4(0.0, 1.0, 0.0, 0.0); // 3D -> black
+						ret.g = 1.0; // red needs to stay for composite to read because of blur pass
 					}
 				}
 

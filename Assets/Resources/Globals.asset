@@ -26,7 +26,13 @@ MonoBehaviour:
   shatterStagger: 0.4
   shardSpeedRange: {x: 0.5, y: 2}
   shardSpinRange: {x: -180, y: 180}
-  num3DBreaks: 3
+  num3DBreaks: 4
+  shrinkTime: 0.25
+  branching: 0.12
+  maxTips: 50
+  freezeDuration: 3
+  panDuration: 5
+  waitDuration: 3
   mouseSensitivity: 0.25
   eyeOffset: 0.6
   pitchClamp: 85
@@ -81,8 +87,10 @@ MonoBehaviour:
   angleFade: 6
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
+  - {fileID: 102900000, guid: 49ab26784e8134c49ab4f23908a9e839, type: 3}
   gameLevels:
   - MaskGame
+  - 
   pixelsPerUnit: 100
   parallaxLayers:
   - z: 25

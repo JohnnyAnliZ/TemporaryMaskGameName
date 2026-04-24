@@ -114,12 +114,15 @@ public class GameManager : Singleton<GameManager>
 		camera3D.SetActive(false);
 		Camera cam3D = camera3D.AddComponent<Camera>();
 		cam3D.GetUniversalAdditionalCameraData().SetRenderer(1);
+		cam3D.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+		cam3D.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PostProcess3D", "Default");
 		camera3D.AddComponent<CompositeCamera>().index = 1;
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
 		camera3D.AddComponent<AudioListener>();
 		camera3D.SetActive(true);
 
 		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
+		player3D.GetComponent<Player3DController>().Init(player2D.GetComponent<Animator>());
 
 		GameObject camera2D = new GameObject("2DCamera");
 		camera2D.SetActive(false); //so that OnEnable runs after CompositeCamera component is added
@@ -130,6 +133,7 @@ public class GameManager : Singleton<GameManager>
 		cam.farClipPlane = g.camera2DFarClip;
 		cam.GetUniversalAdditionalCameraData().SetRenderer(0);
 		cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
+		cam.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PostProcess2D", "Default");
 		camera2D.AddComponent<CompositeCamera>().index = 0;
 		CameraFollow2D follow = camera2D.AddComponent<CameraFollow2D>();
 		follow.Init(player2D.transform, player3D.transform);
