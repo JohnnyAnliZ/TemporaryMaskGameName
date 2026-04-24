@@ -27,7 +27,7 @@ RectTransform:
   m_GameObject: {fileID: 331364370147350817}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4503095365726289119}
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: aa38792ddaa067649a8db66a6f8d2815, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -124,14 +124,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VideoManager
   configs:
   - mainClip: {fileID: 32900000, guid: 22001c7882626a34a926049992b0dea6, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 2011e09dfaaf9bf4a8137f6d703d6621, type: 3}
     isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 4
-      y: 20
-      width: 20
-      height: 40
+      x: 0.4
+      y: 0.3
+      width: 0.2
+      height: 0.5
   - mainClip: {fileID: 32900000, guid: 202099da7a64486418a979b80909bbff, type: 3}
     outlineClip: {fileID: 0}
     isIdle: 0
@@ -142,14 +142,14 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 22001c7882626a34a926049992b0dea6, type: 3}
-    outlineClip: {fileID: 0}
-    isIdle: 0
+    outlineClip: {fileID: 32900000, guid: 2011e09dfaaf9bf4a8137f6d703d6621, type: 3}
+    isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
+      x: 0.4
+      y: 0.3
+      width: 0.2
+      height: 0.5
   - mainClip: {fileID: 32900000, guid: 5c404cdec7125ea41942572ef254d8b1, type: 3}
     outlineClip: {fileID: 0}
     isIdle: 0
@@ -160,14 +160,14 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 147b56dddcc42cc4ab41c068eca6d02f, type: 3}
-    outlineClip: {fileID: 0}
-    isIdle: 0
+    outlineClip: {fileID: 32900000, guid: 98382fcd818b5fc46bf37b510a4e066c, type: 3}
+    isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
+      x: 0.4
+      y: 0.3
+      width: 0.2
+      height: 0.5
   - mainClip: {fileID: 32900000, guid: 4cce348ba936ab34e9f27870e4701a0a, type: 3}
     outlineClip: {fileID: 0}
     isIdle: 0
@@ -177,7 +177,7 @@ MonoBehaviour:
       y: 0
       width: 0
       height: 0
-  - mainClip: {fileID: 32900000, guid: 147b56dddcc42cc4ab41c068eca6d02f, type: 3}
+  - mainClip: {fileID: 32900000, guid: 8dc9061d8ae2b854e846bbccc661a114, type: 3}
     outlineClip: {fileID: 0}
     isIdle: 0
     hotspot:
@@ -670,7 +670,7 @@ RectTransform:
   m_GameObject: {fileID: 5156694152003279299}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.345, y: 0.345, z: 0.345}
+  m_LocalScale: {x: 0.3663555, y: 0.3663555, z: 0.3663555}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4503095365726289119}
@@ -754,7 +754,7 @@ RectTransform:
   m_GameObject: {fileID: 6139763618404693002}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.345, y: 0.345, z: 0.345}
+  m_LocalScale: {x: 0.375498, y: 0.375498, z: 0.375498}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4503095365726289119}
