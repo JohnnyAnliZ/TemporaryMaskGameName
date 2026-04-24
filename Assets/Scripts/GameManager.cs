@@ -1,3 +1,5 @@
+using Unity.VisualScripting;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -10,7 +12,7 @@ public class GameManager : Singleton<GameManager>
 	[HideInInspector]
 	public GameObject player3D, player2D;
 
-	void PlaySection(Section section, int startSubsection = 0) {
+	public void PlaySection(Section section, int startSubsection = 0) {
 		SectionAsset asset = Resources.Load<SectionAsset>($"Sections/Section_{section}");
 		if (asset == null || asset.subsections.Count == 0) {
 			Log.Warn($"Skipping empty section {section}");
@@ -153,10 +155,22 @@ public class GameManager : Singleton<GameManager>
 		bSpawnFromPanel = true;
 		#endif
 		if (bSpawnFromPanel) {
+
 			player2D.SetActive(false);
 			runner = gameObject.AddComponent<SectionRunner>();
 			runner.Init(cam, follow);
 			PlaySection(startSection, startSubsection);
 		}
 	}
+    public void restart()
+    {
+		GameObject camera2D = GameObject.Find("2DCamera");
+        Camera cam = camera2D.GetComponent<Camera>();
+		CameraFollow2D follow = camera2D.GetComponent<CameraFollow2D>();
+        player2D.SetActive(false);
+        runner = gameObject.AddComponent<SectionRunner>();
+        runner.Init(cam, follow);
+        PlaySection(0, 0);
+    }
 }
+

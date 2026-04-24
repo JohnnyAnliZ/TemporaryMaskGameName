@@ -260,58 +260,58 @@ public class VideoManager : Singleton<VideoManager>
 
 	//Runtime (Game view) visualization — edit hotspots in the inspector while playing and watch them update live.
 	//Stop play and re-author the final values back into the prefab.
-	void OnGUI() {
-		#if !UNITY_EDITOR
-		return;
-		#endif
-		if (configs == null || canvasRect == null) return;
+	//void OnGUI() {
+	//	#if !UNITY_EDITOR
+	//	return;
+	//	#endif
+	//	if (configs == null || canvasRect == null) return;
 
-		Vector3[] corners = new Vector3[4];
-		canvasRect.GetWorldCorners(corners);
-		Canvas canvas = canvasRect.GetComponent<Canvas>();
-		Camera worldCam = (canvas != null) ? canvas.worldCamera : null;
+	//	Vector3[] corners = new Vector3[4];
+	//	canvasRect.GetWorldCorners(corners);
+	//	Canvas canvas = canvasRect.GetComponent<Canvas>();
+	//	Camera worldCam = (canvas != null) ? canvas.worldCamera : null;
 
-		//Canvas BL + local right/up axes in SCREEN space (handles canvas rotation correctly)
-		Vector2 blS = WorldToGuiScreen(corners[0], canvas, worldCam);
-		Vector2 brS = WorldToGuiScreen(corners[3], canvas, worldCam);
-		Vector2 tlS = WorldToGuiScreen(corners[1], canvas, worldCam);
-		Vector2 rightS = brS - blS;
-		Vector2 upS    = tlS - blS;
+	//	//Canvas BL + local right/up axes in SCREEN space (handles canvas rotation correctly)
+	//	Vector2 blS = WorldToGuiScreen(corners[0], canvas, worldCam);
+	//	Vector2 brS = WorldToGuiScreen(corners[3], canvas, worldCam);
+	//	Vector2 tlS = WorldToGuiScreen(corners[1], canvas, worldCam);
+	//	Vector2 rightS = brS - blS;
+	//	Vector2 upS    = tlS - blS;
 
-		for (int i = 0; i < configs.Length; i++) {
-			StateConfig c = configs[i];
-			if (c == null) continue;
-			Rect h = c.hotspot;
-			//Four hotspot corners in screen-GUI coords
-			Vector2 p0 = blS + rightS * h.x + upS * h.y;
-			Vector2 p1 = blS + rightS * (h.x + h.width) + upS * h.y;
-			Vector2 p2 = blS + rightS * (h.x + h.width) + upS * (h.y + h.height);
-			Vector2 p3 = blS + rightS * h.x + upS * (h.y + h.height);
+	//	for (int i = 0; i < configs.Length; i++) {
+	//		StateConfig c = configs[i];
+	//		if (c == null) continue;
+	//		Rect h = c.hotspot;
+	//		//Four hotspot corners in screen-GUI coords
+	//		Vector2 p0 = blS + rightS * h.x + upS * h.y;
+	//		Vector2 p1 = blS + rightS * (h.x + h.width) + upS * h.y;
+	//		Vector2 p2 = blS + rightS * (h.x + h.width) + upS * (h.y + h.height);
+	//		Vector2 p3 = blS + rightS * h.x + upS * (h.y + h.height);
 
-			Color col = (c == currentConfig) ? Color.yellow : new Color(1f, 1f, 1f, 0.5f);
-			DrawGuiLine(p0, p1, col, 2f);
-			DrawGuiLine(p1, p2, col, 2f);
-			DrawGuiLine(p2, p3, col, 2f);
-			DrawGuiLine(p3, p0, col, 2f);
+	//		Color col = (c == currentConfig) ? Color.yellow : new Color(1f, 1f, 1f, 0.5f);
+	//		DrawGuiLine(p0, p1, col, 2f);
+	//		DrawGuiLine(p1, p2, col, 2f);
+	//		DrawGuiLine(p2, p3, col, 2f);
+	//		DrawGuiLine(p3, p0, col, 2f);
 
-			GUI.color = col;
-			GUI.Label(new Rect(p0.x + 4, p0.y - 18, 80, 20), i.ToString());
-			GUI.color = Color.white;
-		}
+	//		GUI.color = col;
+	//		GUI.Label(new Rect(p0.x + 4, p0.y - 18, 80, 20), i.ToString());
+	//		GUI.color = Color.white;
+	//	}
 
-		//Cursor UV readout so you can match hotspot values to where the mouse actually lands
-		Mouse mouse = Mouse.current;
-		if (mouse != null) {
-			Vector2 screenPos = mouse.position.ReadValue();
-			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
-			Rect rect = canvasRect.rect;
-			float uvx = (localPos.x - rect.xMin) / rect.width;
-			float uvy = (localPos.y - rect.yMin) / rect.height;
-			GUI.color = Color.yellow;
-			GUI.Label(new Rect(10, 10, 400, 20), $"cursor UV: ({uvx:F3}, {uvy:F3})");
-			GUI.color = Color.white;
-		}
-	}
+	//	//Cursor UV readout so you can match hotspot values to where the mouse actually lands
+	//	Mouse mouse = Mouse.current;
+	//	if (mouse != null) {
+	//		Vector2 screenPos = mouse.position.ReadValue();
+	//		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
+	//		Rect rect = canvasRect.rect;
+	//		float uvx = (localPos.x - rect.xMin) / rect.width;
+	//		float uvy = (localPos.y - rect.yMin) / rect.height;
+	//		GUI.color = Color.yellow;
+	//		GUI.Label(new Rect(10, 10, 400, 20), $"cursor UV: ({uvx:F3}, {uvy:F3})");
+	//		GUI.color = Color.white;
+	//	}
+	//}
 
 	//World-space RectTransform corner → screen-GUI coord (top-left origin, y flipped)
 	static Vector2 WorldToGuiScreen(Vector3 world, Canvas canvas, Camera cam) {

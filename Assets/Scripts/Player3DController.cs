@@ -35,7 +35,7 @@ public class Player3DController : MonoBehaviour
     {
 		Debug.Log("Player reset");
         FindAnyObjectByType<FirstPersonLook>().Unlock();
-        transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);
+        transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);//sink
         FindAnyObjectByType<FirstPersonLook>().transform.rotation = new quaternion(0.0f, 0.0f, 1.0f, 0.0f); //face the other way	
         verticalVelocity = 0f;
         controller.enabled = true;
@@ -185,7 +185,6 @@ public class Player3DController : MonoBehaviour
 				lookTransform.rotation = Quaternion.identity;
 				verticalVelocity = 0f;
 				controller.enabled = true;
-                Reset();
             }
 			else
 			{

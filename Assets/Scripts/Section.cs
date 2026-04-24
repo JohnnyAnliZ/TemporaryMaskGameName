@@ -111,6 +111,7 @@ public class LiveActionSubsection : Subsection {
 	public int startIndex = 0;
 
 	public override void OnStart() {
+		Debug.Log("Starting live action");
 		VideoManager.Instance.FadeIn(fadeInFactor, startIndex);
 	}
 }
@@ -174,6 +175,8 @@ public class SectionRunner : MonoBehaviour {
 			return;
 		}
 
+
+
 		switch (currentAsset.subsections[subsectionIndex]) {
 			case CutsceneSubsection c: StartCutscene(c); break;
 			case GameplaySubsection g: StartGameplay(g); break;
@@ -181,7 +184,8 @@ public class SectionRunner : MonoBehaviour {
 		}
 	}
 
-	void StartLiveAction(LiveActionSubsection la) {
+	public void StartLiveAction(LiveActionSubsection la) {
+
 		currentSubsection = la;
 		GameManager.Instance.bInputEnabled = false;
 		la.OnStart();
@@ -199,6 +203,7 @@ public class SectionRunner : MonoBehaviour {
 	}
 
 	void StartGameplay(GameplaySubsection g) {
+		
 		SectionStart marker = null;
 		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
 			if (s.section == Section.Gameplay && s.gameplayStart == g.start) {
@@ -206,6 +211,7 @@ public class SectionRunner : MonoBehaviour {
 				break;
 			}
 		}
+		Debug.Log($"teleport to {marker.transform.position}");
 		GameManager.Instance.TeleportPlayer(marker.transform.position);
 		currentSubsection = g;
 		g.OnStart();

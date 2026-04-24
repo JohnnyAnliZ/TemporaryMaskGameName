@@ -1,5 +1,7 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static Unity.Collections.Unicode;
 
 
 public class AnimationController : MonoBehaviour
@@ -36,13 +38,15 @@ public class AnimationController : MonoBehaviour
 
         float currentTime = (stateInfo.normalizedTime % 1) * clip.length;
         int currentFrame = Mathf.FloorToInt(currentTime * clip.frameRate);
-        Debug.Log("Current Frame: " + currentFrame);
+
         if (currentFrame >= 189)
         {
             //clear 2D to 3D mask
-            Debug.Log("Clear here");
+            Debug.Log("Clear here 3D to 2D");
             CompositeManager.Instance.maskDrawer.ResetMask();
             cleared = true;
+
+            GameManager.Instance.restart();
         }
     }
 }
