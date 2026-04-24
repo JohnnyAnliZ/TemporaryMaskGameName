@@ -180,9 +180,11 @@ public class VideoManager : Singleton<VideoManager>
 
 		bool bHasOutline = currentConfig.outlineClip != null;
 		if (cursorUI != null) cursorUI.gameObject.SetActive(bHasOutline);
+		else Debug.Log("no cursorui");
 		if (!bHasOutline && outlineImage != null) outlineImage.enabled = false;
 
-		if (canvasRect != null) {
+		if (canvasRect != null)
+		{
 			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
 			if (cursorUI != null && bHasOutline) cursorUI.anchoredPosition = localPos;
 
@@ -195,7 +197,8 @@ public class VideoManager : Singleton<VideoManager>
 			if (outlineImage != null && bHasOutline) outlineImage.enabled = bHover;
 
 			//Cursor hover
-			if (bHasOutline) {
+			if (bHasOutline)
+			{
 				float targetScale = bHover ? cursorHoverScale : cursorNormalScale;
 				Color targetColor = bHover ? cursorHoverColor : cursorNormalColor;
 				float k = 1f - Mathf.Exp(-cursorTransitionSpeed * Time.deltaTime);
@@ -204,9 +207,14 @@ public class VideoManager : Singleton<VideoManager>
 				if (cursorGraphic != null) cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
 			}
 
-			if (currentConfig.isIdle && bHover && mouse.leftButton.wasPressedThisFrame) {
+			if (currentConfig.isIdle && bHover && mouse.leftButton.wasPressedThisFrame)
+			{
 				StartCoroutine(BlinkAndAdvance());
 			}
+		}
+		else
+		{
+			Debug.Log("no rect");
 		}
 	}
 
