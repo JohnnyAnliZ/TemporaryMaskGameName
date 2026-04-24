@@ -131,10 +131,14 @@ public class VideoManager : Singleton<VideoManager>
 
 	void PlayAt(int index) {
 		mainPlayer.loopPointReached -= OnMainEnd;
-		if (configs == null || index < 0 || index >= configs.Length) {
+		if (index >= configs.Length) {
 			currentIndex = -1;
 			currentConfig = null;
-			return;
+			//TODO: move player back to sink, set the animation of hand at the point where it covers the screen
+
+			//hide canvas
+			canvasGroup.alpha = 0;
+            return;
 		}
 
 		currentIndex = index;

@@ -14,7 +14,8 @@ public class ShrinkTrigger : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other) {
 		if (bEntered) return;
-		bEntered = true;
+		if(other.GetComponentInParent<Player3DController>() == null) return;
+        bEntered = true;
 		StartCoroutine(Sequence(other.GetComponentInParent<Player3DController>()));
 	}
 
