@@ -138,7 +138,7 @@ public class VideoManager : Singleton<VideoManager>
 			GameObject player3D = GameManager.Instance.player3D;
 			GameManager.Instance.bInputEnabled = true;
 
-            player3D.transform.position = new Vector3(-10.0f, 6.220761f, 195.6229f);
+            player3D.transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);
 
             //hide canvas
             canvasGroup.alpha = 0;
