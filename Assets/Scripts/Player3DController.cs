@@ -32,7 +32,7 @@ public class Player3DController : MonoBehaviour
 
     public void Reset()
     {
-		Debug.Log("Player reset");
+		Log.Info("Player reset");
         FindAnyObjectByType<FirstPersonLook>().Unlock();
         transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);//sink
         FindAnyObjectByType<FirstPersonLook>().transform.rotation = new quaternion(0.0f, 0.0f, 1.0f, 0.0f); //face the other way	
@@ -100,6 +100,10 @@ public class Player3DController : MonoBehaviour
 		}
 
 		if (controller.isGrounded) jumpBoost = Vector3.zero;
+
+		GameManager.Instance.player2D.GetComponent<Animator>().SetBool("isMoving",inputDir != Vector3.zero);
+        GameManager.Instance.player2D.GetComponent<Animator>().SetBool("isGrounded", controller.isGrounded);
+
 
 		//Start spaceTimer, to check if we should charge or not
 		if (!bIsHoldingSpace && jumpBufferTimer > 0f && coyoteTimer > 0f) {

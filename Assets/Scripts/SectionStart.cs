@@ -22,7 +22,7 @@ public class SectionsWindow : UnityEditor.EditorWindow
 	UnityEditor.SerializedObject cachedSerializedAsset;
 	SectionAsset cachedAsset;
 
-	[UnityEditor.MenuItem("Window/Sections")]
+	[UnityEditor.MenuItem("WhiteRabbit/Sections", false, 0)]
 	static void Open() => GetWindow<SectionsWindow>("Sections");
 
 	void OnEnable() {

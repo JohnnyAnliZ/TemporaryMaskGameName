@@ -19,7 +19,7 @@ static class ViewportSync
 		SceneView.duringSceneGui += OnSceneGUI;
 	}
 
-	[MenuItem("Window/Viewport Sync")]
+	[MenuItem("WhiteRabbit/Viewport Sync", false, 40)]
 	static void Toggle() {
 		bIsEnabled = !bIsEnabled;
 		EditorPrefs.SetBool(SYNC_KEY, bIsEnabled); //persist across recompiles
@@ -28,19 +28,19 @@ static class ViewportSync
 			if (sceneView != null) lastSyncedX = sceneView.pivot.x;
 		}
 	}
-	[MenuItem("Window/Viewport Sync", true)]
+	[MenuItem("WhiteRabbit/Viewport Sync", true)]
 	static bool ToggleValidate() {
 		Menu.SetChecked("Window/Viewport Sync", bIsEnabled);
 		return true;
 	}
 
-	[MenuItem("Window/Sprite Gizmos")]
+	[MenuItem("WhiteRabbit/Sprite Gizmos", false, 41)]
 	static void ToggleGizmos() {
 		bShowSpriteGizmos = !bShowSpriteGizmos;
 		EditorPrefs.SetBool(GIZMO_KEY, bShowSpriteGizmos);
 		SceneView.RepaintAll();
 	}
-	[MenuItem("Window/Sprite Gizmos", true)]
+	[MenuItem("WhiteRabbit/Sprite Gizmos", true)]
 	static bool ToggleGizmosValidate() {
 		Menu.SetChecked("Window/Sprite Gizmos", bShowSpriteGizmos);
 		return true;

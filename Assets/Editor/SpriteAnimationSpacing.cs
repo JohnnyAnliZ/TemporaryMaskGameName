@@ -6,7 +6,7 @@ public class SpriteAnimationSpacingWindow : EditorWindow {
 	float frameRate = 60f;
 	bool changeFrameRate = false;
 
-	[MenuItem("Window/Sprite Animation Spacing")]
+	[MenuItem("WhiteRabbit/Sprite Anim Spacing", false, 3)]
 	static void Open() => GetWindow<SpriteAnimationSpacingWindow>("Sprite Anim Spacing");
 
 	void OnGUI() {

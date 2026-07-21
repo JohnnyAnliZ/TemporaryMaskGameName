@@ -30,7 +30,7 @@ static class ParallaxSyncpointOutline {
 		if (drawOutline == null) {
 			if (!didWarn) {
 				didWarn = true;
-				Debug.LogWarning("[ParallaxSyncpointOutline] Handles.DrawOutline not found via reflection");
+				Log.Warn("[ParallaxSyncpointOutline] Handles.DrawOutline not found via reflection");
 			}
 			return;
 		}

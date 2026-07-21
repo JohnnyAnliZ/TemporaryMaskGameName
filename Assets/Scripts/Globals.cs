@@ -169,7 +169,7 @@ public class Globals : ScriptableObject {
 		UnityEditor.Editor cachedEditor;
 		Vector2 scroll;
 
-		[UnityEditor.MenuItem("Window/Globals")]
+		[UnityEditor.MenuItem("WhiteRabbit/Globals", false, 1)]
 		static void Open() => GetWindow<GlobalsWindow>("Globals");
 
 		void OnGUI() {
@@ -184,7 +184,7 @@ public class Globals : ScriptableObject {
 	{
 		Vector2 scroll;
 
-		[UnityEditor.MenuItem("Window/Parallax Layers")]
+		[UnityEditor.MenuItem("WhiteRabbit/Parallax Layers", false, 2)]
 		static void Open() => GetWindow<ParallaxWindow>("Parallax Layers");
 
 		void OnGUI() {

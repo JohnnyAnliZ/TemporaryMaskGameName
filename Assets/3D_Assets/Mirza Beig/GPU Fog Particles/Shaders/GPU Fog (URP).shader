@@ -1425,7 +1425,7 @@ Shader "Mirza Beig/GPU Fog (URP)"
 	}
 	
 	CustomEditor "UnityEditor.ShaderGraph.PBRMasterGUI"
-	Fallback "Hidden/InternalErrorShader"
+	Fallback Off
 	
 }
 /*ASEBEGIN

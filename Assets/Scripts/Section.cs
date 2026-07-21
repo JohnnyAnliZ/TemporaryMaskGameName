@@ -81,7 +81,7 @@ public class IntroFlowerSubsection : CutsceneSubsection {
 		AudioManager.Instance.HandleSubsection("IntroFlowerSubsection");
 	}
 }
-//Gameplay---------------------------------------------------------------
+//Gameplay-----------------------------------------------------------------------
 public enum GameplayStart {
 	TwoD,
 	TwoDBreak,
@@ -111,72 +111,52 @@ public class LiveActionSubsection : Subsection {
 	public int startIndex = 0;
 
 	public override void OnStart() {
-		Debug.Log("Starting live action");
+		Log.Info("Starting live action");
 		VideoManager.Instance.FadeIn(fadeInFactor, startIndex);
 		AudioManager.Instance.HandleSubsection("LiveActionSubsection");
 	}
 }
 
 public class SectionRunner : MonoBehaviour {
-	Camera cam;
-	CameraFollow2D follow;
+	CutscenePlayer cutscenePlayer;
 	SectionAsset currentAsset;
-	int subsectionIndex = -1;
-	Action onSectionComplete;
-
 	Subsection currentSubsection;
+	int subsectionIndex = -1;
 
-	//Cutscene playback state
-	float t;
-	int nextEventIndex;
-	bool bPlayingCutscene;
-
-	//Wait-for-input state
-	bool bWaitingForInput;
-
-	public void Init(Camera cam, CameraFollow2D follow) {
-		this.cam = cam;
-		this.follow = follow;
+	public void Init(CutscenePlayer cutscenePlayer) {
+		this.cutscenePlayer = cutscenePlayer;
 	}
 
-	public void PlaySection(SectionAsset asset, int startSubsection = 0, Action onComplete = null) {
-		currentAsset = asset;
-		onSectionComplete = onComplete;
+	public void PlaySection(Section section, int startSubsection = 0) {
+		currentAsset = Resources.Load<SectionAsset>($"Sections/Section_{section}");
 
 		//Catch up scene state from any subsections we're skipping
-		for (int i = 0; i < startSubsection && i < asset.subsections.Count; i++) {
-			asset.subsections[i].FastForwardToEnd();
+		for (int i = 0; i < startSubsection && i < currentAsset.subsections.Count; i++) {
+			currentAsset.subsections[i].FastForwardToEnd();
 		}
 
+		//An empty section (e.g. a not-yet-authored Trans section) rolls straight through Advance to the next.
 		subsectionIndex = startSubsection - 1;
 		Advance();
 	}
 
-	//Call to end the current subsection and move to the next (e.g., from a gameplay end trigger)
 	public void Advance() {
 		//End current subsection
-		if (bPlayingCutscene) {
-			bPlayingCutscene = false;
-			if (follow != null) follow.enabled = true;
-			GameManager.Instance.bInputEnabled = true;
-		}
 		if (currentSubsection != null) {
 			currentSubsection.OnEnd();
 			currentSubsection = null;
 		}
-		bWaitingForInput = false;
 
 		subsectionIndex++;
-		if (currentAsset == null || subsectionIndex >= currentAsset.subsections.Count) {
-			var cb = onSectionComplete;
-			onSectionComplete = null;
+		if (subsectionIndex >= currentAsset.subsections.Count) {
+			Section[] all = (Section[])System.Enum.GetValues(typeof(Section));
+			Section next = all[(System.Array.IndexOf(all, currentAsset.section) + 1) % all.Length];
 			currentAsset = null;
 			subsectionIndex = -1;
-			cb?.Invoke();
+			if (next == Section.Intro) GameManager.Instance.ResetForIntro();
+			PlaySection(next);
 			return;
 		}
-
-
 
 		switch (currentAsset.subsections[subsectionIndex]) {
 			case CutsceneSubsection c: StartCutscene(c); break;
@@ -185,8 +165,13 @@ public class SectionRunner : MonoBehaviour {
 		}
 	}
 
-	public void StartLiveAction(LiveActionSubsection la) {
+	public void CompleteSection() {
+		if (currentAsset == null) return;
+		subsectionIndex = currentAsset.subsections.Count - 1; //for the if block in Advance()
+		Advance();
+	}
 
+	public void StartLiveAction(LiveActionSubsection la) {
 		currentSubsection = la;
 		GameManager.Instance.bInputEnabled = false;
 		la.OnStart();
@@ -195,12 +180,7 @@ public class SectionRunner : MonoBehaviour {
 	void StartCutscene(CutsceneSubsection c) {
 		if (c.keyframes.Count == 0) { Advance(); return; }
 		currentSubsection = c;
-		t = 0f;
-		nextEventIndex = 0;
-		bPlayingCutscene = true;
-		GameManager.Instance.bInputEnabled = false;
-		if (follow != null) follow.enabled = false;
-		c.OnStart();
+		cutscenePlayer.Play(c, Advance);
 	}
 
 	void StartGameplay(GameplaySubsection g) {
@@ -212,23 +192,65 @@ public class SectionRunner : MonoBehaviour {
 				break;
 			}
 		}
-		Debug.Log($"teleport to {marker.transform.position}");
+		Log.Info($"teleport to {marker.transform.position}");
 		GameManager.Instance.TeleportPlayer(marker.transform.position);
 		currentSubsection = g;
 		g.OnStart();
 		GameManager.Instance.bInputEnabled = true;
 	}
 
+}
+
+public class CutscenePlayer : MonoBehaviour {
+	Camera cam;
+	CameraFollow2D follow;
+
+	CutsceneSubsection cutscene;
+	Action onComplete;
+	float t;
+	int nextEventIndex;
+	bool bPlaying;
+	bool bWaitingForInput;
+
+	public void Init(Camera cam, CameraFollow2D follow) {
+		this.cam = cam;
+		this.follow = follow;
+	}
+
+	//Begin playing a cutscene; onComplete fires once it finishes (or the player presses a key at a wait-for-input end).
+	public void Play(CutsceneSubsection c, Action onComplete) {
+		cutscene = c;
+		this.onComplete = onComplete;
+		t = 0f;
+		nextEventIndex = 0;
+		bWaitingForInput = false;
+		bPlaying = true;
+		GameManager.Instance.bInputEnabled = false;
+		if (follow != null) follow.enabled = false;
+		c.OnStart();
+	}
+
+	//Cutscene finished: restore the follow camera + input, then tell the runner to advance.
+	void Finish() {
+		bPlaying = false;
+		bWaitingForInput = false;
+		cutscene = null;
+		if (follow != null) follow.enabled = true;
+		GameManager.Instance.bInputEnabled = true;
+		Action cb = onComplete;
+		onComplete = null;
+		cb?.Invoke();
+	}
+
 	void Update() {
 		if (!bWaitingForInput) return;
 		bool keyPressed = Keyboard.current.anyKey.wasPressedThisFrame;
 		bool mousePressed = Mouse.current.leftButton.wasPressedThisFrame || Mouse.current.rightButton.wasPressedThisFrame;
-		if (keyPressed || mousePressed) Advance();
+		if (keyPressed || mousePressed) Finish();
 	}
 
 	void LateUpdate() {
-		if (!bPlayingCutscene || bWaitingForInput) return;
-		CutsceneSubsection cutscene = (CutsceneSubsection)currentSubsection;
+		if (!bPlaying || bWaitingForInput) return;
 		var kfs = cutscene.keyframes;
 		if (kfs.Count == 0) return;
 
@@ -240,12 +262,12 @@ public class SectionRunner : MonoBehaviour {
 			nextEventIndex++;
 		}
 
-		//Past the last keyframe's time: apply final state and advance (or hold)
+		//Past the last keyframe's time: apply final state and finish (or hold for input)
 		if (t >= kfs[^1].time) {
 			var last = kfs[^1];
 			Apply(last.cameraPos, last.orthoSize);
 			if (cutscene.waitForInputAtEnd) bWaitingForInput = true;
-			else Advance();
+			else Finish();
 			return;
 		}
 

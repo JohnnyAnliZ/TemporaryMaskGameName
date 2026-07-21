@@ -3,7 +3,67 @@ guid: fec34f42495951642a2e735063fdd881
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: ac7b19ffa5c974b4fb59fe0e5c9a0177, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bridge_
+    second: {fileID: 2100000, guid: c052ebd990e2c58489c3426bee965e27, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: building 1
+    second: {fileID: 2100000, guid: c73a07b156c785e47a0e1ca5f3f67f5d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: building 2
+    second: {fileID: 2100000, guid: a2beaa78fa624a947b79c157f475d5e2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: building 3
+    second: {fileID: 2100000, guid: 12add5d65ddc3d641931935177740493, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: building construction
+    second: {fileID: 2100000, guid: 1f966604344870442882ab84e49639cc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: cables.001
+    second: {fileID: 2100000, guid: f28fd1a1d75bf334b9e452736da52daf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: crazy building
+    second: {fileID: 2100000, guid: a594273f3bd746248bbf18928ad4ace0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: old bridge.001
+    second: {fileID: 2100000, guid: d7089790a152be44ebb99ba358ec9217, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: structure 2
+    second: {fileID: 2100000, guid: e4d7c7cc7304fe54eb87ff8c447ce00a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: structure1
+    second: {fileID: 2100000, guid: c70824503ea10804288e14d88a2680cf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: wall
+    second: {fileID: 2100000, guid: 68b8d208d0bbe0741af2f3ef46a292e4, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

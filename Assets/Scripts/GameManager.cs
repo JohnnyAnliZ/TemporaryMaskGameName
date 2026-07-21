@@ -1,32 +1,15 @@
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
 public class GameManager : Singleton<GameManager>
 {
-	public bool bInputEnabled = true;
-	SectionRunner runner;
-
 	public GameObject player3DPrefab, player2DPrefab;
 	[HideInInspector]
 	public GameObject player3D, player2D;
 
-	public void PlaySection(Section section, int startSubsection = 0) {
-		SectionAsset asset = Resources.Load<SectionAsset>($"Sections/Section_{section}");
-		if (asset == null || asset.subsections.Count == 0) {
-			Log.Warn($"Skipping empty section {section}");
-			return;
-		}
-		runner.PlaySection(asset, startSubsection, onComplete: () => {
-			Section[] all = (Section[])System.Enum.GetValues(typeof(Section));
-			Section next = all[(System.Array.IndexOf(all, section) + 1) % all.Length];
-			PlaySection(next);
-		});
-	}
-	public void AdvanceSubsection() {
-		runner.Advance();
-	}
+	[HideInInspector] public SectionRunner runner;
+	public bool bInputEnabled = true;
+
 	public void TeleportPlayer(Vector3 pos) {
 		CharacterController cc = player3D.GetComponent<CharacterController>();
 		cc.enabled = false;
@@ -34,13 +17,21 @@ public class GameManager : Singleton<GameManager>
 		cc.enabled = true;
 	}
 
+	//Reset scene state when the flow loops back to Intro (called by SectionRunner when the next section is Intro)
+	public void ResetForIntro() {
+		CompositeManager.Instance.maskDrawer.ResetMask();
+		player2D.SetActive(false);
+		player3D.GetComponent<Player3DController>().Reset();
+	}
+
 	void Start() {
 		Globals g = Globals.Instance;
 
-		//Section panel -> GameManager
 		bool bSpawnFromPanel = false;
 		Section startSection = Section.Intro;
 		int startSubsection = 0;
+
+		//Kind of hacky way to communicate between editor panel and unity play mode system
 		#if UNITY_EDITOR
 		int raw = UnityEditor.SessionState.GetInt("startSection", -1);
 		startSubsection = UnityEditor.SessionState.GetInt("startSubsection", 0);
@@ -50,8 +41,7 @@ public class GameManager : Singleton<GameManager>
 		if (bSpawnFromPanel) startSection = (Section)raw;
 		#endif
 
-		GameObject reference = GameObject.Find("Reference");
-		if (reference != null) reference.SetActive(false);
+		GameObject.Find("Reference")?.SetActive(false); //hide the 2d reference image
 
 		SectionStart sectionStart = null;
 		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
@@ -115,6 +105,7 @@ public class GameManager : Singleton<GameManager>
 		GameObject camera3D = new GameObject("3DCamera");
 		camera3D.SetActive(false);
 		Camera cam3D = camera3D.AddComponent<Camera>();
+		cam3D.nearClipPlane = 0.01f;
 		cam3D.GetUniversalAdditionalCameraData().SetRenderer(1);
 		cam3D.GetUniversalAdditionalCameraData().renderPostProcessing = true;
 		cam3D.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PostProcess3D", "Default");
@@ -122,18 +113,15 @@ public class GameManager : Singleton<GameManager>
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
 		camera3D.AddComponent<AudioListener>();
 		camera3D.SetActive(true);
-        cam3D.nearClipPlane = 0.01f;
 
-        GameObject hand3D = GameObject.Find("hand");
+		GameObject hand3D = GameObject.Find("hand");
 		hand3D.transform.SetParent(camera3D.transform);
-		//move hand in from of camera to debug
+		//move hand in front of camera to debug
 		hand3D.transform.localPosition = new Vector3(0, -0.4f, 0.1f);
 
-
-        player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
+		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
 
 		GameObject camera2D = new GameObject("2DCamera");
-
 		camera2D.SetActive(false); //so that OnEnable runs after CompositeCamera component is added
 		Camera cam = camera2D.AddComponent<Camera>();
 		cam.orthographic = true;
@@ -147,30 +135,19 @@ public class GameManager : Singleton<GameManager>
 		CameraFollow2D follow = camera2D.AddComponent<CameraFollow2D>();
 		follow.Init(player2D.transform, player3D.transform);
 		camera2D.AddComponent<StreakBlurDriver>().enabled = false;
+		CutscenePlayer cutscenePlayer = camera2D.AddComponent<CutscenePlayer>();
+		cutscenePlayer.Init(cam, follow);
 		camera2D.SetActive(true);
-
 
 		//Sections
 		#if !UNITY_EDITOR
 		bSpawnFromPanel = true;
 		#endif
 		if (bSpawnFromPanel) {
-
 			player2D.SetActive(false);
-			runner = gameObject.AddComponent<SectionRunner>();
-			runner.Init(cam, follow);
-			PlaySection(startSection, startSubsection);
+			if (runner == null) runner = gameObject.AddComponent<SectionRunner>();
+			runner.Init(cutscenePlayer);
+			runner.PlaySection(startSection, startSubsection);
 		}
 	}
-    public void restart()
-    {
-		GameObject camera2D = GameObject.Find("2DCamera");
-        Camera cam = camera2D.GetComponent<Camera>();
-		CameraFollow2D follow = camera2D.GetComponent<CameraFollow2D>();
-        player2D.SetActive(false);
-        runner = gameObject.AddComponent<SectionRunner>();
-        runner.Init(cam, follow);
-        PlaySection(0, 0);
-    }
 }
-

@@ -21,7 +21,7 @@ public class AnimationController : MonoBehaviour
         if (play == true)//this triggers hand animation
         {
             // Play a specific state directly by name
-            Debug.Log("Playing rubFaceAction animation");
+            Log.Info("Playing rubFaceAction animation");
             anim.Play("rubFaceAction", 0, 0f); // Play the "TiggerRubFace" animation on layer 0, starting at the beginning
             cleared = false;
             play = false;
@@ -41,12 +41,10 @@ public class AnimationController : MonoBehaviour
 
         if (currentFrame >= 189)
         {
-            //clear 2D to 3D mask
-            Debug.Log("Clear here 3D to 2D");
-            CompositeManager.Instance.maskDrawer.ResetMask();
+            Log.Info("Live-action done -> completing section, looping to Intro");
             cleared = true;
 
-            GameManager.Instance.restart();
+            GameManager.Instance.runner.CompleteSection();
         }
     }
 }

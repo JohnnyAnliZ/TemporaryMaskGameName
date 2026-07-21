@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -112,7 +112,7 @@ public class VideoManager : Singleton<VideoManager>
 		float startAmp = blinkBack != null ? 1f - blinkBack.color.a : 0f;
 		float t = 0f;
 		while (t < duration) {
-			t += Time.deltaTime;
+			t += Time.deltaTime;	
 			float u = Mathf.SmoothStep(0f, 1f, t / duration);
 			ApplyBlinkAmplitude(Mathf.Lerp(startAmp, targetAmp, u));
 			yield return null;
@@ -142,6 +142,7 @@ public class VideoManager : Singleton<VideoManager>
 			GameObject.Find("hand").GetComponent<AnimationController>().play = true;
             //hide canvas
             canvasGroup.alpha = 0;
+			AudioManager.Instance.HandleTransBackTo3D();
             return;
 		}
 
@@ -151,6 +152,7 @@ public class VideoManager : Singleton<VideoManager>
 		mainPlayer.clip = currentConfig.mainClip;
 		mainPlayer.isLooping = currentConfig.isIdle;
 		mainPlayer.Play();
+		AudioManager.Instance.HandleRLSound(index);
 
 		if (currentConfig.outlineClip != null) {
 			outlinePlayer.clip = currentConfig.outlineClip;
@@ -180,10 +182,12 @@ public class VideoManager : Singleton<VideoManager>
 
 		bool bHasOutline = currentConfig.outlineClip != null;
 		if (cursorUI != null) cursorUI.gameObject.SetActive(bHasOutline);
-		else Debug.Log("no cursorui");
+
 		if (!bHasOutline && outlineImage != null) outlineImage.enabled = false;
 
-		if (canvasRect != null)
+
+        
+        if (canvasRect != null)
 		{
 			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
 			if (cursorUI != null && bHasOutline) cursorUI.anchoredPosition = localPos;
@@ -196,8 +200,9 @@ public class VideoManager : Singleton<VideoManager>
 			bool bHover = bHasOutline && currentConfig.hotspot.Contains(uv);
 			if (outlineImage != null && bHasOutline) outlineImage.enabled = bHover;
 
-			//Cursor hover
-			if (bHasOutline)
+
+            //Cursor hover
+            if (bHasOutline)
 			{
 				float targetScale = bHover ? cursorHoverScale : cursorNormalScale;
 				Color targetColor = bHover ? cursorHoverColor : cursorNormalColor;
@@ -207,14 +212,14 @@ public class VideoManager : Singleton<VideoManager>
 				if (cursorGraphic != null) cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
 			}
 
-			if (currentConfig.isIdle && bHover && mouse.leftButton.wasPressedThisFrame)
+			if (currentConfig.isIdle && bHover&& mouse.leftButton.wasPressedThisFrame)
 			{
 				StartCoroutine(BlinkAndAdvance());
 			}
 		}
 		else
 		{
-			Debug.Log("no rect");
+			Log.Info("no rect");
 		}
 	}
 

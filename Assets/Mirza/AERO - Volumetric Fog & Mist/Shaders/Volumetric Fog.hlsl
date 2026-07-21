@@ -186,10 +186,10 @@ void VolumetricFog_float(
         
         float3 stepLighting = 0.0;
         
-#if _MAIN_LIGHT
+#if defined(_MAIN_LIGHT)
         // 1. Main light.
         
-        #if _INTERNAL_MAIN_LIGHT_SHADOWS
+        #if defined(_INTERNAL_MAIN_LIGHT_SHADOWS)
                 inputData.shadowCoord = TransformWorldToShadowCoord(inputData.positionWS);        
                 mainLight.shadowAttenuation = MainLightRealtimeShadow(inputData.shadowCoord);
         #endif
@@ -209,7 +209,7 @@ void VolumetricFog_float(
         stepLighting += mainLighting * mainLight_phase;
 #endif
         
-#if _ADDITIONAL_LIGHTS        
+#if defined(_ADDITIONAL_LIGHTS)
         // 2. Additional lights.
         
         //int lightCount = GetAdditionalLightsCount(); // Doesn't seem to work for fullscreen effects.
@@ -219,7 +219,7 @@ void VolumetricFog_float(
             Light additionalLight = GetAdditionalPerObjectLight(lightIndex, inputData.positionWS); // This one works for post-processing.
             //Light additionalLight = GetAdditionalLight(lightIndex, inputData.positionWS, inputData.shadowMask);
 
-            #if _INTERNAL_ADDITIONAL_LIGHT_SHADOWS
+            #if defined(_INTERNAL_ADDITIONAL_LIGHT_SHADOWS)
                         additionalLight.shadowAttenuation = AdditionalLightRealtimeShadow(
 
                         lightIndex,
@@ -248,7 +248,7 @@ void VolumetricFog_float(
         LIGHT_LOOP_END
 #endif
         
-#if _AMBIENT_LIGHT
+#if defined(_AMBIENT_LIGHT)
         // 3. Ambient light.
         
         stepLighting += _AmbientLighting.rgb;

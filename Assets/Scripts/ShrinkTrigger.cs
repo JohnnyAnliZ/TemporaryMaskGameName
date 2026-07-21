@@ -33,7 +33,6 @@ public class ShrinkTrigger : MonoBehaviour {
 		CompositeManager.Instance.maskDrawer.Do_ShrinkAll();
 		yield return new WaitForSeconds(g.waitDuration);
 
-        VideoManager.Instance.FadeIn(1, 0);
-        //GameManager.Instance.AdvanceSubsection();
+		GameManager.Instance.runner.CompleteSection();
 	}
 }

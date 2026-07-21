@@ -87,6 +87,11 @@ public class AudioManager : Singleton<AudioManager>
         base.Awake();
         if (Instance != this) return;
 
+        reset();
+    }
+
+    public void reset()
+    {
         // Audio sources
         // SFX
         sfxSource = CreateChildAudioSource("sfxSource", 0.5f, null, false);
@@ -117,7 +122,7 @@ public class AudioManager : Singleton<AudioManager>
         track3DSource = CreateChildAudioSource("track3DSource", 0, track3D, true);
         track3DFilter = track3DSource.gameObject.AddComponent<AudioLowPassFilter>();
         track3DFilter.cutoffFrequency = 22000f;
-        
+
         trackTransToRealLifeSource = CreateChildAudioSource("trackTransToRealLifeSource", 0, trackTransToRealLife, true);
         trackTransToRealLifeFilter = trackTransToRealLifeSource.gameObject.AddComponent<AudioLowPassFilter>();
         trackTransToRealLifeFilter.cutoffFrequency = 0;
@@ -175,7 +180,7 @@ public class AudioManager : Singleton<AudioManager>
                 StartMusic();
                 break; 
             default:
-                Debug.Log($"HandleSubsection {subsection}");
+                Log.Info($"HandleSubsection {subsection}");
                 break;
         }
     }
@@ -360,6 +365,48 @@ public class AudioManager : Singleton<AudioManager>
                 break;
             }
         }
+    }
+
+    public void HandleRLSound(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                mirrorIdleSource.Play();
+                break;
+            case 1:
+                FadeToVolume(mirrorIdleSource, 0.0f, 1.0f);
+                sfxSource.PlayOneShot(mirrorCheck, 1.0f);
+                break;
+            case 2:
+                FadeToVolume(mirrorIdleSource, 1.0f, 1.0f);
+                break;
+            case 3:
+                FadeToVolume(mirrorIdleSource, 0.0f, 1.0f);
+                sfxSource.PlayOneShot(mirrorLookDown, 1.0f);
+                break;
+            case 4:
+                sinkIdleSource.Play();
+                break;
+            case 5:
+                FadeToVolume(sinkIdleSource, 0.0f, 1.0f);
+                sfxSource.PlayOneShot(pills, 1.0f);
+                break;
+            case 6:
+                FadeToVolume(sinkIdleSource, 1.0f, 1.0f);
+                sinkIdleSource.Play();
+                break;
+            default:
+                FadeToVolume(sinkIdleSource, 0.0f, 1.0f);
+                sfxSource.PlayOneShot(washFace, 1.0f);
+                break;
+        }
+    }
+
+    public void HandleTransBackTo3D()
+    {
+        FadeToVolume(trackRealLifeSource, 0.0f, 4.0f);
+        reset();
     }
 
     private void Update()

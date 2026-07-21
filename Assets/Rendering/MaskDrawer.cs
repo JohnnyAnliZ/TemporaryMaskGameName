@@ -222,6 +222,15 @@ public class MaskDrawer : MonoBehaviour
 		cracks.Clear();
 		crackShards.Clear();
 		cracksGenerated = false;
+		ClearSpawnedShards();
+	}
+
+	//Destroy the physical 2D->3D glass shards spawned by Do_Shatter so they don't pile up across loops.
+	void ClearSpawnedShards() {
+		if (shardParent == null) return;
+		for (int i = shardParent.childCount - 1; i >= 0; i--) {
+			Destroy(shardParent.GetChild(i).gameObject);
+		}
 	}
 
     public void ResetMask3D()

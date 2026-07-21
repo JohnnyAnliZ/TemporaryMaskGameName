@@ -58,9 +58,9 @@ public class FixmeScannerWindow : EditorWindow {
 	int activeTab = 0;
 	static readonly string[] tabLabels = { "TODO", "FIXME" };
 
-	[MenuItem("Tools/White Rabbit")]
+	[MenuItem("WhiteRabbit/Fixme Scanner", false, 20)]
 	static void Open() {
-		GetWindow<FixmeScannerWindow>("White Rabbit");
+		GetWindow<FixmeScannerWindow>("Fixme Scanner");
 	}
 
 	void OnEnable() {

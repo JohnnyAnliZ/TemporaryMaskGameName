@@ -1,4 +1,3 @@
-#if UNITY_EDITOR
 using UnityEditor;
 
 //Because auto compile is disabled because it's a bitch
@@ -17,4 +16,3 @@ internal static class RefreshAssetsOnEnterPlaymode {
 		}
 	}
 }
-#endif

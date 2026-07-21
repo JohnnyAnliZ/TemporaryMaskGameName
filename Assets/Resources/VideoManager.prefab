@@ -27,7 +27,7 @@ RectTransform:
   m_GameObject: {fileID: 331364370147350817}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 4503095365726289119}
@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 75.6, y: -39.2}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1588803877084205252
 CanvasRenderer:
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2d294c220ab312f4dac0d8e60835387d, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -124,16 +124,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::VideoManager
   configs:
   - mainClip: {fileID: 32900000, guid: 22001c7882626a34a926049992b0dea6, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 2011e09dfaaf9bf4a8137f6d703d6621, type: 3}
     isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 4
-      y: 20
-      width: 20
-      height: 40
+      x: 0.4
+      y: 0.2
+      width: 0.2
+      height: 0.4
   - mainClip: {fileID: 32900000, guid: 202099da7a64486418a979b80909bbff, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 2011e09dfaaf9bf4a8137f6d703d6621, type: 3}
     isIdle: 0
     hotspot:
       serializedVersion: 2
@@ -142,7 +142,7 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 22001c7882626a34a926049992b0dea6, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 2011e09dfaaf9bf4a8137f6d703d6621, type: 3}
     isIdle: 0
     hotspot:
       serializedVersion: 2
@@ -151,7 +151,7 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 5c404cdec7125ea41942572ef254d8b1, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 2011e09dfaaf9bf4a8137f6d703d6621, type: 3}
     isIdle: 0
     hotspot:
       serializedVersion: 2
@@ -160,16 +160,16 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 147b56dddcc42cc4ab41c068eca6d02f, type: 3}
-    outlineClip: {fileID: 0}
-    isIdle: 0
+    outlineClip: {fileID: 32900000, guid: 98382fcd818b5fc46bf37b510a4e066c, type: 3}
+    isIdle: 1
     hotspot:
       serializedVersion: 2
-      x: 0
-      y: 0
-      width: 0
-      height: 0
+      x: 0.4
+      y: 0.4
+      width: 0.2
+      height: 0.2
   - mainClip: {fileID: 32900000, guid: 4cce348ba936ab34e9f27870e4701a0a, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 98382fcd818b5fc46bf37b510a4e066c, type: 3}
     isIdle: 0
     hotspot:
       serializedVersion: 2
@@ -178,7 +178,7 @@ MonoBehaviour:
       width: 0
       height: 0
   - mainClip: {fileID: 32900000, guid: 147b56dddcc42cc4ab41c068eca6d02f, type: 3}
-    outlineClip: {fileID: 0}
+    outlineClip: {fileID: 32900000, guid: 98382fcd818b5fc46bf37b510a4e066c, type: 3}
     isIdle: 0
     hotspot:
       serializedVersion: 2
@@ -244,7 +244,7 @@ VideoPlayer:
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
+  m_AudioOutputMode: 0
   m_TargetAudioSources:
   - {fileID: 0}
   m_DirectAudioVolumes:
@@ -280,7 +280,7 @@ VideoPlayer:
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
-  m_AudioOutputMode: 2
+  m_AudioOutputMode: 0
   m_TargetAudioSources:
   - {fileID: 0}
   m_DirectAudioVolumes:
@@ -527,10 +527,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.CanvasScaler
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 960, y: 5}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
