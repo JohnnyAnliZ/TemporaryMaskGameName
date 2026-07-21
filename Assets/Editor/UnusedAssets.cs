@@ -9,18 +9,21 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
 {
     // Class, not struct: rows are mutated in place (selection) while iterating the list,
     // and reference semantics keep selection intact across re-sorts.
-    private class UnusedAsset
+    private class AssetRow
     {
         public string path;
         public long size;
         public bool selected;
+        public bool used;
     }
 
-    private List<UnusedAsset> unusedAssets = new List<UnusedAsset>();
+    private List<AssetRow> assets = new List<AssetRow>();
     private long totalSize;
     private Vector2 scrollPos;
     private bool scanAllScenes = true;
     private bool ignoreScripts = true;
+    private string excludedFolders = "_Recovery";
+    private int listMode; // 0 = unused only, 1 = all assets
     private bool sortBySize;
     private int lastClickedIndex = -1;
     private bool dragSelecting;
@@ -39,36 +42,47 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
         
         EditorGUILayout.Space();
         
-        scanAllScenes = EditorGUILayout.Toggle(new GUIContent("Scan All Scenes", "If false, only scans scenes enabled in the Build Settings."), scanAllScenes);
-        ignoreScripts = EditorGUILayout.Toggle(new GUIContent("Ignore Scripts (.cs)", "Safest to keep checked to avoid breaking reflection/string instantiations."), ignoreScripts);
-
-        // Re-sort in place on toggle so switching order doesn't require another full scan.
-        EditorGUI.BeginChangeCheck();
-        sortBySize = EditorGUILayout.Toggle(new GUIContent("Sort By Size", "Largest first. Otherwise sorted alphabetically by path."), sortBySize);
-        if (EditorGUI.EndChangeCheck()) SortUnusedAssets();
+        listMode = GUILayout.Toolbar(listMode, new[] { "Unused Only", "All Assets" });
 
         EditorGUILayout.Space();
 
-        if (GUILayout.Button("Scan for Unused Assets", GUILayout.Height(30)))
+        scanAllScenes = EditorGUILayout.Toggle(new GUIContent("Scan All Scenes", "If false, only scans scenes enabled in the Build Settings."), scanAllScenes);
+        ignoreScripts = EditorGUILayout.Toggle(new GUIContent("Ignore Scripts (.cs)", "Safest to keep checked to avoid breaking reflection/string instantiations."), ignoreScripts);
+        excludedFolders = EditorGUILayout.TextField(new GUIContent("Exclude Folders", "Comma-separated folder names. Nothing inside them counts as a root, so stale scenes (crash-recovery backups, imported samples) can't keep dead assets alive. Matched anywhere in the path."), excludedFolders);
+
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button(listMode == 0 ? "Scan for Unused Assets" : "Scan All Assets", GUILayout.Height(30)))
         {
-            ScanUnusedAssets();
+            ScanAssets();
         }
 
-        if (unusedAssets.Count > 0)
+        if (assets.Count > 0)
         {
             int selectedCount = 0;
+            int selectedUsed = 0;
             long selectedBytes = 0;
-            foreach (var a in unusedAssets)
+            foreach (var a in assets)
             {
-                if (a.selected) { selectedCount++; selectedBytes += a.size; }
+                if (!a.selected) continue;
+
+                selectedCount++;
+                selectedBytes += a.size;
+                if (a.used) selectedUsed++;
             }
 
             EditorGUILayout.Space();
-            GUILayout.Label($"Found {unusedAssets.Count} unused assets ({FormatSize(totalSize)}):", EditorStyles.boldLabel);
+            GUILayout.Label($"{assets.Count} {(listMode == 0 ? "unused assets" : "assets")} ({FormatSize(totalSize)}):", EditorStyles.boldLabel);
 
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Select All", GUILayout.Width(80))) SetAllSelected(true);
             if (GUILayout.Button("Select None", GUILayout.Width(80))) SetAllSelected(false);
+
+            // A view option, so it belongs with the results — not with the pre-scan toggles.
+            EditorGUI.BeginChangeCheck();
+            sortBySize = GUILayout.Toggle(sortBySize, "Sort by size", EditorStyles.miniButton, GUILayout.Width(90));
+            if (EditorGUI.EndChangeCheck()) SortAssets();
+
             GUILayout.FlexibleSpace();
             GUILayout.Label($"{selectedCount} selected ({FormatSize(selectedBytes)})");
             EditorGUILayout.EndHorizontal();
@@ -76,9 +90,9 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
             GUILayout.Label("Click a row to toggle · drag to paint · shift-click to select a range", EditorStyles.miniLabel);
             
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos, "box");
-            for (int i = 0; i < unusedAssets.Count; i++)
+            for (int i = 0; i < assets.Count; i++)
             {
-                UnusedAsset asset = unusedAssets[i];
+                AssetRow asset = assets[i];
 
                 // BeginHorizontal's rect is valid during Repaint, so the highlight can be drawn
                 // here — behind the row contents that follow.
@@ -90,6 +104,10 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
 
                 asset.selected = EditorGUILayout.Toggle(asset.selected, GUILayout.Width(18));
                 GUILayout.Label(asset.path, GUILayout.ExpandWidth(true));
+                if (listMode == 1)
+                {
+                    GUILayout.Label(asset.used ? "used" : "unused", EditorStyles.miniLabel, GUILayout.Width(45));
+                }
                 GUILayout.Label(FormatSize(asset.size), GUILayout.Width(70));
                 if (GUILayout.Button("Locate", GUILayout.Width(60)))
                 {
@@ -109,8 +127,12 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
                 GUI.backgroundColor = Color.red;
                 if (GUILayout.Button($"Delete Selected ({selectedCount} — {FormatSize(selectedBytes)})", GUILayout.Height(30)))
                 {
-                    if (EditorUtility.DisplayDialog("Delete Unused Assets",
-                        $"Delete {selectedCount} selected asset(s), reclaiming {FormatSize(selectedBytes)}?\n\nEnsure your project is committed to source control first.",
+                    string warning = selectedUsed > 0
+                        ? $"\n\nWARNING: {selectedUsed} of these are still referenced by the project — deleting them will break it."
+                        : "";
+
+                    if (EditorUtility.DisplayDialog("Delete Assets",
+                        $"Delete {selectedCount} selected asset(s), reclaiming {FormatSize(selectedBytes)}?{warning}\n\nEnsure your project is committed to source control first.",
                         "Yes, Delete", "Cancel"))
                     {
                         DeleteSelectedAssets();
@@ -119,10 +141,10 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
                 GUI.backgroundColor = Color.white;
             }
         }
-        else if (unusedAssets.Capacity > 0)
+        else if (assets.Capacity > 0)
         {
             EditorGUILayout.Space();
-            EditorGUILayout.HelpBox("No unused assets found! Your project is clean.", MessageType.Info);
+            EditorGUILayout.HelpBox(listMode == 0 ? "No unused assets found! Your project is clean." : "No assets found.", MessageType.Info);
         }
 
         // rawType still reports MouseUp even when a control consumed the event.
@@ -144,12 +166,12 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
             {
                 int from = Mathf.Min(lastClickedIndex, index);
                 int to = Mathf.Max(lastClickedIndex, index);
-                for (int i = from; i <= to; i++) unusedAssets[i].selected = true;
+                for (int i = from; i <= to; i++) assets[i].selected = true;
             }
             else
             {
-                dragSelectValue = !unusedAssets[index].selected;
-                unusedAssets[index].selected = dragSelectValue;
+                dragSelectValue = !assets[index].selected;
+                assets[index].selected = dragSelectValue;
                 dragSelecting = true;
                 lastClickedIndex = index;
             }
@@ -158,19 +180,19 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
         }
         else if (e.type == EventType.MouseDrag && dragSelecting)
         {
-            if (unusedAssets[index].selected != dragSelectValue)
+            if (assets[index].selected != dragSelectValue)
             {
-                unusedAssets[index].selected = dragSelectValue;
+                assets[index].selected = dragSelectValue;
                 Repaint();
             }
             e.Use();
         }
     }
 
-    private void ScanUnusedAssets()
+    private void ScanAssets()
     {
-        unusedAssets.Clear();
-        unusedAssets.Capacity = 1; 
+        assets.Clear();
+        assets.Capacity = 1; 
         totalSize = 0;
         List<string> roots = new List<string>();
         string[] allPaths = AssetDatabase.GetAllAssetPaths();
@@ -242,6 +264,12 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
             }
         }
 
+        // 3.5 Excluded folders never act as roots. Without this, a stale crash-recovery scene
+        // still referencing old geometry keeps hundreds of MB of dead assets alive. Their own
+        // contents stay listable, so the junk itself shows up as unused and can be cleaned out.
+        string[] excluded = excludedFolders.Split(',').Select(s => s.Trim()).Where(s => s.Length > 0).ToArray();
+        if (excluded.Length > 0) roots.RemoveAll(p => IsExcluded(p, excluded));
+
         // 4. Build the master dependency graph
         EditorUtility.DisplayProgressBar("Scanning", "Calculating dependency graph...", 0.7f);
         string[] dependencies = AssetDatabase.GetDependencies(roots.ToArray(), true);
@@ -258,18 +286,19 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
             if (path.Contains("/Editor/") || path.Contains("/Plugins/") || path.Contains("/StreamingAssets/")) continue; 
             if (ignoreScripts && path.EndsWith(".cs")) continue;
             
-            if (!usedAssetsSet.Contains(path))
-            {
-                // Size on disk, read once here rather than in OnGUI (which repaints constantly).
-                long size = 0;
-                try { size = new FileInfo(path).Length; } catch { }
+            // "All Assets" keeps used entries too, tagged so they stand out in the list.
+            bool isUsed = usedAssetsSet.Contains(path);
+            if (isUsed && listMode == 0) continue;
 
-                unusedAssets.Add(new UnusedAsset { path = path, size = size });
-                totalSize += size;
-            }
+            // Size on disk, read once here rather than in OnGUI (which repaints constantly).
+            long size = 0;
+            try { size = new FileInfo(path).Length; } catch { }
+
+            assets.Add(new AssetRow { path = path, size = size, used = isUsed });
+            totalSize += size;
         }
 
-        SortUnusedAssets();
+        SortAssets();
 
         EditorUtility.ClearProgressBar();
     }
@@ -279,17 +308,17 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
     // share a size — 0-byte entries especially).
     private void SetAllSelected(bool value)
     {
-        foreach (var asset in unusedAssets) asset.selected = value;
+        foreach (var asset in assets) asset.selected = value;
     }
 
-    private void SortUnusedAssets()
+    private void SortAssets()
     {
         // Rows move, so any anchor held for shift-range selection is stale.
         lastClickedIndex = -1;
 
         if (sortBySize)
         {
-            unusedAssets.Sort((a, b) =>
+            assets.Sort((a, b) =>
             {
                 int bySize = b.size.CompareTo(a.size);
                 return bySize != 0 ? bySize : System.StringComparer.OrdinalIgnoreCase.Compare(a.path, b.path);
@@ -297,7 +326,7 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
         }
         else
         {
-            unusedAssets.Sort((a, b) => System.StringComparer.OrdinalIgnoreCase.Compare(a.path, b.path));
+            assets.Sort((a, b) => System.StringComparer.OrdinalIgnoreCase.Compare(a.path, b.path));
         }
     }
 
@@ -308,7 +337,7 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
         try
         {
             AssetDatabase.StartAssetEditing();
-            foreach (var asset in unusedAssets)
+            foreach (var asset in assets)
             {
                 if (!asset.selected) continue;
 
@@ -326,10 +355,19 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
         }
         
         // Drop only what actually deleted; unselected rows are still unused, so keep listing them.
-        unusedAssets.RemoveAll(a => deletedPaths.Contains(a.path));
+        assets.RemoveAll(a => deletedPaths.Contains(a.path));
         totalSize -= deletedBytes;
         lastClickedIndex = -1;
         Log.Info($"Deleted {deletedPaths.Count} unused assets, reclaiming {FormatSize(deletedBytes)}.");
+    }
+
+    private static bool IsExcluded(string path, string[] excluded)
+    {
+        foreach (string folder in excluded)
+        {
+            if (path.IndexOf("/" + folder + "/", System.StringComparison.OrdinalIgnoreCase) >= 0) return true;
+        }
+        return false;
     }
 
     private static string FormatSize(long bytes)
