@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 [RequireComponent(typeof(Camera))]
 public class AspectRatioLocker : MonoBehaviour
@@ -21,6 +22,7 @@ public class AspectRatioLocker : MonoBehaviour
 		background.allowHDR = false;
 		background.allowMSAA = false;
 		background.useOcclusionCulling = false;
+		background.GetUniversalAdditionalCameraData().SetRenderer(0);
 	}
 
 	void LateUpdate() {

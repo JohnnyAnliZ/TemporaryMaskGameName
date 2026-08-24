@@ -133,9 +133,6 @@ public class Globals : ScriptableObject {
 		}
 	}
 
-	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-	static void ResetStatics() => _instance = null;
-
 	void OnValidate() {
 		#if UNITY_EDITOR
 		UpdateEditorSettings();
@@ -163,64 +160,8 @@ public class Globals : ScriptableObject {
 			gameLevels[I] = gameLevelAssets[I] != null ? gameLevelAssets[I].name : "";
 		}
 	}
-
-	public class GlobalsWindow : UnityEditor.EditorWindow
-	{
-		UnityEditor.Editor cachedEditor;
-		Vector2 scroll;
-
-		[UnityEditor.MenuItem("WhiteRabbit/Globals", false, 1)]
-		static void Open() => GetWindow<GlobalsWindow>("Globals");
-
-		void OnGUI() {
-			scroll = UnityEditor.EditorGUILayout.BeginScrollView(scroll);
-			UnityEditor.Editor.CreateCachedEditor(Instance, null, ref cachedEditor);
-			cachedEditor.OnInspectorGUI();
-			UnityEditor.EditorGUILayout.EndScrollView();
-		}
-	}
-
-	public class ParallaxWindow : UnityEditor.EditorWindow
-	{
-		Vector2 scroll;
-
-		[UnityEditor.MenuItem("WhiteRabbit/Parallax Layers", false, 2)]
-		static void Open() => GetWindow<ParallaxWindow>("Parallax Layers");
-
-		void OnGUI() {
-			Globals g = Instance;
-			if (g.parallaxLayers == null) g.parallaxLayers = System.Array.Empty<ParallaxZFactor>();
-
-			scroll = UnityEditor.EditorGUILayout.BeginScrollView(scroll);
-
-			g.parallaxScaleFactor = UnityEditor.EditorGUILayout.Slider("Scale Factor", g.parallaxScaleFactor, 0f, 1f);
-			UnityEditor.EditorGUILayout.Space();
-
-			int removeIndex = -1;
-			for (int i = 0; i < g.parallaxLayers.Length; i++) {
-				UnityEditor.EditorGUILayout.BeginHorizontal();
-				UnityEditor.EditorGUILayout.LabelField("Z", GUILayout.Width(14));
-				g.parallaxLayers[i].z = UnityEditor.EditorGUILayout.FloatField(g.parallaxLayers[i].z, GUILayout.Width(60));
-				g.parallaxLayers[i].factor = UnityEditor.EditorGUILayout.Slider(g.parallaxLayers[i].factor, 0f, 2f);
-				if (GUILayout.Button("-", GUILayout.Width(22))) removeIndex = i;
-				UnityEditor.EditorGUILayout.EndHorizontal();
-			}
-
-			if (removeIndex >= 0) {
-				var list = new System.Collections.Generic.List<ParallaxZFactor>(g.parallaxLayers);
-				list.RemoveAt(removeIndex);
-				g.parallaxLayers = list.ToArray();
-			}
-
-			if (GUILayout.Button("Add Layer")) {
-				var list = new System.Collections.Generic.List<ParallaxZFactor>(g.parallaxLayers);
-				list.Add(new ParallaxZFactor { z = 0f, factor = 0.5f });
-				g.parallaxLayers = list.ToArray();
-			}
-
-			UnityEditor.EditorGUILayout.EndScrollView();
-			if (GUI.changed) UnityEditor.EditorUtility.SetDirty(g);
-		}
-	}
 	#endif
+
+	[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+	static void ResetStatics() => _instance = null;
 }

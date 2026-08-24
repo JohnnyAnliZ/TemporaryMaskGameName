@@ -1,13 +1,13 @@
 using UnityEditor;
 using UnityEngine;
 
-public class SpriteAnimationSpacingWindow : EditorWindow {
+public class SpriteAnimationSpacing : EditorWindow {
 	int frameSpacing = 1;
 	float frameRate = 60f;
 	bool changeFrameRate = false;
 
-	[MenuItem("WhiteRabbit/Sprite Anim Spacing", false, 3)]
-	static void Open() => GetWindow<SpriteAnimationSpacingWindow>("Sprite Anim Spacing");
+	[MenuItem("WhiteRabbit/Sprite Anim Spacing", false, 22)]
+	static void Open() => GetWindow<SpriteAnimationSpacing>("Sprite Anim Spacing");
 
 	void OnGUI() {
 		EditorGUILayout.HelpBox("Select one or more AnimationClip assets in the Project window, then Apply. Sprite keyframes are re-timed to (index * frameSpacing / frameRate).", MessageType.Info);

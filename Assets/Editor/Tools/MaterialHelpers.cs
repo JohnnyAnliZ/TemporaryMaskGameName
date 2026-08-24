@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class MassFixMaterialsToURPLit
 {
-    [MenuItem("WhiteRabbit/Materials/Fix All Broken Materials To URP Lit", false, 60)]
+    [MenuItem("WhiteRabbit/Material Tools/Fix All Broken Materials To URP Lit", false, 23)]
     public static void FixAllBrokenMaterialsToURPLit()
     {
         Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
@@ -70,7 +70,7 @@ public class FixMissingRendererMaterials
 {
     private const string FallbackMaterialPath = "Assets/Recovered_URP_Lit_Fallback.mat";
 
-    [MenuItem("WhiteRabbit/Materials/Fix Missing Renderer Material Slots In Open Scenes", false, 61)]
+    [MenuItem("WhiteRabbit/Material Tools/Fix Missing Renderer Material Slots In Open Scenes", false, 24)]
     public static void FixMissingSlotsInOpenScenes()
     {
         Shader urpLit = Shader.Find("Universal Render Pipeline/Lit");
@@ -298,7 +298,7 @@ public class FixMissingRendererMaterials
 
 public class DeepFindBrokenShaderReferences
 {
-    [MenuItem("WhiteRabbit/Materials/Deep Search For Internal Error Shader", false, 62)]
+    [MenuItem("WhiteRabbit/Material Tools/Deep Search For Internal Error Shader", false, 25)]
     public static void DeepSearch()
     {
         Shader errorShader = Shader.Find("Hidden/InternalErrorShader");

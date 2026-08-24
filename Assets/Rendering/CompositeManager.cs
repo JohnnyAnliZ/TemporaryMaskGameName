@@ -12,6 +12,7 @@ public class CompositeManager : Singleton<CompositeManager>
 	RenderTexture maskRT;
 	public MaskDrawer maskDrawer;
 	public Camera outputCam;
+	AspectRatioLocker aspectLocker;
 
 	//Sorta lazy initialization where the cameras find this manager and only then initializes
 	public void RegisterCamera(Camera cam, int index) {
@@ -33,7 +34,7 @@ public class CompositeManager : Singleton<CompositeManager>
 			outputCam.allowMSAA = false;
 			outputCam.useOcclusionCulling = false;
 			outputCam.GetUniversalAdditionalCameraData().SetRenderer(2);
-			go.AddComponent<AspectRatioLocker>();
+			aspectLocker = go.AddComponent<AspectRatioLocker>();
 
 			maskDrawer = gameObject.AddComponent<MaskDrawer>();
 
@@ -59,9 +60,22 @@ public class CompositeManager : Singleton<CompositeManager>
 		lastWidth = Screen.width;
 		lastHeight = Screen.height;
 
-		rtA = new RenderTexture(lastWidth, lastHeight, 24);
-		rtB = new RenderTexture(lastWidth, lastHeight, 24);
-		var maskDesc = new RenderTextureDescriptor(lastWidth, lastHeight, RenderTextureFormat.RGInt, 0);
+		//Render at the target aspect (the largest targetAspect-shaped box that fits the window),
+		//not the window's own aspect. The output camera maps this into a matching letterboxed
+		//viewport rect 1:1, so content is never stretched; AspectRatioLocker fills the black bars.
+		float targetAspect = aspectLocker != null ? aspectLocker.targetAspect : (float)lastWidth / lastHeight;
+		int rtW, rtH;
+		if ((float)lastWidth / lastHeight > targetAspect) {
+			rtH = lastHeight;
+			rtW = Mathf.RoundToInt(lastHeight * targetAspect);
+		} else {
+			rtW = lastWidth;
+			rtH = Mathf.RoundToInt(lastWidth / targetAspect);
+		}
+
+		rtA = new RenderTexture(rtW, rtH, 24);
+		rtB = new RenderTexture(rtW, rtH, 24);
+		var maskDesc = new RenderTextureDescriptor(rtW, rtH, RenderTextureFormat.RGInt, 0);
 		maskDesc.sRGB = false; //idk otherwise you get an annoying warning in the log
 		maskRT = new RenderTexture(maskDesc);
 		maskRT.filterMode = FilterMode.Bilinear;

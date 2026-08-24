@@ -21,6 +21,10 @@ public class Player2DVisual : MonoBehaviour {
 	SpriteRenderer spriteRenderer;
 	CharacterController characterController;
 
+	//Previous frame values
+	int shownDirection;
+	int shownIdleDirection;
+
 	SpriteRenderer[] outlineRenderers;
 	MaterialPropertyBlock[] outlineMPBs;
 	Material outlineMaterial;
@@ -101,29 +105,35 @@ public class Player2DVisual : MonoBehaviour {
 		float rgb = Mathf.Lerp(1f, g.farBrightness, farT) * Mathf.Lerp(1f, g.nearBrightness, nearT);
 		spriteRenderer.color = new Color(rgb, rgb, rgb, alpha);
 
-		//Directions
 		float yaw = lookTransform.eulerAngles.y;
-		int direction = Mathf.RoundToInt(yaw / 90f) % 4;
-		animator.SetFloat("direction", direction); //blend trees must use float not int
+		int yawDirection = Mathf.RoundToInt(yaw / 90f) % 4;
+		int idleDirection = Mathf.RoundToInt(yaw / 30f) % 12;
 
-		animator.SetFloat("direction", Mathf.RoundToInt(yaw / 90f) % 4); //blend trees must use float not intd
-
-        int idleDirection = Mathf.RoundToInt(yaw / 30f) % 12;
-		animator.SetFloat("idleDirection", idleDirection);
-
-
-        direction = Mathf.RoundToInt(yaw / 90f) % 4;
-
-		//Idle sprites mirror right→left for clockwise indices 3-5 and 10-11; walk/jump mirror only at cardinal left (dir 3).
-		bool bIsIdle = animator.GetBool("isGrounded") && !animator.GetBool("isMoving");
-		if (bIsIdle) {
-			spriteRenderer.flipX = idleDirection >= 3 && idleDirection <= 5 || idleDirection == 10 || idleDirection == 11;
-		} else {
-			spriteRenderer.flipX = direction == 3;
+		//Walk + jump face the way player is moving
+		Vector3 flatVelocity = characterController.velocity;
+		flatVelocity.y = 0f;
+		int direction = yawDirection;
+		if (flatVelocity.sqrMagnitude > 0.01f) {
+			float moveYaw = Mathf.Atan2(flatVelocity.x, flatVelocity.z) * Mathf.Rad2Deg;
+			if (moveYaw < 0f) moveYaw += 360f;
+			direction = Mathf.RoundToInt(moveYaw / 90f) % 4;
 		}
 
+		//Idle sprites mirror right->left for clockwise indices 3-5 and 10-11; walk/jump mirror only at cardinal left (dir 3).
+		bool bIsIdle = animator.GetBool("isGrounded") && !animator.GetBool("isMoving");
+		if (bIsIdle) {
+			spriteRenderer.flipX = shownIdleDirection >= 3 && shownIdleDirection <= 5 || shownIdleDirection == 10 || shownIdleDirection == 11;
+		} else {
+			spriteRenderer.flipX = shownDirection == 3;
+		}
+
+		animator.SetFloat("direction", direction); //blend trees must use float not int
+		animator.SetFloat("idleDirection", idleDirection);
+		shownDirection = direction;
+		shownIdleDirection = idleDirection;
+
 		//Outline
-		float offCardinal = Mathf.Abs(Mathf.DeltaAngle(yaw, direction * 90f));
+		float offCardinal = Mathf.Abs(Mathf.DeltaAngle(yaw, yawDirection * 90f));
 		float outlineT = 1f - Mathf.Clamp01((offCardinal - g.angleFull) / Mathf.Max(g.angleFade, 0.001f));
 		if (outlineT > 0f) {
 			Sprite currentSprite = spriteRenderer.sprite;

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -19,7 +20,7 @@ static class ViewportSync
 		SceneView.duringSceneGui += OnSceneGUI;
 	}
 
-	[MenuItem("WhiteRabbit/Viewport Sync", false, 40)]
+	[MenuItem("WhiteRabbit/Toggle Viewport Sync", false, 40)]
 	static void Toggle() {
 		bIsEnabled = !bIsEnabled;
 		EditorPrefs.SetBool(SYNC_KEY, bIsEnabled); //persist across recompiles
@@ -28,21 +29,21 @@ static class ViewportSync
 			if (sceneView != null) lastSyncedX = sceneView.pivot.x;
 		}
 	}
-	[MenuItem("WhiteRabbit/Viewport Sync", true)]
+	[MenuItem("WhiteRabbit/Toggle Viewport Sync", true)]
 	static bool ToggleValidate() {
-		Menu.SetChecked("Window/Viewport Sync", bIsEnabled);
+		Menu.SetChecked("WhiteRabbit/Toggle Viewport Sync", bIsEnabled);
 		return true;
 	}
 
-	[MenuItem("WhiteRabbit/Sprite Gizmos", false, 41)]
+	[MenuItem("WhiteRabbit/Toggle Sprite Gizmos", false, 41)]
 	static void ToggleGizmos() {
 		bShowSpriteGizmos = !bShowSpriteGizmos;
 		EditorPrefs.SetBool(GIZMO_KEY, bShowSpriteGizmos);
 		SceneView.RepaintAll();
 	}
-	[MenuItem("WhiteRabbit/Sprite Gizmos", true)]
+	[MenuItem("WhiteRabbit/Toggle Sprite Gizmos", true)]
 	static bool ToggleGizmosValidate() {
-		Menu.SetChecked("Window/Sprite Gizmos", bShowSpriteGizmos);
+		Menu.SetChecked("WhiteRabbit/Toggle Sprite Gizmos", bShowSpriteGizmos);
 		return true;
 	}
 
@@ -90,7 +91,7 @@ static class ViewportSync
 
 						//Shaded Cube
 						Vector3 halfSize = size * 0.5f;
-						Color faceColor = new Color(0, 1, 0, 0.05f);
+						Color faceColor = new Color(0, 1, 0, 0.02f);
 
 						//Front face (Z+)
 						Vector3[] front = {
@@ -357,5 +358,70 @@ static class ViewportSync
 		int min = a < b ? a : b;
 		int max = a < b ? b : a;
 		return ((long)min << 33) | ((long)(uint)max << 1) | frontBit;
+	}
+}
+
+//Outlines parallax layers in the scene view when their sync point is selected (another duringSceneGui overlay, folded in from ParallaxSyncpointOutline.cs)
+[InitializeOnLoad]
+static class ParallaxSyncpointOutline {
+	static readonly MethodInfo drawOutline;
+	static readonly ParameterInfo[] drawOutlineParams;
+	static readonly Color outlineColor = new Color(0.2f, 0.8f, 1f, 0.5f);
+	static bool didWarn;
+
+	static ParallaxSyncpointOutline() {
+		MethodInfo[] candidates = typeof(Handles).GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+		foreach (MethodInfo m in candidates) {
+			if (m.Name != "DrawOutline") continue;
+			ParameterInfo[] p = m.GetParameters();
+			if (p.Length < 1) continue;
+			System.Type t = p[0].ParameterType;
+			if (t == typeof(GameObject[]) || t == typeof(IEnumerable<GameObject>) || t == typeof(List<GameObject>)) {
+				drawOutline = m;
+				drawOutlineParams = p;
+				break;
+			}
+		}
+		SceneView.duringSceneGui += OnSceneGui;
+	}
+
+	static void OnSceneGui(SceneView view) {
+		if (drawOutline == null) {
+			if (!didWarn) {
+				didWarn = true;
+				Log.Warn("[ParallaxSyncpointOutline] Handles.DrawOutline not found via reflection");
+			}
+			return;
+		}
+
+		GameObject sel = Selection.activeGameObject;
+		if (sel == null) return;
+
+		List<GameObject> hits = null;
+		ParallaxLayer[] layers = Object.FindObjectsByType<ParallaxLayer>(FindObjectsSortMode.None);
+		foreach (ParallaxLayer layer in layers) {
+			if (layer.syncPoint == null) continue;
+			if (layer.syncPoint.gameObject != sel) continue;
+			hits ??= new List<GameObject>();
+			hits.Add(layer.gameObject);
+		}
+		if (hits == null) return;
+
+		object firstArg;
+		System.Type firstType = drawOutlineParams[0].ParameterType;
+		if (firstType == typeof(GameObject[])) firstArg = hits.ToArray();
+		else firstArg = hits;
+
+		object[] args = new object[drawOutlineParams.Length];
+		args[0] = firstArg;
+		for (int I = 1; I < drawOutlineParams.Length; I++) {
+			System.Type pt = drawOutlineParams[I].ParameterType;
+			if (pt == typeof(Color)) args[I] = outlineColor;
+			else if (pt == typeof(float)) args[I] = 0f;
+			else if (drawOutlineParams[I].HasDefaultValue) args[I] = drawOutlineParams[I].DefaultValue;
+			else args[I] = null;
+		}
+
+		drawOutline.Invoke(null, args);
 	}
 }

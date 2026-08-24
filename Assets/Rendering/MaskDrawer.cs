@@ -105,6 +105,7 @@ public class MaskDrawer : MonoBehaviour
 		//URP camera stack with overlay camera type
 		UniversalAdditionalCameraData overlayData = overlayCam.GetUniversalAdditionalCameraData();
 		overlayData.renderType = CameraRenderType.Overlay;
+		overlayData.SetRenderer(0); //use the 2D renderer with no features
 		UniversalAdditionalCameraData outputData = CompositeManager.Instance.outputCam.GetUniversalAdditionalCameraData();
 		if (!outputData.cameraStack.Contains(overlayCam)) outputData.cameraStack.Add(overlayCam);
 	}
@@ -233,9 +234,8 @@ public class MaskDrawer : MonoBehaviour
 		}
 	}
 
-    public void ResetMask3D()
-    {
-        currentPass = 7;
+    public void ResetMask3D() {
+        currentPass = Globals.Instance.numBreaks;
         if (blackCoroutine != null) StopCoroutine(blackCoroutine);
         blackProgress = 0f;
         cracks.Clear();

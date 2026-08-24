@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 
 [InitializeOnLoad]
-public class UnrealAltDrag
+public class AltDrag
 {
 	private enum DragConstraint { Free, AxisX, AxisY, AxisZ, PlaneXY, PlaneXZ, PlaneYZ }
 
@@ -14,7 +14,7 @@ public class UnrealAltDrag
 
 	private const float kPickDistance = 20f;
 
-	static UnrealAltDrag() {
+	static AltDrag() {
 		SceneView.beforeSceneGui -= OnBeforeSceneGUI;
 		SceneView.beforeSceneGui += OnBeforeSceneGUI;
 	}

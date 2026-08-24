@@ -39,6 +39,13 @@ public class CutsceneSubsection : Subsection {
 [Serializable]
 public class IntroIdle : CutsceneSubsection {
 	public override void OnStart() {
+		CompositeManager.Instance.maskDrawer.ResetMask();
+		GameManager.Instance.player2D.SetActive(false);
+		GameManager.Instance.player3D.GetComponent<Player3DController>().Teleport(SectionStart.GetPosition(Section.Intro));
+		
+		FirstPersonLook look = UnityEngine.Object.FindAnyObjectByType<FirstPersonLook>();
+		look.Unlock();
+		look.transform.rotation = new Quaternion(0f, 0f, 1f, 0f);
 		GameObject.Find("SinkAnim").GetComponent<SpriteRenderer>().enabled = true;
 	}
 }
@@ -77,10 +84,11 @@ public class IntroPanSubsection : CutsceneSubsection {
 [Serializable]
 public class IntroFlowerSubsection : CutsceneSubsection {
 	public override void OnStart() {
-		GameObject.Find("SinkAnim").SetActive(false);
+		GameObject.Find("SinkAnim").GetComponent<SpriteRenderer>().enabled = false;
 		AudioManager.Instance.HandleSubsection("IntroFlowerSubsection");
 	}
 }
+
 //Gameplay-----------------------------------------------------------------------
 public enum GameplayStart {
 	TwoD,
@@ -94,16 +102,13 @@ public class GameplaySubsection : Subsection {
 
 	public override void OnStart() {
 		GameManager.Instance.player2D.SetActive(true);
+		if (start == GameplayStart.ThreeD || start == GameplayStart.ThreeDBreak) {
+			CompositeManager.Instance.maskDrawer.ResetMask3D();
+		} else CompositeManager.Instance.maskDrawer.ResetMask();
 		AudioManager.Instance.HandleSubsection($"{start}");
 	}
 }
-[Serializable]
-public class Gameplay3DBreakSubsection : GameplaySubsection {
-	public override void OnStart() {
-		base.OnStart();
-		CompositeManager.Instance.maskDrawer.Do_ShatterAll();
-	}
-}
+
 //Live Action---------------------------------------------------------------------------
 [Serializable]
 public class LiveActionSubsection : Subsection {
@@ -153,7 +158,6 @@ public class SectionRunner : MonoBehaviour {
 			Section next = all[(System.Array.IndexOf(all, currentAsset.section) + 1) % all.Length];
 			currentAsset = null;
 			subsectionIndex = -1;
-			if (next == Section.Intro) GameManager.Instance.ResetForIntro();
 			PlaySection(next);
 			return;
 		}
@@ -184,16 +188,11 @@ public class SectionRunner : MonoBehaviour {
 	}
 
 	void StartGameplay(GameplaySubsection g) {
-		
-		SectionStart marker = null;
-		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
-			if (s.section == Section.Gameplay && s.gameplayStart == g.start) {
-				marker = s;
-				break;
-			}
-		}
-		Log.Info($"teleport to {marker.transform.position}");
-		GameManager.Instance.TeleportPlayer(marker.transform.position);
+		Vector3 pos = SectionStart.GetPosition(Section.Gameplay, g.start);
+		Player3DController player = GameManager.Instance.player3D.GetComponent<Player3DController>();
+		player.Teleport(pos);
+		player.SetSpawnPoint(pos); //a fall before touching a platform returns here, not the sink
+
 		currentSubsection = g;
 		g.OnStart();
 		GameManager.Instance.bInputEnabled = true;

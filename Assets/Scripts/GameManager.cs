@@ -10,20 +10,6 @@ public class GameManager : Singleton<GameManager>
 	[HideInInspector] public SectionRunner runner;
 	public bool bInputEnabled = true;
 
-	public void TeleportPlayer(Vector3 pos) {
-		CharacterController cc = player3D.GetComponent<CharacterController>();
-		cc.enabled = false;
-		player3D.transform.position = pos;
-		cc.enabled = true;
-	}
-
-	//Reset scene state when the flow loops back to Intro (called by SectionRunner when the next section is Intro)
-	public void ResetForIntro() {
-		CompositeManager.Instance.maskDrawer.ResetMask();
-		player2D.SetActive(false);
-		player3D.GetComponent<Player3DController>().Reset();
-	}
-
 	void Start() {
 		Globals g = Globals.Instance;
 
@@ -43,12 +29,19 @@ public class GameManager : Singleton<GameManager>
 
 		GameObject.Find("Reference")?.SetActive(false); //hide the 2d reference image
 
+		GameplayStart startPoint = default;
+		if (startSection == Section.Gameplay) {
+			SectionAsset asset = Resources.Load<SectionAsset>($"Sections/Section_{startSection}");
+			if (asset != null && startSubsection < asset.subsections.Count
+				&& asset.subsections[startSubsection] is GameplaySubsection gs) startPoint = gs.start;
+		}
+
 		SectionStart sectionStart = null;
 		foreach (SectionStart s in FindObjectsByType<SectionStart>(FindObjectsSortMode.None)) {
-			if (s.section == startSection) {
-				sectionStart = s;
-				break;
-			}
+			if (s.section != startSection) continue;
+			if (startSection == Section.Gameplay && s.gameplayStart != startPoint) continue;
+			sectionStart = s;
+			break;
 		}
 
 		Vector3 fallbackPos = sectionStart != null ? sectionStart.transform.position : new Vector3(0, 0, 0);

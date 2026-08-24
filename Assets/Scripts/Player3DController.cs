@@ -1,4 +1,3 @@
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +13,7 @@ public class Player3DController : MonoBehaviour
 	bool bIsHoldingSpace;
 	Vector3 jumpBoost;
 	Platform lastPlatform;
+	Vector3 spawnPoint; //fall-respawn point before a platform is touched; set by the flow per area
 
 	// Impact logic
 	bool isFalling = false;
@@ -30,20 +30,23 @@ public class Player3DController : MonoBehaviour
 		GameManager.Instance.bInputEnabled = false;
 	}
 
-    public void Reset()
-    {
-		Log.Info("Player reset");
-        FindAnyObjectByType<FirstPersonLook>().Unlock();
-        transform.position = new Vector3(-11.0f, 6.220761f, 195.6229f);//sink
-        FindAnyObjectByType<FirstPersonLook>().transform.rotation = new quaternion(0.0f, 0.0f, 1.0f, 0.0f); //face the other way	
-        verticalVelocity = 0f;
-        controller.enabled = true;
-		
+	public void Teleport(Vector3 pos) {
+		controller.enabled = false;
+		if (Physics.Raycast(pos + Vector3.up, Vector3.down, out RaycastHit hit, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) {
+			pos.y = hit.point.y - (controller.center.y - controller.height * 0.5f) + controller.skinWidth;
+		}
+		transform.position = pos;
+		controller.enabled = true;
+		verticalVelocity = 0f;
+	}
 
-    }
+	//The point a fall returns to before any platform is touched; set by the flow on entering an area.
+	public void SetSpawnPoint(Vector3 pos) {
+		spawnPoint = pos;
+		lastPlatform = null;
+	}
 
-
-    void Awake() {
+	void Awake() {
 		controller = GetComponent<CharacterController>();
 	}
 
@@ -62,8 +65,16 @@ public class Player3DController : MonoBehaviour
 			simScale = u * u * u;
 			if (slowdownElapsed >= slowdownDuration) bSlowing = false;
 		}
+
+		Animator animator = GameManager.Instance.player2D.GetComponent<Animator>();
+		animator?.SetBool("isGrounded", controller.isGrounded);
+
 		bool bInputOn = GameManager.Instance.bInputEnabled;
-		if (!bInputOn && !bSlowing) return;
+		if (!bInputOn && !bSlowing) {
+			animator?.SetBool("isMoving", false);
+			animator?.SetBool("isGrounded", true);
+			return;
+		}
 
 		float dt = Time.deltaTime * simScale;
 
@@ -101,9 +112,7 @@ public class Player3DController : MonoBehaviour
 
 		if (controller.isGrounded) jumpBoost = Vector3.zero;
 
-		GameManager.Instance.player2D.GetComponent<Animator>().SetBool("isMoving",inputDir != Vector3.zero);
-        GameManager.Instance.player2D.GetComponent<Animator>().SetBool("isGrounded", controller.isGrounded);
-
+		animator?.SetBool("isMoving", inputDir != Vector3.zero);
 
 		//Start spaceTimer, to check if we should charge or not
 		if (!bIsHoldingSpace && jumpBufferTimer > 0f && coyoteTimer > 0f) {
@@ -158,9 +167,22 @@ public class Player3DController : MonoBehaviour
 		controller.Move(move * dt);
 
 		if (controller.isGrounded) {
-			if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, 2f)) {
-				Platform platform = hit.collider.GetComponentInParent<Platform>();
-				if (platform != null && platform != lastPlatform) {
+			Platform platform = null;
+			float probe = controller.radius * 0.8f;
+			for (int i = 0; i < 5 && platform == null; i++) {
+				Vector3 origin = transform.position;
+				if (i == 1) origin.x += probe;
+				else if (i == 2) origin.x -= probe;
+				else if (i == 3) origin.z += probe;
+				else if (i == 4) origin.z -= probe;
+
+				if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 2f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) {
+					platform = hit.collider.GetComponentInParent<Platform>();
+				}
+			}
+
+			if (platform != null) {
+				if (platform != lastPlatform) {
 					if (platform.bCanBreak && !platform.bIsBroken) {
 						platform.bIsBroken = true;
 						if (platform.bLastBreak) CompositeManager.Instance.maskDrawer.Do_ShatterAll();
@@ -178,19 +200,15 @@ public class Player3DController : MonoBehaviour
 		if (transform.position.y < g.fallThreshold) {
 			controller.enabled = false;
 
-			if (lastPlatform != null && lastPlatform.spawnPoint != null)
-			{
+			if (lastPlatform != null && lastPlatform.spawnPoint != null) {
 				transform.position = lastPlatform.spawnPoint.position;
 				lookTransform.rotation = Quaternion.identity;
 				verticalVelocity = 0f;
 				controller.enabled = true;
-            }
-			else
-			{
-				Reset();
+			} else {
+				Teleport(spawnPoint);
+				lookTransform.rotation = Quaternion.identity;
 			}
-
-            
 		}
 
 		// Handle footstepsounds

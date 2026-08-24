@@ -5,7 +5,7 @@ using System.Linq;
 using System.IO;
 using System.Text.RegularExpressions;
 
-public class UltimateUnusedAssetsCleaner : EditorWindow
+public class AssetsCleaner : EditorWindow
 {
     // Class, not struct: rows are mutated in place (selection) while iterating the list,
     // and reference semantics keep selection intact across re-sorts.
@@ -29,10 +29,10 @@ public class UltimateUnusedAssetsCleaner : EditorWindow
     private bool dragSelecting;
     private bool dragSelectValue;
 
-    [MenuItem("WhiteRabbit/Unused Assets", false, 21)]
+    [MenuItem("WhiteRabbit/Asset Cleaner", false, 21)]
     public static void ShowWindow()
     {
-        GetWindow<UltimateUnusedAssetsCleaner>("Unused Assets");
+        GetWindow<AssetsCleaner>("Unused Assets");
     }
 
     private void OnGUI()

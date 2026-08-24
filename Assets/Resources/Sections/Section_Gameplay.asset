@@ -37,7 +37,7 @@ MonoBehaviour:
         name: 3D
         start: 2
     - rid: 8691557490844500040
-      type: {class: Gameplay3DBreakSubsection, ns: , asm: Assembly-CSharp}
+      type: {class: GameplaySubsection, ns: , asm: Assembly-CSharp}
       data:
-        name: Gameplay3DBreakSubsection
+        name: 3DBreak
         start: 3

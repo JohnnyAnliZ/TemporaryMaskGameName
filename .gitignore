@@ -106,3 +106,6 @@ InitTestScene*.unity*
 .claude
 .editorconfig
 omnisharp.json
+.git.bfg-report/
+Assets/BuildReports/
+Assets/BuildReports.meta

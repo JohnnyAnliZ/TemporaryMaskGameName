@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-public class FixmeScannerWindow : EditorWindow {
+public class FixmeScanner : EditorWindow {
 	struct FixmeEntry {
 		public string filePath;
 		public int lineNumber;
@@ -58,9 +58,9 @@ public class FixmeScannerWindow : EditorWindow {
 	int activeTab = 0;
 	static readonly string[] tabLabels = { "TODO", "FIXME" };
 
-	[MenuItem("WhiteRabbit/Fixme Scanner", false, 20)]
+	[MenuItem("WhiteRabbit/FIXME", false, 20)]
 	static void Open() {
-		GetWindow<FixmeScannerWindow>("Fixme Scanner");
+		GetWindow<FixmeScanner>("Fixme Scanner");
 	}
 
 	void OnEnable() {
@@ -92,7 +92,7 @@ public class FixmeScannerWindow : EditorWindow {
 		string assetsPath = Application.dataPath;
 		string[] files = Directory.GetFiles(assetsPath, "*.cs", SearchOption.AllDirectories);
 		foreach (string file in files) {
-			if (file.EndsWith("FixmeScannerWindow.cs")) continue;
+			if (file.EndsWith("FixmeScanner.cs")) continue;
 			string[] lines;
 			try { lines = File.ReadAllLines(file); }
 			catch { continue; }
