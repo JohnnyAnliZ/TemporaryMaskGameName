@@ -19,21 +19,20 @@ MonoBehaviour:
   cameraFollowSpeed: 8
   cameraZOffset: -2
   cameraSnapToPixelGrid: 0
-  numBreaks: 7
+  numBreaks: 6
   shardSize: 1.1
   maskBlurRadius: 5
   shatterBias: 3
   shatterStagger: 0.4
   shardSpeedRange: {x: 0.5, y: 2}
   shardSpinRange: {x: -180, y: 180}
-  num3DBreaks: 4
+  num3DBreaks: 5
   shrinkTime: 0.25
   branching: 0.12
   maxTips: 50
-  freezeDuration: 3
   panDuration: 5
   waitDuration: 3
-  mouseSensitivity: 0.25
+  mouseSensitivity: 0.1
   eyeOffset: 0.6
   pitchClamp: 85
   world2DZ: 1000

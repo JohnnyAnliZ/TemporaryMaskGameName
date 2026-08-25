@@ -33,6 +33,7 @@ public class CompositeManager : Singleton<CompositeManager>
 			outputCam.allowHDR = false;
 			outputCam.allowMSAA = false;
 			outputCam.useOcclusionCulling = false;
+			outputCam.GetUniversalAdditionalCameraData().requiresDepthTexture = false;
 			outputCam.GetUniversalAdditionalCameraData().SetRenderer(2);
 			aspectLocker = go.AddComponent<AspectRatioLocker>();
 
@@ -73,18 +74,13 @@ public class CompositeManager : Singleton<CompositeManager>
 			rtH = Mathf.RoundToInt(lastWidth / targetAspect);
 		}
 
-		rtA = new RenderTexture(rtW, rtH, 24);
-		rtB = new RenderTexture(rtW, rtH, 24);
+		rtA = new RenderTexture(rtW, rtH, 24, RenderTextureFormat.DefaultHDR);
+		rtB = new RenderTexture(rtW, rtH, 24, RenderTextureFormat.DefaultHDR);
 		var maskDesc = new RenderTextureDescriptor(rtW, rtH, RenderTextureFormat.RGInt, 0);
 		maskDesc.sRGB = false; //idk otherwise you get an annoying warning in the log
 		maskRT = new RenderTexture(maskDesc);
 		maskRT.filterMode = FilterMode.Bilinear;
 		maskRT.Create();
-		// var clearCmd = new UnityEngine.Rendering.CommandBuffer();
-		// clearCmd.SetRenderTarget(maskRT);
-		// clearCmd.ClearRenderTarget(false, true, Color.black);
-		// Graphics.ExecuteCommandBuffer(clearCmd);
-		// clearCmd.Release();
 
 		cameraA.targetTexture = rtA;
 		cameraB.targetTexture = rtB;

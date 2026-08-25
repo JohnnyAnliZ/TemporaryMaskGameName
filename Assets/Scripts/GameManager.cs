@@ -92,8 +92,13 @@ public class GameManager : Singleton<GameManager>
 		player3D.name = "3DPlayer";
 
 		Vector3 spawn2D = new Vector3(spawnX, spawnY, g.world2DZ);
-		player2D = Instantiate(player2DPrefab, spawn2D, spawnRot);
+		//Identity, not spawnRot: this is a billboard sprite facing the orthographic 2D camera, and nothing
+		//ever rewrites its rotation. Inheriting the marker's yaw turns it edge-on and it vanishes.
+		player2D = Instantiate(player2DPrefab, spawn2D, Quaternion.identity);
 		player2D.name = "2DPlayer";
+
+		GameObject.Find("2DVolume").layer = LayerMask.NameToLayer("PP2D");
+		GameObject.Find("3DVolume").layer = LayerMask.NameToLayer("PP3D");
 
 		GameObject camera3D = new GameObject("3DCamera");
 		camera3D.SetActive(false);
@@ -101,7 +106,7 @@ public class GameManager : Singleton<GameManager>
 		cam3D.nearClipPlane = 0.01f;
 		cam3D.GetUniversalAdditionalCameraData().SetRenderer(1);
 		cam3D.GetUniversalAdditionalCameraData().renderPostProcessing = true;
-		cam3D.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PostProcess3D", "Default");
+		cam3D.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PP3D", "Default");
 		camera3D.AddComponent<CompositeCamera>().index = 1;
 		camera3D.AddComponent<FirstPersonLook>().Init(player3D.transform);
 		camera3D.AddComponent<AudioListener>();
@@ -123,7 +128,10 @@ public class GameManager : Singleton<GameManager>
 		cam.farClipPlane = g.camera2DFarClip;
 		cam.GetUniversalAdditionalCameraData().SetRenderer(0);
 		cam.GetUniversalAdditionalCameraData().renderPostProcessing = true;
-		cam.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PostProcess2D", "Default");
+		cam.GetUniversalAdditionalCameraData().volumeLayerMask = LayerMask.GetMask("PP2D", "Default");
+		cam.GetUniversalAdditionalCameraData().requiresDepthTexture = false;
+		cam.allowMSAA = false;
+
 		camera2D.AddComponent<CompositeCamera>().index = 0;
 		CameraFollow2D follow = camera2D.AddComponent<CameraFollow2D>();
 		follow.Init(player2D.transform, player3D.transform);

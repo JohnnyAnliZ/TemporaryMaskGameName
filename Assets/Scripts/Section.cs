@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 using System.Collections.Generic;
 using System;
 
@@ -31,6 +32,7 @@ public struct CutsceneKeyframe {
 public class CutsceneSubsection : Subsection {
 	public List<CutsceneKeyframe> keyframes = new();
 	public bool waitForInputAtEnd = false;
+	public bool endAtGameplayPose = false;
 
 	public virtual void OnKeyframeReached(int index) { }
 	public virtual void OnTick(float t) { }
@@ -41,12 +43,20 @@ public class IntroIdle : CutsceneSubsection {
 	public override void OnStart() {
 		CompositeManager.Instance.maskDrawer.ResetMask();
 		GameManager.Instance.player2D.SetActive(false);
-		GameManager.Instance.player3D.GetComponent<Player3DController>().Teleport(SectionStart.GetPosition(Section.Intro));
-		
+		SectionStart introMarker = SectionStart.Find(Section.Intro);
+		GameManager.Instance.player3D.GetComponent<Player3DController>().Teleport(introMarker.transform.position);
+
 		FirstPersonLook look = UnityEngine.Object.FindAnyObjectByType<FirstPersonLook>();
-		look.Unlock();
-		look.transform.rotation = new Quaternion(0f, 0f, 1f, 0f);
+		look.SetLook(introMarker.transform.rotation);
 		GameObject.Find("SinkAnim").GetComponent<SpriteRenderer>().enabled = true;
+
+		//Reset state
+		foreach (Platform p in UnityEngine.Object.FindObjectsByType<Platform>(FindObjectsSortMode.None)) {
+			p.bIsBroken = false;
+			p.bHasShrunk = false;
+		}
+		UnityEngine.Object.FindAnyObjectByType<ShrinkTrigger>().bEntered = false;
+		AudioManager.Instance.reset();
 	}
 }
 [Serializable]
@@ -122,6 +132,20 @@ public class LiveActionSubsection : Subsection {
 	}
 }
 
+//Transitions---------------------------------------------------------------------------
+[Serializable]
+public class Trans3DSubsection : Subsection {
+	public override void OnStart() {
+		SectionStart marker = SectionStart.Find(Section.Trans3D);
+		GameManager.Instance.player3D.GetComponent<Player3DController>().Teleport(marker.transform.position);
+		UnityEngine.Object.FindAnyObjectByType<FirstPersonLook>().SetLook(marker.transform.rotation);
+
+		CompositeManager.Instance.maskDrawer.ResetMask3D();
+		GameObject.Find("hand").GetComponent<AnimationController>().play = true;
+		AudioManager.Instance.HandleTransBackTo3D();
+	}
+}
+
 public class SectionRunner : MonoBehaviour {
 	CutscenePlayer cutscenePlayer;
 	SectionAsset currentAsset;
@@ -166,6 +190,7 @@ public class SectionRunner : MonoBehaviour {
 			case CutsceneSubsection c: StartCutscene(c); break;
 			case GameplaySubsection g: StartGameplay(g); break;
 			case LiveActionSubsection la: StartLiveAction(la); break;
+			case Trans3DSubsection t: StartTrans3D(t); break;
 		}
 	}
 
@@ -181,6 +206,12 @@ public class SectionRunner : MonoBehaviour {
 		la.OnStart();
 	}
 
+	void StartTrans3D(Trans3DSubsection t) {
+		currentSubsection = t;
+		GameManager.Instance.bInputEnabled = false;
+		t.OnStart();
+	}
+
 	void StartCutscene(CutsceneSubsection c) {
 		if (c.keyframes.Count == 0) { Advance(); return; }
 		currentSubsection = c;
@@ -188,7 +219,7 @@ public class SectionRunner : MonoBehaviour {
 	}
 
 	void StartGameplay(GameplaySubsection g) {
-		Vector3 pos = SectionStart.GetPosition(Section.Gameplay, g.start);
+		Vector3 pos = SectionStart.Find(Section.Gameplay, g.start).transform.position;
 		Player3DController player = GameManager.Instance.player3D.GetComponent<Player3DController>();
 		player.Teleport(pos);
 		player.SetSpawnPoint(pos); //a fall before touching a platform returns here, not the sink
@@ -197,10 +228,11 @@ public class SectionRunner : MonoBehaviour {
 		g.OnStart();
 		GameManager.Instance.bInputEnabled = true;
 	}
-
 }
 
 public class CutscenePlayer : MonoBehaviour {
+	static readonly int FlickerSuppressId = Shader.PropertyToID("_FlickerSuppress");
+
 	Camera cam;
 	CameraFollow2D follow;
 
@@ -225,7 +257,8 @@ public class CutscenePlayer : MonoBehaviour {
 		bWaitingForInput = false;
 		bPlaying = true;
 		GameManager.Instance.bInputEnabled = false;
-		if (follow != null) follow.enabled = false;
+		follow.enabled = false;
+		Shader.SetGlobalFloat(FlickerSuppressId, 1f);
 		c.OnStart();
 	}
 
@@ -234,8 +267,9 @@ public class CutscenePlayer : MonoBehaviour {
 		bPlaying = false;
 		bWaitingForInput = false;
 		cutscene = null;
-		if (follow != null) follow.enabled = true;
+		follow.enabled = true;
 		GameManager.Instance.bInputEnabled = true;
+		Shader.SetGlobalFloat(FlickerSuppressId, 0f);
 		Action cb = onComplete;
 		onComplete = null;
 		cb?.Invoke();
@@ -261,10 +295,17 @@ public class CutscenePlayer : MonoBehaviour {
 			nextEventIndex++;
 		}
 
+		Vector2 endPos = kfs[^1].cameraPos;
+		float endOrtho = kfs[^1].orthoSize;
+		if (cutscene.endAtGameplayPose) {
+			follow.GetSettlePose(out Vector3 settlePos, out float settleOrtho);
+			endPos = new Vector2(settlePos.x, settlePos.y);
+			endOrtho = settleOrtho;
+		}
+
 		//Past the last keyframe's time: apply final state and finish (or hold for input)
 		if (t >= kfs[^1].time) {
-			var last = kfs[^1];
-			Apply(last.cameraPos, last.orthoSize);
+			Apply(endPos, endOrtho);
 			if (cutscene.waitForInputAtEnd) bWaitingForInput = true;
 			else Finish();
 			return;
@@ -287,8 +328,9 @@ public class CutscenePlayer : MonoBehaviour {
 		float u = Mathf.Clamp01((t - a.time) / span);
 		if (b.easeIn != null && b.easeIn.length > 0) u = b.easeIn.Evaluate(u);
 
-		Vector2 pos = Vector2.Lerp(a.cameraPos, b.cameraPos, u);
-		float ortho = Mathf.Lerp(a.orthoSize, b.orthoSize, u);
+		bool bIsLastSegment = idx + 1 == kfs.Count - 1;
+		Vector2 pos = Vector2.Lerp(a.cameraPos, bIsLastSegment ? endPos : b.cameraPos, u);
+		float ortho = Mathf.Lerp(a.orthoSize, bIsLastSegment ? endOrtho : b.orthoSize, u);
 		Apply(pos, ortho);
 	}
 

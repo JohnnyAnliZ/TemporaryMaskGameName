@@ -63,7 +63,6 @@ public class VideoManager : Singleton<VideoManager>
 	}
 	IEnumerator FadeInCoroutine(float factor, int startIndex) {
 		Cursor.lockState = CursorLockMode.Confined;
-		Cursor.visible = false;
 
 		PlayAt(startIndex);
 
@@ -134,12 +133,9 @@ public class VideoManager : Singleton<VideoManager>
 		if (index >= configs.Length) {
 			currentIndex = -1;
 			currentConfig = null;
-			GameManager.Instance.bInputEnabled = true;
-            CompositeManager.Instance.maskDrawer.ResetMask3D();
-			GameObject.Find("hand").GetComponent<AnimationController>().play = true;
-            //hide canvas
             canvasGroup.alpha = 0;
-			AudioManager.Instance.HandleTransBackTo3D();
+			Cursor.lockState = CursorLockMode.Locked;
+			GameManager.Instance.runner.CompleteSection();
             return;
 		}
 

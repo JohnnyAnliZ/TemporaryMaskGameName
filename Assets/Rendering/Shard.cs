@@ -1,7 +1,7 @@
 using UnityEngine;
 
 public class Shard : MonoBehaviour {
-	public float gravityScale = 1f;
+	public float gravityScale = 0.67f;
 
 	Material mat;
 	Mesh mesh;

@@ -13,7 +13,12 @@ MonoBehaviour:
   m_Name: Section_Trans3D
   m_EditorClassIdentifier: Assembly-CSharp::SectionAsset
   section: 3
-  subsections: []
+  subsections:
+  - rid: 8691557471280431300
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 8691557471280431300
+      type: {class: Trans3DSubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: HandRub

@@ -64,6 +64,7 @@ MonoBehaviour:
             m_PostInfinity: 2
             m_RotationOrder: 0
         waitForInputAtEnd: 0
+        endAtGameplayPose: 0
     - rid: 8691557459218399301
       type: {class: IntroPanSubsection, ns: , asm: Assembly-CSharp}
       data:
@@ -124,6 +125,7 @@ MonoBehaviour:
             m_PostInfinity: 2
             m_RotationOrder: 0
         waitForInputAtEnd: 0
+        endAtGameplayPose: 0
         length: 16
         speedToStrengthCurve:
           serializedVersion: 2
@@ -147,10 +149,10 @@ MonoBehaviour:
             inWeight: 0.33333334
             outWeight: 0.43873176
           - serializedVersion: 3
-            time: 0.4880436
-            value: 0.050289236
-            inSlope: 0.015683666
-            outSlope: 0.015683666
+            time: 0.49220926
+            value: 0.028621756
+            inSlope: 0.008305235
+            outSlope: 0.008305235
             tangentMode: 34
             weightedMode: 0
             inWeight: 0.33333334
@@ -181,9 +183,9 @@ MonoBehaviour:
             outWeight: 0.33333334
           - serializedVersion: 3
             time: 0.49848473
-            value: 0.27077588
-            inSlope: 0.0028627515
-            outSlope: 0.0028627515
+            value: 0.2643443
+            inSlope: 0.0028237663
+            outSlope: 0.0028237663
             tangentMode: 34
             weightedMode: 0
             inWeight: 0.33333334
@@ -215,6 +217,7 @@ MonoBehaviour:
             m_PostInfinity: 0
             m_RotationOrder: 0
         waitForInputAtEnd: 0
+        endAtGameplayPose: 0
     - rid: 8691557459218399305
       type: {class: IntroPanSubsection, ns: , asm: Assembly-CSharp}
       data:
@@ -229,9 +232,9 @@ MonoBehaviour:
             m_PreInfinity: 0
             m_PostInfinity: 0
             m_RotationOrder: 0
-        - time: 12
-          cameraPos: {x: -9.2, y: 5.99}
-          orthoSize: 4.55
+        - time: 8
+          cameraPos: {x: 0, y: 0}
+          orthoSize: 0
           easeIn:
             serializedVersion: 2
             m_Curve:
@@ -257,7 +260,8 @@ MonoBehaviour:
             m_PostInfinity: 2
             m_RotationOrder: 0
         waitForInputAtEnd: 0
-        length: 12
+        endAtGameplayPose: 1
+        length: 8
         speedToStrengthCurve:
           serializedVersion: 2
           m_Curve:
@@ -271,8 +275,8 @@ MonoBehaviour:
             inWeight: 0
             outWeight: 0
           - serializedVersion: 3
-            time: 0.3726306
-            value: 0.039613917
+            time: 0.42314076
+            value: 0.02270718
             inSlope: 0.0006367194
             outSlope: 0.0006367194
             tangentMode: 0
@@ -305,7 +309,7 @@ MonoBehaviour:
             outWeight: 0
           - serializedVersion: 3
             time: 0.49828398
-            value: 0.2705773
+            value: 0.2822503
             inSlope: -0.00029495152
             outSlope: -0.00029495152
             tangentMode: 0
@@ -366,3 +370,4 @@ MonoBehaviour:
             m_PostInfinity: 2
             m_RotationOrder: 0
         waitForInputAtEnd: 1
+        endAtGameplayPose: 0

@@ -25,7 +25,6 @@ public class Globals : ScriptableObject {
 	public float shrinkTime = 0.25f;
 	public float branching = 0.12f;
 	public int maxTips = 50;
-	public float freezeDuration = 3f;
 	public float panDuration = 5f;
 	public float waitDuration = 2f;
 

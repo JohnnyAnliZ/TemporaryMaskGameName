@@ -4,13 +4,14 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class ShrinkTrigger : MonoBehaviour {
 	public Transform lookTarget;
+	public Transform floatTarget;
 
 	public GameObject handMesh;
-	public Animator handAnimator;
-	public string handAnimTrigger = "reach";
-	public float handAnimDuration = 1f;
+	public Vector3 handFromPos, handFromEuler;
+	public Vector3 handToPos, handToEuler;
+	public float handReachDuration = 1f;
 
-	bool bEntered;
+	[HideInInspector] public bool bEntered; //cleared on loop start
 
 	void OnTriggerEnter(Collider other) {
 		if (bEntered) return;
@@ -20,15 +21,32 @@ public class ShrinkTrigger : MonoBehaviour {
 	}
 
 	IEnumerator Sequence(Player3DController pc) {
+		yield return new WaitForSeconds(0.25f);
+		
 		Globals g = Globals.Instance;
-		pc.BeginFreeze(g.freezeDuration);
+
+		GameManager.Instance.bInputEnabled = false;
+		pc.BeginFloatTo(floatTarget.position, g.panDuration + 1);
+
+		yield return new WaitForSeconds(1);
 
 		FirstPersonLook look = FindAnyObjectByType<FirstPersonLook>();
 		yield return look.PanToTarget(lookTarget, g.panDuration);
 
-		if (handMesh != null) handMesh.SetActive(true);
-		if (handAnimator != null && !string.IsNullOrEmpty(handAnimTrigger)) handAnimator.SetTrigger(handAnimTrigger);
-		if (handAnimDuration > 0f) yield return new WaitForSeconds(handAnimDuration);
+		handFromPos.z += 200;
+		handToPos.z += 200;
+		handMesh.SetActive(true);
+		Quaternion fromRot = Quaternion.Euler(handFromEuler);
+		Quaternion toRot = Quaternion.Euler(handToEuler);
+		for (float t = 0f; t < handReachDuration; t += Time.deltaTime) {
+			float u = Mathf.Clamp01(t / handReachDuration);
+			u = u * u * (3f - 2f * u);
+			handMesh.transform.SetPositionAndRotation(Vector3.Lerp(handFromPos, handToPos, u), Quaternion.Slerp(fromRot, toRot, u));
+			yield return null;
+		}
+		handMesh.transform.SetPositionAndRotation(handToPos, toRot);
+
+		yield return new WaitForSeconds(1);
 
 		CompositeManager.Instance.maskDrawer.Do_ShrinkAll();
 		yield return new WaitForSeconds(g.waitDuration);

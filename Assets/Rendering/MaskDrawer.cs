@@ -56,6 +56,9 @@ public class MaskDrawer : MonoBehaviour
 	RenderTexture frozen3DRT;
 
 	static readonly int CRACKS_LAYER = 30;
+	//Shards sit on this layer so a RenderObjects feature can draw them AFTER the volumetric fog pass,
+	//keeping their own materials instead of being replaced by the fog's lighting-only output.
+	int noFogLayer = -1;
 	static readonly float CRACK_THICKNESS_MIN = 0.004f;
 	static readonly float CRACK_THICKNESS_MAX = 0.01f;
 	GameObject cracksGO;
@@ -66,6 +69,9 @@ public class MaskDrawer : MonoBehaviour
 		circleMaskMaterial = new Material(Shader.Find("Custom/CircleMask"));
 		blurMaterial = new Material(Shader.Find("Custom/MaskBlur"));
 		shardMaterial = new Material(Shader.Find("Custom/Shard"));
+
+		noFogLayer = LayerMask.NameToLayer("NoFog");
+		if (noFogLayer < 0) Log.Error("NoFog layer is missing - shards will be flattened by the volumetric fog");
 	}
 
 	//Called by composite manager
@@ -615,6 +621,7 @@ public class MaskDrawer : MonoBehaviour
 		float scale = view3DH / view2DH;
 
 		GameObject go = new GameObject("Shard");
+		if (noFogLayer >= 0) go.layer = noFogLayer;
 		go.transform.SetParent(shardParent, false);
 		go.transform.position = worldPos3D;
 		go.transform.rotation = Quaternion.LookRotation(cam3D.transform.position - worldPos3D, cam3D.transform.up);

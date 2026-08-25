@@ -92,6 +92,20 @@ public class AudioManager : Singleton<AudioManager>
 
     public void reset()
     {
+        StopAllCoroutines();
+        for (int i = transform.childCount - 1; i >= 0; i--) Destroy(transform.GetChild(i).gameObject);
+
+        musicStarted = false;
+        footstepTimer = 0f;
+        shattersPlayed = 0;
+        shatterVol = 0.1f;
+        cracksPlayed = 0;
+        crackVol = 0.4f;
+        startTime = 100000;
+        elapsedTime = 0;
+        transTime = 36.25f;
+        hasTransitioned = false;
+
         // Audio sources
         // SFX
         sfxSource = CreateChildAudioSource("sfxSource", 0.5f, null, false);
@@ -235,6 +249,9 @@ public class AudioManager : Singleton<AudioManager>
 
     public void HandleImpact(float verticalVelocity)
     {
+        //Guard before indexing, not after: impactClips[Length-1] on an empty array throws.
+        if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
+
         AudioClip randomClip;
         if (verticalVelocity > -12f) {
 			impactVolume = 0.4f;
@@ -246,7 +263,6 @@ public class AudioManager : Singleton<AudioManager>
 			impactVolume = 1f;
             randomClip = impactClips[Random.Range(0, impactClips.Length-1)];
 		}
-        if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
         impactSource.PlayOneShot(randomClip, impactVolume);
     }
 
@@ -254,7 +270,8 @@ public class AudioManager : Singleton<AudioManager>
     {
         // Play shatter sound effect
         if (shatterClips == null || shatterClips.Length == 0 || sfxSource == null || shattersPlayed >= Globals.Instance.numBreaks) return;
-        AudioClip currClip = shatterClips[shattersPlayed];
+        //Clamp to the array: numBreaks is a mask budget and may exceed the authored clip count.
+        AudioClip currClip = shatterClips[Mathf.Min(shattersPlayed, shatterClips.Length - 1)];
         sfxSource.PlayOneShot(currClip, shatterVol);
         shattersPlayed += 1;
         shatterVol += 0.1f;
@@ -314,10 +331,11 @@ public class AudioManager : Singleton<AudioManager>
 
     public void HandleShrink(bool isFinal)
     {
-        while (isFinal || cracksPlayed < 4) {
+        while (isFinal || cracksPlayed < Globals.Instance.num3DBreaks) {
             // Play cracking sound effect
             if (crackingClips == null || crackingClips.Length == 0 || sfxSource == null || cracksPlayed >= Globals.Instance.num3DBreaks) return;
-            AudioClip currClip = crackingClips[cracksPlayed];
+            //num3DBreaks (5) currently exceeds crackingClips (4), so clamp or this throws.
+            AudioClip currClip = crackingClips[Mathf.Min(cracksPlayed, crackingClips.Length - 1)];
             sfxSource.PlayOneShot(currClip, crackVol);
             cracksPlayed += 1;
             crackVol += 0.15f;
@@ -361,7 +379,7 @@ public class AudioManager : Singleton<AudioManager>
             }
             if (!isFinal) {
                 break;
-            } else if (cracksPlayed >= 4) {
+            } else if (cracksPlayed >= Globals.Instance.num3DBreaks) {
                 break;
             }
         }
@@ -406,7 +424,6 @@ public class AudioManager : Singleton<AudioManager>
     public void HandleTransBackTo3D()
     {
         FadeToVolume(trackRealLifeSource, 0.0f, 4.0f);
-        reset();
     }
 
     private void Update()

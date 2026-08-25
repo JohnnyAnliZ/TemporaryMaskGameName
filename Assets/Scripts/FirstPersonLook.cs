@@ -14,11 +14,16 @@ public class FirstPersonLook : MonoBehaviour
 		Cursor.visible = false;
 	}
 
-	public void Unlock()
-	{
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;	
-    }
+	public void SetLook(float yawDegrees, float pitchDegrees = 0f) {
+		yaw = yawDegrees;
+		pitch = Mathf.Clamp(pitchDegrees, -Globals.Instance.pitchClamp, Globals.Instance.pitchClamp);
+		mouseDelta = Vector2.zero;
+		transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+	}
+	public void SetLook(Quaternion rotation) {
+		Vector3 e = rotation.eulerAngles;
+		SetLook(e.y, e.x > 180f ? e.x - 360f : e.x);
+	}
 
 	void Update() {
 		if (Keyboard.current.escapeKey.wasPressedThisFrame) {

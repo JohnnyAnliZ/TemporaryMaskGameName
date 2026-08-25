@@ -68,6 +68,23 @@ public class CameraFollow2D : MonoBehaviour
 		transform.position = g.cameraSnapToPixelGrid ? SnapToGrid(finalPosition) : finalPosition;
 	}
 
+	//For cutscene
+	public void GetSettlePose(out Vector3 position, out float orthoSize) {
+		Globals g = Globals.Instance;
+
+		float zOffset = player3D.position.z - g.world3DZ;
+		orthoSize = Mathf.Max(g.cameraOrthoSize - ComputeZoomDelta(zOffset), 0.1f);
+		float maxOrthoFromH = (g.cameraBoundTop - g.cameraBoundBottom) * 0.5f;
+		float maxOrthoFromW = (g.cameraBoundRight - g.cameraBoundLeft) * 0.5f / Mathf.Max(cam.aspect, 0.001f);
+		orthoSize = Mathf.Min(orthoSize, Mathf.Min(maxOrthoFromH, maxOrthoFromW));
+
+		float halfW = orthoSize * cam.aspect;
+		float x = Mathf.Clamp(target.position.x, g.cameraBoundLeft + halfW, g.cameraBoundRight - halfW);
+		float y = Mathf.Clamp(target.position.y, g.cameraBoundBottom + orthoSize, g.cameraBoundTop - orthoSize);
+
+		position = new Vector3(x, y, g.cameraZOffset);
+	}
+
 	float ComputeZoomDelta(float z) {
 		Globals g = Globals.Instance;
 		if (z >= 0f) {

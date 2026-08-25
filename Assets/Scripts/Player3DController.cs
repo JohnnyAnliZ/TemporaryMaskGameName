@@ -13,20 +13,22 @@ public class Player3DController : MonoBehaviour
 	bool bIsHoldingSpace;
 	Vector3 jumpBoost;
 	Platform lastPlatform;
-	Vector3 spawnPoint; //fall-respawn point before a platform is touched; set by the flow per area
+	Vector3 spawnPoint;
 
 	// Impact logic
 	bool isFalling = false;
 
-	float slowdownElapsed;
-	float slowdownDuration;
-	bool bSlowing;
-	public void BeginFreeze(float duration) {
-		slowdownElapsed = 0f;
-		float gravityMag = Mathf.Max(Mathf.Abs(Globals.Instance.gravity), 0.01f);
-		float arcBonus = Mathf.Max(0f, verticalVelocity) / gravityMag * 2f;
-		slowdownDuration = Mathf.Max(0.001f, duration + arcBonus);
-		bSlowing = true;
+	//Shrink transition
+	Vector3 floatStart, floatEnd;
+	float floatElapsed, floatDuration;
+	bool bFloating;
+	public void BeginFloatTo(Vector3 target, float duration) {
+		floatStart = transform.position;
+		floatEnd = target;
+		floatElapsed = 0f;
+		floatDuration = Mathf.Max(0.001f, duration);
+		bFloating = true;
+		controller.enabled = false; //scripted move: no collision, no gravity
 		GameManager.Instance.bInputEnabled = false;
 	}
 
@@ -37,7 +39,14 @@ public class Player3DController : MonoBehaviour
 		}
 		transform.position = pos;
 		controller.enabled = true;
+
 		verticalVelocity = 0f;
+		jumpBoost = Vector3.zero;
+		coyoteTimer = 0f;
+		jumpBufferTimer = 0f;
+		spaceTimer = 0f;
+		bIsHoldingSpace = false;
+		isFalling = false;
 	}
 
 	//The point a fall returns to before any platform is touched; set by the flow on entering an area.
@@ -57,38 +66,36 @@ public class Player3DController : MonoBehaviour
 	void Update() {
 		Globals g = Globals.Instance;
 
-		float simScale = 1f;
-		if (bSlowing) {
-			slowdownElapsed += Time.deltaTime;
-			float st = Mathf.Clamp01(slowdownElapsed / slowdownDuration);
-			float u = 1f - st;
-			simScale = u * u * u;
-			if (slowdownElapsed >= slowdownDuration) bSlowing = false;
-		}
-
 		Animator animator = GameManager.Instance.player2D.GetComponent<Animator>();
 		animator?.SetBool("isGrounded", controller.isGrounded);
 
+		if (bFloating) {
+			floatElapsed += Time.deltaTime;
+			float u = Mathf.Clamp01(floatElapsed / floatDuration);
+			transform.position = Vector3.Lerp(floatStart, floatEnd, u * u * (3f - 2f * u));
+			if (floatElapsed >= floatDuration) {
+				bFloating = false;
+			}
+			return;
+		}
+
 		bool bInputOn = GameManager.Instance.bInputEnabled;
-		if (!bInputOn && !bSlowing) {
+		if (!bInputOn) {
 			animator?.SetBool("isMoving", false);
 			animator?.SetBool("isGrounded", true);
 			return;
 		}
 
-		float dt = Time.deltaTime * simScale;
+		float dt = Time.deltaTime;
 
 		Keyboard keyboard = Keyboard.current;
 
 		float forward = 0f, horizontal = 0f;
-		bool bSpaceJustPressed = false;
-		if (bInputOn) {
-			if (keyboard.wKey.isPressed) forward += 1f;
-			if (keyboard.sKey.isPressed) forward -= 1f;
-			if (keyboard.aKey.isPressed) horizontal -= 1f;
-			if (keyboard.dKey.isPressed) horizontal += 1f;
-			bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
-		}
+		if (keyboard.wKey.isPressed) forward += 1f;
+		if (keyboard.sKey.isPressed) forward -= 1f;
+		if (keyboard.aKey.isPressed) horizontal -= 1f;
+		if (keyboard.dKey.isPressed) horizontal += 1f;
+		bool bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
 
 		//Coyote
 		if (controller.isGrounded) coyoteTimer = g.coyoteTime;
@@ -124,7 +131,7 @@ public class Player3DController : MonoBehaviour
 		if (bIsHoldingSpace) {
 			spaceTimer = Mathf.Min(spaceTimer + dt, g.jumpChargeTime);
 			//Release
-			if (bInputOn && !keyboard.spaceKey.isPressed) {
+			if (!keyboard.spaceKey.isPressed) {
 				//Charge
 				float chargeTime = 0f;
 				if (spaceTimer > g.jumpTapWindow) {
@@ -168,17 +175,10 @@ public class Player3DController : MonoBehaviour
 
 		if (controller.isGrounded) {
 			Platform platform = null;
-			float probe = controller.radius * 0.8f;
-			for (int i = 0; i < 5 && platform == null; i++) {
-				Vector3 origin = transform.position;
-				if (i == 1) origin.x += probe;
-				else if (i == 2) origin.x -= probe;
-				else if (i == 3) origin.z += probe;
-				else if (i == 4) origin.z -= probe;
-
-				if (Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 2f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) {
-					platform = hit.collider.GetComponentInParent<Platform>();
-				}
+			float sweep = controller.height * 0.5f - controller.radius + 0.25f;
+			if (Physics.SphereCast(transform.position, controller.radius, Vector3.down, out RaycastHit hit, sweep,
+					Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) {
+				platform = hit.collider.GetComponentInParent<Platform>();
 			}
 
 			if (platform != null) {
@@ -198,17 +198,9 @@ public class Player3DController : MonoBehaviour
 		}
 
 		if (transform.position.y < g.fallThreshold) {
-			controller.enabled = false;
-
-			if (lastPlatform != null && lastPlatform.spawnPoint != null) {
-				transform.position = lastPlatform.spawnPoint.position;
-				lookTransform.rotation = Quaternion.identity;
-				verticalVelocity = 0f;
-				controller.enabled = true;
-			} else {
-				Teleport(spawnPoint);
-				lookTransform.rotation = Quaternion.identity;
-			}
+			bool hasCheckpoint = lastPlatform != null && lastPlatform.spawnPoint != null;
+			Teleport(hasCheckpoint ? lastPlatform.spawnPoint.position : spawnPoint);
+			lookTransform.rotation = Quaternion.identity; //FIXME
 		}
 
 		// Handle footstepsounds

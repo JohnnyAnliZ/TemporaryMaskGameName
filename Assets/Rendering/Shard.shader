@@ -3,7 +3,7 @@ Shader "Custom/Shard"
 	Properties
 	{
 		_MainTex ("Captured 2D", 2D) = "white" {}
-		_EmissionIntensity ("Emission Intensity", Range(1, 8)) = 2
+		_EmissionIntensity ("Emission Intensity", Range(1, 16)) = 2
 	}
 
 	SubShader
@@ -25,7 +25,6 @@ Shader "Custom/Shard"
 			#pragma vertex vert
 			#pragma fragment frag
 			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
-			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
 			TEXTURE2D(_MainTex);
 			SAMPLER(sampler_MainTex);
@@ -38,7 +37,6 @@ Shader "Custom/Shard"
 			struct Attributes
 			{
 				float4 positionOS : POSITION;
-				float3 normalOS : NORMAL;
 				float2 uv : TEXCOORD0;
 			};
 
@@ -46,35 +44,20 @@ Shader "Custom/Shard"
 			{
 				float4 positionCS : SV_POSITION;
 				float2 uv : TEXCOORD0;
-				float3 positionWS : TEXCOORD1;
-				float3 normalWS : TEXCOORD2;
 			};
 
 			Varyings vert(Attributes v)
 			{
 				Varyings o;
-				o.positionWS = TransformObjectToWorld(v.positionOS.xyz);
-				o.positionCS = TransformWorldToHClip(o.positionWS);
-				o.normalWS = TransformObjectToWorldNormal(v.normalOS);
+				o.positionCS = TransformObjectToHClip(v.positionOS.xyz);
 				o.uv = v.uv;
 				return o;
 			}
 
-			half4 frag(Varyings i, bool isFrontFace : SV_IsFrontFace) : SV_Target
+			half4 frag(Varyings i) : SV_Target
 			{
-				//The captured face is emissive: pushed above 1.0 so it reads as a glowing fragment of the
-				//2D world rather than a surface the volumetric fog can flatten into the fog colour.
-				if (isFrontFace)
-				{
-					half3 captured = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv).rgb;
-					return half4(captured * _EmissionIntensity, 1.0);
-				}
-
-				float3 viewDirWS = normalize(GetWorldSpaceViewDir(i.positionWS));
-				float3 normalWS = normalize(i.normalWS);
-				float3 reflectDirWS = reflect(-viewDirWS, normalWS);
-				half3 env = GlossyEnvironmentReflection(reflectDirWS, i.positionWS, 0, 1.0h);
-				return half4(env, 1.0);
+				half3 captured = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv).rgb;
+				return half4(captured * _EmissionIntensity, 1.0);
 			}
 			ENDHLSL
 		}
