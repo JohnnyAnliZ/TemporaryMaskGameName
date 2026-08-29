@@ -126,23 +126,85 @@ public class LiveActionSubsection : Subsection {
 	public int startIndex = 0;
 
 	public override void OnStart() {
-		Log.Info("Starting live action");
+		CompositeManager.Instance.maskDrawer.SetCamerasSuspended(true);
 		VideoManager.Instance.FadeIn(fadeInFactor, startIndex);
 		AudioManager.Instance.HandleSubsection("LiveActionSubsection");
+	}
+
+	public override void OnEnd() {
+		CompositeManager.Instance.maskDrawer.SetCamerasSuspended(false);
 	}
 }
 
 //Transitions---------------------------------------------------------------------------
 [Serializable]
 public class Trans3DSubsection : Subsection {
-	public override void OnStart() {
-		SectionStart marker = SectionStart.Find(Section.Trans3D);
-		GameManager.Instance.player3D.GetComponent<Player3DController>().Teleport(marker.transform.position);
-		UnityEngine.Object.FindAnyObjectByType<FirstPersonLook>().SetLook(marker.transform.rotation);
+	static readonly int DitherSuppressId = Shader.PropertyToID("_DitherSuppress");
 
+	public Trans3DPart part1 = new();
+	public Trans3DPart part2 = new();
+	public Rect resumeHotspot = new(0.4f, 0.4f, 0.2f, 0.2f);
+	public bool debugSkipToPause = false;
+	[Range(0f, 1f)] public float stripWidth = 0.45f;
+
+	public float wobbleMin = 0.2f;
+	public float wobbleMax = 1f;
+	public float wobbleSpeed = 1f;
+	public float caMultiplier = 5f;
+
+	float prevWobbleMin, prevWobbleMax, prevWobbleSpeed, prevCAMultiplier;
+
+	public override void OnStart() {
 		CompositeManager.Instance.maskDrawer.ResetMask3D();
-		GameObject.Find("hand").GetComponent<AnimationController>().play = true;
+		CompositeManager.Instance.maskDrawer.SetStripWidth(stripWidth);
+
+		prevWobbleMin = CompositeManager.Instance.wobbleMin;
+		prevWobbleMax = CompositeManager.Instance.wobbleMax;
+		prevWobbleSpeed = CompositeManager.Instance.wobbleSpeed;
+		prevCAMultiplier = CompositeManager.Instance.caMultiplier;
+		CompositeManager.Instance.wobbleMin = wobbleMin;
+		CompositeManager.Instance.wobbleMax = wobbleMax;
+		CompositeManager.Instance.wobbleSpeed = wobbleSpeed;
+		CompositeManager.Instance.caMultiplier = caMultiplier;
+
+		Shader.SetGlobalFloat(DitherSuppressId, 1f);
+
 		AudioManager.Instance.HandleTransBackTo3D();
+
+		GameObject.Find("hand").GetComponent<HandAnimController>()
+			.PlayRubFaceSequence(part1, part2, resumeHotspot, () => GameManager.Instance.runner.CompleteSection(), debugSkipToPause);
+	}
+
+	public override void OnEnd() {
+		CompositeManager.Instance.wobbleMin = prevWobbleMin;
+		CompositeManager.Instance.wobbleMax = prevWobbleMax;
+		CompositeManager.Instance.wobbleSpeed = prevWobbleSpeed;
+		CompositeManager.Instance.caMultiplier = prevCAMultiplier;
+		Shader.SetGlobalFloat(DitherSuppressId, 0f);
+	}
+}
+[Serializable]
+public class Trans2DSubsection : Subsection {
+	public float speed = 1f;
+	public float pauseDelay = 0.5f;
+	public Rect resumeHotspot = new(0.4f, 0.4f, 0.2f, 0.2f);
+	[Range(0f, 1f)] public float stripWidth = 0.6f;
+
+	public float zoomDuration = 3f;
+	public AnimationCurve zoomEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+
+	public Vector2 camPosFrom = new(-14.2f, 6.2f);
+	public float camOrthoFrom = 1.5f;
+
+	public override void OnStart() {
+		MaskDrawer mask = CompositeManager.Instance.maskDrawer;
+		mask.ResetMask();
+		mask.SetStripWidth(stripWidth);
+
+		GameManager.Instance.player2D.SetActive(false);
+		GameObject.Find("SinkAnim").GetComponent<SpriteRenderer>().enabled = true;
+
+		Wash2DOverlay.Instance.Show();
 	}
 }
 
@@ -191,6 +253,7 @@ public class SectionRunner : MonoBehaviour {
 			case GameplaySubsection g: StartGameplay(g); break;
 			case LiveActionSubsection la: StartLiveAction(la); break;
 			case Trans3DSubsection t: StartTrans3D(t); break;
+			case Trans2DSubsection t2: StartTrans2D(t2); break;
 		}
 	}
 
@@ -212,6 +275,50 @@ public class SectionRunner : MonoBehaviour {
 		t.OnStart();
 	}
 
+	void StartTrans2D(Trans2DSubsection t) {
+		currentSubsection = t;
+		GameManager.Instance.bInputEnabled = false;
+
+		cutscenePlayer.Park(t.camPosFrom, t.camOrthoFrom);
+		t.OnStart();
+		StartCoroutine(RunTrans2D(t));
+	}
+
+	IEnumerator RunTrans2D(Trans2DSubsection t) {
+		Wash2DOverlay wash = Wash2DOverlay.Instance;
+		MaskDrawer mask = CompositeManager.Instance.maskDrawer;
+		Camera cam2D = CompositeManager.Instance.cameraA;
+
+		yield return wash.WashSequence(t.speed, t.pauseDelay, t.resumeHotspot);
+
+		Vector2 startPos = cam2D.transform.position;
+		float startOrtho = cam2D.orthographicSize;
+		float startWidth = mask.StripWidth;
+		float zOffset = Globals.Instance.cameraZOffset;
+		SectionAsset intro = Resources.Load<SectionAsset>($"Sections/Section_{Section.Intro}");
+		CutsceneKeyframe end = ((CutsceneSubsection)intro.subsections[0]).keyframes[0];
+
+		float time = 0f;
+		while (time < t.zoomDuration) {
+			time += Time.deltaTime;
+			float u = Mathf.Clamp01(time / t.zoomDuration);
+			if (t.zoomEase != null && t.zoomEase.length > 0) u = t.zoomEase.Evaluate(u);
+			wash.SetZoom(u);
+			Vector2 pos = Vector2.Lerp(startPos, end.cameraPos, u);
+			cam2D.transform.position = new Vector3(pos.x, pos.y, zOffset);
+			cam2D.orthographicSize = Mathf.Lerp(startOrtho, end.orthoSize, u);
+			mask.SetStripWidth(Mathf.Lerp(startWidth, 1f, u));
+			yield return null;
+		}
+		wash.SetZoom(1f);
+		cam2D.transform.position = new Vector3(end.cameraPos.x, end.cameraPos.y, zOffset);
+		cam2D.orthographicSize = end.orthoSize;
+		mask.SetStripWidth(1f);
+
+		wash.Hide();
+		CompleteSection();
+	}
+
 	void StartCutscene(CutsceneSubsection c) {
 		if (c.keyframes.Count == 0) { Advance(); return; }
 		currentSubsection = c;
@@ -222,7 +329,7 @@ public class SectionRunner : MonoBehaviour {
 		Vector3 pos = SectionStart.Find(Section.Gameplay, g.start).transform.position;
 		Player3DController player = GameManager.Instance.player3D.GetComponent<Player3DController>();
 		player.Teleport(pos);
-		player.SetSpawnPoint(pos); //a fall before touching a platform returns here, not the sink
+		player.SetSpawnPoint(pos);
 
 		currentSubsection = g;
 		g.OnStart();
@@ -331,6 +438,11 @@ public class CutscenePlayer : MonoBehaviour {
 		bool bIsLastSegment = idx + 1 == kfs.Count - 1;
 		Vector2 pos = Vector2.Lerp(a.cameraPos, bIsLastSegment ? endPos : b.cameraPos, u);
 		float ortho = Mathf.Lerp(a.orthoSize, bIsLastSegment ? endOrtho : b.orthoSize, u);
+		Apply(pos, ortho);
+	}
+
+	public void Park(Vector2 pos, float ortho) {
+		follow.enabled = false;
 		Apply(pos, ortho);
 	}
 

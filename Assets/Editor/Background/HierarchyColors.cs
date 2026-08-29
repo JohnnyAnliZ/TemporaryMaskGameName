@@ -17,6 +17,9 @@ static class HierarchyColors {
 		{ "StartingPoints",	new Color(0.7f, 0.9f, 1.0f, 0.2f) },
 		{ "Breakers",		new Color(1.0f, 0.1f, 0.1f, 0.2f) },
 		{ "Shrinkers",		new Color(0.3f, 0.1f, 1.0f, 0.2f) },
+		{ "FlowerArea",		new Color(0.9f, 1.0f, 0.1f, 0.2f) },
+		{ "SinkArea",		new Color(1.0f, 0.7f, 0.2f, 0.2f) },
+		{ "LilLights",		new Color(1.0f, 1.0f, 0.0f, 0.25f) },
 
 		//2D
 		{ "Backgrounds",	new Color(0.0f, 0.0f, 0.0f, 0.2f) },

@@ -13,7 +13,48 @@ MonoBehaviour:
   m_Name: Section_Trans2D
   m_EditorClassIdentifier: Assembly-CSharp::SectionAsset
   section: 4
-  subsections: []
+  subsections:
+  - rid: 7539836763816591436
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 7539836763816591436
+      type: {class: Trans2DSubsection, ns: , asm: Assembly-CSharp}
+      data:
+        name: Trans2DSubsection
+        speed: 0.9
+        pauseDelay: 1
+        resumeHotspot:
+          serializedVersion: 2
+          x: 0.4
+          y: 0.4
+          width: 0.2
+          height: 0.5
+        stripWidth: 0.62
+        zoomDuration: 4
+        zoomEase:
+          serializedVersion: 2
+          m_Curve:
+          - serializedVersion: 3
+            time: 0
+            value: 0
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          - serializedVersion: 3
+            time: 1
+            value: 1
+            inSlope: 0
+            outSlope: 0
+            tangentMode: 0
+            weightedMode: 0
+            inWeight: 0
+            outWeight: 0
+          m_PreInfinity: 2
+          m_PostInfinity: 2
+          m_RotationOrder: 4
+        camPosFrom: {x: -14, y: 5.4}
+        camOrthoFrom: 5.5

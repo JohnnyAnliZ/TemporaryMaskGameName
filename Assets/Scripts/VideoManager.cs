@@ -22,14 +22,16 @@ public class VideoManager : Singleton<VideoManager>
 	public CanvasGroup canvasGroup;
 	public CanvasGroup videoFadeGroup;
 	public RectTransform canvasRect;
+	public RectTransform frameRect;
 	public RawImage outlineImage;
 	public RectTransform cursorUI;
 
 	public RectTransform blinkTop;
 	public RectTransform blinkBottom;
-	public Image blinkBack;
 	public float blinkDuration = 0.4f;
 
+	public Sprite cursorNormalSprite;
+	public Sprite cursorHoverSprite;
 	public float cursorNormalScale = 1f;
 	public float cursorHoverScale = 1.5f;
 	public Color cursorNormalColor = Color.white;
@@ -39,7 +41,8 @@ public class VideoManager : Singleton<VideoManager>
 	public float[] initialBlinkAmplitudes = new float[] { 0.25f, 0.55f, 0.8f, 1f };
 	public float[] initialBlinkDurations  = new float[] { 0.2f,  0.3f,  2.5f, 0.5f };
 
-	Graphic cursorGraphic;
+	Image cursorGraphic;
+	float blinkAmplitude = 1f;
 	Vector2 topOpenPos, botOpenPos;
 	int currentIndex = -1;
 	StateConfig currentConfig;
@@ -52,10 +55,34 @@ public class VideoManager : Singleton<VideoManager>
 		botOpenPos = blinkBottom.anchoredPosition;
 		canvasGroup.alpha = 0f;
 		outlineImage.enabled = false;
-		cursorGraphic = cursorUI.GetComponent<Graphic>();
-		Color c = blinkBack.color;
-		c.a = 0f;
-		blinkBack.color = c;
+		cursorGraphic = cursorUI.GetComponent<Image>();
+	}
+
+	//AspectRatioLocker letterboxes/pillarboxes outputCam, so its viewport rect is the only part of the window
+	//the player actually sees. Scale the frame to that box (rather than the window the Overlay canvas spans)
+	//so everything parented under it keeps its authored design-resolution layout at any window aspect.
+	void LateUpdate() {
+		if (frameRect == null || canvasRect == null) return;
+		Camera outputCam = CompositeManager.Instance != null ? CompositeManager.Instance.outputCam : null;
+		if (outputCam == null) return;
+
+		Vector2 design = frameRect.sizeDelta;
+		if (design.x <= 0f || design.y <= 0f) return;
+
+		//Worked in canvas units rather than pixels, so this holds for any CanvasScaler mode.
+		Rect canvasR = canvasRect.rect;
+		Rect view = outputCam.rect;
+		float availW = canvasR.width * view.width;
+		float availH = canvasR.height * view.height;
+
+		float scale = Mathf.Min(availW / design.x, availH / design.y);
+		frameRect.localScale = new Vector3(scale, scale, 1f);
+
+		//Recentre on the viewport rect -- AspectRatioLocker always centres it, but don't bake that in.
+		frameRect.anchoredPosition = new Vector2(
+			(view.x + view.width * 0.5f - 0.5f) * canvasR.width,
+			(view.y + view.height * 0.5f - 0.5f) * canvasR.height
+		);
 	}
 
 	public void FadeIn(float factor = 1f, int startIndex = 0) {
@@ -63,6 +90,7 @@ public class VideoManager : Singleton<VideoManager>
 	}
 	IEnumerator FadeInCoroutine(float factor, int startIndex) {
 		Cursor.lockState = CursorLockMode.Confined;
+		yield return null;
 
 		PlayAt(startIndex);
 
@@ -108,7 +136,7 @@ public class VideoManager : Singleton<VideoManager>
 		cg.alpha = target;
 	}
 	IEnumerator BlinkAmplitudeTo(float targetAmp, float duration) {
-		float startAmp = blinkBack != null ? 1f - blinkBack.color.a : 0f;
+		float startAmp = blinkAmplitude;
 		float t = 0f;
 		while (t < duration) {
 			t += Time.deltaTime;	
@@ -123,9 +151,7 @@ public class VideoManager : Singleton<VideoManager>
 		Vector2 botClosed = new Vector2(botOpenPos.x, 0f);
 		blinkTop.anchoredPosition = Vector2.Lerp(topClosed, topOpenPos, amp);
 		blinkBottom.anchoredPosition = Vector2.Lerp(botClosed, botOpenPos, amp);
-		Color c = blinkBack.color;
-		c.a = 1f - amp;
-		blinkBack.color = c;
+		blinkAmplitude = amp;
 	}
 
 	void PlayAt(int index) {
@@ -151,6 +177,7 @@ public class VideoManager : Singleton<VideoManager>
 			outlinePlayer.clip = currentConfig.outlineClip;
 			outlinePlayer.isLooping = currentConfig.isIdle;
 			outlinePlayer.Play();
+			Cursors.WarpTo(Cursors.pauseStartUV);
 		} else {
 			outlinePlayer.Stop();
 			outlinePlayer.clip = null;
@@ -178,14 +205,12 @@ public class VideoManager : Singleton<VideoManager>
 
 		if (!bHasOutline && outlineImage != null) outlineImage.enabled = false;
 
-
-        
-        if (canvasRect != null)
-		{
-			RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
+		RectTransform hitRect = frameRect != null ? frameRect : canvasRect;
+        if (hitRect != null) {
+			RectTransformUtility.ScreenPointToLocalPointInRectangle(hitRect, screenPos, null, out Vector2 localPos);
 			if (cursorUI != null && bHasOutline) cursorUI.anchoredPosition = localPos;
 
-			Rect r = canvasRect.rect;
+			Rect r = hitRect.rect;
 			Vector2 uv = new Vector2(
 				(localPos.x - r.xMin) / r.width,
 				(localPos.y - r.yMin) / r.height
@@ -195,24 +220,20 @@ public class VideoManager : Singleton<VideoManager>
 
 
             //Cursor hover
-            if (bHasOutline)
-			{
+            if (bHasOutline) {
 				float targetScale = bHover ? cursorHoverScale : cursorNormalScale;
 				Color targetColor = bHover ? cursorHoverColor : cursorNormalColor;
 				float k = 1f - Mathf.Exp(-cursorTransitionSpeed * Time.deltaTime);
 				float s = Mathf.Lerp(cursorUI.localScale.x, targetScale, k);
 				cursorUI.localScale = new Vector3(s, s, 1f);
-				if (cursorGraphic != null) cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
+
+				cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
+				cursorGraphic.sprite = bHover ? cursorHoverSprite : cursorNormalSprite;
 			}
 
-			if (currentConfig.isIdle && bHover&& mouse.leftButton.wasPressedThisFrame)
-			{
+			if (currentConfig.isIdle && bHover&& mouse.leftButton.wasPressedThisFrame) {
 				StartCoroutine(BlinkAndAdvance());
 			}
-		}
-		else
-		{
-			Log.Info("no rect");
 		}
 	}
 
@@ -221,19 +242,13 @@ public class VideoManager : Singleton<VideoManager>
 		if (outlineImage != null) outlineImage.enabled = false;
 
 		float half = blinkDuration * 0.5f;
-		Vector2 topClosed = new Vector2(topOpenPos.x, 0f);
-		Vector2 botClosed = new Vector2(botOpenPos.x, 0f);
 
 		//Close
 		float t = 0f;
 		while (t < half) {
 			t += Time.deltaTime;
 			float u = Mathf.SmoothStep(0f, 1f, t / half);
-			blinkTop.anchoredPosition = Vector2.Lerp(topOpenPos, topClosed, u);
-			blinkBottom.anchoredPosition = Vector2.Lerp(botOpenPos, botClosed, u);
-			Color color = blinkBack.color;
-			color.a = u;
-			blinkBack.color = color;
+			ApplyBlinkAmplitude(1f - u);
 			yield return null;
 		}
 
@@ -244,18 +259,10 @@ public class VideoManager : Singleton<VideoManager>
 		while (t < half) {
 			t += Time.deltaTime;
 			float u = Mathf.SmoothStep(0f, 1f, t / half);
-			blinkTop.anchoredPosition = Vector2.Lerp(topClosed, topOpenPos, u);
-			blinkBottom.anchoredPosition = Vector2.Lerp(botClosed, botOpenPos, u);
-			Color col = blinkBack.color;
-			col.a = 1f - u;
-			blinkBack.color = col;
+			ApplyBlinkAmplitude(u);
 			yield return null;
 		}
-		blinkTop.anchoredPosition = topOpenPos;
-		blinkBottom.anchoredPosition = botOpenPos;
-		Color c = blinkBack.color;
-		c.a = 0f;
-		blinkBack.color = c;
+		ApplyBlinkAmplitude(1f);
 
 		bBlinking = false;
 	}

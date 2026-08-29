@@ -11,6 +11,10 @@ public class GameManager : Singleton<GameManager>
 	public bool bInputEnabled = true;
 
 	void Start() {
+		//uh yeah sure these can live here...
+		Shader.SetGlobalFloat("_FlickerSuppress", 0f);
+		Shader.SetGlobalFloat("_DitherSuppress", 0f);
+
 		Globals g = Globals.Instance;
 
 		bool bSpawnFromPanel = false;
@@ -92,8 +96,6 @@ public class GameManager : Singleton<GameManager>
 		player3D.name = "3DPlayer";
 
 		Vector3 spawn2D = new Vector3(spawnX, spawnY, g.world2DZ);
-		//Identity, not spawnRot: this is a billboard sprite facing the orthographic 2D camera, and nothing
-		//ever rewrites its rotation. Inheriting the marker's yaw turns it edge-on and it vanishes.
 		player2D = Instantiate(player2DPrefab, spawn2D, Quaternion.identity);
 		player2D.name = "2DPlayer";
 
@@ -101,8 +103,9 @@ public class GameManager : Singleton<GameManager>
 		GameObject.Find("3DVolume").layer = LayerMask.NameToLayer("PP3D");
 
 		GameObject camera3D = new GameObject("3DCamera");
-		camera3D.SetActive(false);
+		camera3D.SetActive(false); //so that OnEnable runs after CompositeCamera component is added
 		Camera cam3D = camera3D.AddComponent<Camera>();
+		cam3D.fieldOfView = 80f;
 		cam3D.nearClipPlane = 0.01f;
 		cam3D.GetUniversalAdditionalCameraData().SetRenderer(1);
 		cam3D.GetUniversalAdditionalCameraData().renderPostProcessing = true;
@@ -114,8 +117,6 @@ public class GameManager : Singleton<GameManager>
 
 		GameObject hand3D = GameObject.Find("hand");
 		hand3D.transform.SetParent(camera3D.transform);
-		//move hand in front of camera to debug
-		hand3D.transform.localPosition = new Vector3(0, -0.4f, 0.1f);
 
 		player2D.GetComponent<Player2DVisual>().Init(player3D.transform); //create FirstPersonLook before Player2DVisual.Init()
 

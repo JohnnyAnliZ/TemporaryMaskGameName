@@ -27,7 +27,8 @@ public class MaskDrawer : MonoBehaviour
 	Material blurMaterial;
 	Material shardMaterial;
 
-	int currentPass = 0;
+	public int currentPass = 0;
+	bool bSuspended = false;
 	RenderTexture frozenRT;
 	Transform shardParent;
 	PhysicsMaterial shardPhysMat;
@@ -37,8 +38,13 @@ public class MaskDrawer : MonoBehaviour
 	static readonly float shardSpawnDistancePullback = 0.9f;
 	static readonly float shardThickness = 0.05f;
 
-	float blackProgress = 0f;
-	Coroutine blackCoroutine;
+	float stripWidth = 1f;
+	bool bIsBlackedOut = false;
+	Coroutine stripCoroutine;
+
+	public float StripWidth => stripWidth;
+
+	float CrackProgress => Mathf.InverseLerp(1f, Globals.Instance.stripWidthUV, stripWidth);
 	List<CrackSegment> cracks = new();
 	bool cracksGenerated = false;
 
@@ -55,10 +61,8 @@ public class MaskDrawer : MonoBehaviour
 	List<CrackShard> crackShards = new();
 	RenderTexture frozen3DRT;
 
-	static readonly int CRACKS_LAYER = 30;
-	//Shards sit on this layer so a RenderObjects feature can draw them AFTER the volumetric fog pass,
-	//keeping their own materials instead of being replaced by the fog's lighting-only output.
 	int noFogLayer = -1;
+	static readonly int CRACKS_LAYER = 30;
 	static readonly float CRACK_THICKNESS_MIN = 0.004f;
 	static readonly float CRACK_THICKNESS_MAX = 0.01f;
 	GameObject cracksGO;
@@ -71,7 +75,8 @@ public class MaskDrawer : MonoBehaviour
 		shardMaterial = new Material(Shader.Find("Custom/Shard"));
 
 		noFogLayer = LayerMask.NameToLayer("NoFog");
-		if (noFogLayer < 0) Log.Error("NoFog layer is missing - shards will be flattened by the volumetric fog");
+
+		CreateCrackOverlay();
 	}
 
 	//Called by composite manager
@@ -81,7 +86,24 @@ public class MaskDrawer : MonoBehaviour
 		this.maskRT = maskRT;
 
 		cam3D.cullingMask &= ~(1 << CRACKS_LAYER); //hide from 3d camera
-		CreateCrackOverlay();
+		SyncCameras();
+	}
+
+	public void SetCamerasSuspended(bool suspended) {
+		bSuspended = suspended;
+		SyncCameras();
+	}
+
+	void SyncCameras() {
+		bool b3D = !bSuspended && currentPass > 0;
+		bool b2D = !bSuspended && currentPass < Globals.Instance.numBreaks;
+		if (cam2D.enabled != b2D || cam3D.enabled != b3D) {
+			string reason = bSuspended ? "suspended" : $"pass {currentPass}/{Globals.Instance.numBreaks}";
+			Log.Info($"2D {(b2D ? "on" : "off")}, 3D {(b3D ? "on" : "off")} ({reason})");
+		}
+
+		cam3D.enabled = b3D;
+		cam2D.enabled = b2D;
 	}
 
 	void CreateCrackOverlay() {
@@ -129,7 +151,8 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalVector("_CameraPos", new Vector4(cam2D.transform.position.x, cam2D.transform.position.y, halfW, halfH));
 		cmd.SetGlobalFloat("_CellSize", Globals.Instance.shardSize);
 		cmd.SetGlobalFloat("_ShatterBias", Globals.Instance.shatterBias);
-		cmd.SetGlobalFloat("_BlackProgress", blackProgress);
+		cmd.SetGlobalFloat("_StripWidth", stripWidth);
+		cmd.SetGlobalInt("_IsBlackedOut", bIsBlackedOut ? 1 : 0);
 		cmd.SetGlobalInt("_Num2DTo3DPasses", Globals.Instance.numBreaks);
 		cmd.SetGlobalInt("_PassIndex", currentPass);
 		cmd.DrawProcedural(Matrix4x4.identity, circleMaskMaterial, 0, MeshTopology.Triangles, 3, 1);
@@ -183,7 +206,7 @@ public class MaskDrawer : MonoBehaviour
 		int vi = 0;
 
 		foreach (CrackSegment seg in cracks) {
-			float visT = Mathf.InverseLerp(seg.startProgress, seg.endProgress, blackProgress);
+			float visT = Mathf.InverseLerp(seg.startProgress, seg.endProgress, CrackProgress);
 			if (visT <= 0f) continue;
 			Vector2 end = Vector2.Lerp(seg.start, seg.end, visT);
 			Vector2 delta = end - seg.start;
@@ -224,12 +247,14 @@ public class MaskDrawer : MonoBehaviour
 
 	public void ResetMask() {
 		currentPass = 0;
-		if (blackCoroutine != null) StopCoroutine(blackCoroutine);
-		blackProgress = 0f;
+		if (stripCoroutine != null) StopCoroutine(stripCoroutine);
+		stripWidth = 1f;
+		bIsBlackedOut = false;
 		cracks.Clear();
 		crackShards.Clear();
 		cracksGenerated = false;
 		ClearSpawnedShards();
+		SyncCameras();
 	}
 
 	//Destroy the physical 2D->3D glass shards spawned by Do_Shatter so they don't pile up across loops.
@@ -242,42 +267,54 @@ public class MaskDrawer : MonoBehaviour
 
     public void ResetMask3D() {
         currentPass = Globals.Instance.numBreaks;
-        if (blackCoroutine != null) StopCoroutine(blackCoroutine);
-        blackProgress = 0f;
+        if (stripCoroutine != null) StopCoroutine(stripCoroutine);
+        stripWidth = 1f;
+        bIsBlackedOut = false;
         cracks.Clear();
         crackShards.Clear();
         cracksGenerated = false;
+        SyncCameras();
     }
 
     //3d to live------------------------------------------------------------------------
     public void Do_ShrinkToBlack() {
 		if (!cracksGenerated) GenerateCracks();
 		int steps = Mathf.Max(1, Globals.Instance.num3DBreaks);
-		float target = Mathf.Min(1f, blackProgress + 1f / steps);
-		StartBlackAnim(target, Globals.Instance.shrinkTime);
-		AudioManager.Instance.HandleShrink(false); 
+		float full = Globals.Instance.stripWidthUV;
+		float target = Mathf.Max(full, stripWidth - (1f - full) / steps);
+		StartStripAnim(target, Globals.Instance.shrinkTime);
+		AudioManager.Instance.HandleShrink(false);
 	}
 	public void Do_ShrinkAll() {
 		if (!cracksGenerated) GenerateCracks();
-		StartBlackAnim(1f, Globals.Instance.shrinkTime);
-		AudioManager.Instance.HandleShrink(true); 
+		StartStripAnim(Globals.Instance.stripWidthUV, Globals.Instance.shrinkTime);
+		AudioManager.Instance.HandleShrink(true);
 	}
-	void StartBlackAnim(float target, float duration) {
-		if (blackCoroutine != null) StopCoroutine(blackCoroutine);
-		blackCoroutine = StartCoroutine(AnimateBlack(target, duration));
+
+	public void SetStripWidth(float width) {
+		if (stripCoroutine != null) StopCoroutine(stripCoroutine);
+		stripCoroutine = null;
+		stripWidth = Mathf.Clamp01(width);
+		bIsBlackedOut = false;
 	}
-	IEnumerator AnimateBlack(float target, float duration) {
-		float start = blackProgress;
+
+	void StartStripAnim(float target, float duration) {
+		if (stripCoroutine != null) StopCoroutine(stripCoroutine);
+		stripCoroutine = StartCoroutine(AnimateStrip(target, duration));
+	}
+	IEnumerator AnimateStrip(float target, float duration) {
+		float start = stripWidth;
 		float t = 0f;
 		while (t < duration) {
 			t += Time.deltaTime;
-			blackProgress = Mathf.Lerp(start, target, Mathf.SmoothStep(0f, 1f, t / duration));
+			stripWidth = Mathf.Lerp(start, target, Mathf.SmoothStep(0f, 1f, t / duration));
 			yield return null;
 		}
-		blackProgress = target;
-		blackCoroutine = null;
+		stripWidth = target;
+		stripCoroutine = null;
 
-		if (blackProgress >= 0.999f) {
+		if (stripWidth <= Globals.Instance.stripWidthUV + 0.001f) {
+			bIsBlackedOut = true;
 			yield return new WaitForSeconds(0.5f);
 			Do_ShatterCracks();
 		}
@@ -289,7 +326,7 @@ public class MaskDrawer : MonoBehaviour
 
 		//Rasterize
 		foreach (var seg in cracks) {
-			float visT = Mathf.InverseLerp(seg.startProgress, seg.endProgress, blackProgress);
+			float visT = Mathf.InverseLerp(seg.startProgress, seg.endProgress, CrackProgress);
 			if (visT <= 0f) continue;
 			Vector2 segEnd = Vector2.Lerp(seg.start, seg.end, visT);
 			int widthPx = Mathf.Max(1, Mathf.CeilToInt(seg.thickness * GRID));
@@ -298,13 +335,13 @@ public class MaskDrawer : MonoBehaviour
 
 		//Flood Fill regionId: -2=outside the visible strip (skip entirely),
 		//-1=crack cell (absorbed later by BFS), 0=unassigned non-crack, >=1=region index.
-		const float STRIP_HALF_UV = 0.15f; //matches DrawMaskShader's video_width_uv * 0.5
+		float stripHalfUV = Globals.Instance.stripWidthUV * 0.5f;
 		int[,] regionId = new int[GRID, GRID];
 		float cellSizeUV = 1f / GRID;
 		for (int y = 0; y < GRID; y++) {
 			for (int x = 0; x < GRID; x++) {
 				float cellCenterX = (x + 0.5f) * cellSizeUV;
-				bool inStrip = Mathf.Abs(cellCenterX - 0.5f) <= STRIP_HALF_UV;
+				bool inStrip = Mathf.Abs(cellCenterX - 0.5f) <= stripHalfUV;
 				if (!inStrip) regionId[x, y] = -2;
 				else regionId[x, y] = isCrack[x, y] ? -1 : 0;
 			}
@@ -560,6 +597,8 @@ public class MaskDrawer : MonoBehaviour
 
 		int revealingPass = currentPass;
 		currentPass++;
+
+		SyncCameras();
 
 		//Capture current 2D camera to put on shards
 		Texture camATex = Shader.GetGlobalTexture("_CameraA_Tex");

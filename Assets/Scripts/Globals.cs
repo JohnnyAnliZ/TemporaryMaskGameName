@@ -23,6 +23,7 @@ public class Globals : ScriptableObject {
 	[Header("3D Break")]
 	public int num3DBreaks = 3;
 	public float shrinkTime = 0.25f;
+	public float stripWidthUV = 0.316f; //(720/1280) / (16/9) = 0.316
 	public float branching = 0.12f;
 	public int maxTips = 50;
 	public float panDuration = 5f;

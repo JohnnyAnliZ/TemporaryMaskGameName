@@ -22,3 +22,343 @@ MonoBehaviour:
       type: {class: Trans3DSubsection, ns: , asm: Assembly-CSharp}
       data:
         name: HandRub
+        part1:
+          startFrame: 10
+          endFrame: 73
+          speed: 0.4
+          keyframes:
+          - frame: 0
+            handLocalPos: {x: 0, y: -0.4, z: 0.08}
+            cameraPos: {x: -14.5, y: 6.5, z: 196.3}
+            cameraEuler: {x: 60, y: -88.5, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve: []
+              m_PreInfinity: 0
+              m_PostInfinity: 0
+              m_RotationOrder: 0
+          - frame: 12
+            handLocalPos: {x: 0, y: -0.4, z: 0.13}
+            cameraPos: {x: -14.5, y: 6.5, z: 196.3}
+            cameraEuler: {x: 50, y: -91.5, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 26
+            handLocalPos: {x: 0, y: -0.4, z: 0.18}
+            cameraPos: {x: -14.5, y: 6.5, z: 196.3}
+            cameraEuler: {x: 60, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 50
+            handLocalPos: {x: 0, y: -0.4, z: 0.4}
+            cameraPos: {x: -13.9, y: 6.9, z: 196.36}
+            cameraEuler: {x: 17, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 55
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -13.9, y: 6.75, z: 196.35}
+            cameraEuler: {x: 31, y: -91, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 63
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -13.8, y: 6.8, z: 196.35}
+            cameraEuler: {x: 15, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 2
+                outSlope: 2
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+        part2:
+          startFrame: 100
+          endFrame: 226
+          speed: 0.63
+          keyframes:
+          - frame: 0
+            handLocalPos: {x: 0, y: -0.4, z: 0}
+            cameraPos: {x: -13.8, y: 6.8, z: 196.35}
+            cameraEuler: {x: 15, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 35
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -14, y: 6.8, z: 196.3}
+            cameraEuler: {x: 20, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 60
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -14.5, y: 6.5, z: 196.3}
+            cameraEuler: {x: 60, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 80
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -14.5, y: 6.5, z: 196.3}
+            cameraEuler: {x: 70, y: -88, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 100
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -14.45, y: 6.4, z: 196.3}
+            cameraEuler: {x: 55, y: -92, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+          - frame: 126
+            handLocalPos: {x: 0, y: -0.4, z: 0.1}
+            cameraPos: {x: -14.5, y: 6.5, z: 196.3}
+            cameraEuler: {x: 60, y: -90, z: 0}
+            easeIn:
+              serializedVersion: 2
+              m_Curve:
+              - serializedVersion: 3
+                time: 0
+                value: 0
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              - serializedVersion: 3
+                time: 1
+                value: 1
+                inSlope: 0
+                outSlope: 0
+                tangentMode: 0
+                weightedMode: 0
+                inWeight: 0
+                outWeight: 0
+              m_PreInfinity: 2
+              m_PostInfinity: 2
+              m_RotationOrder: 0
+        resumeHotspot:
+          serializedVersion: 2
+          x: 0.37
+          y: 0.3
+          width: 0.28
+          height: 0.6
+        debugSkipToPause: 0
+        stripWidth: 0.45
+        wobbleMin: 0.2
+        wobbleMax: 1
+        wobbleSpeed: 1.5
+        caMultiplier: 2.5

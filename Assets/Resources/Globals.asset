@@ -28,6 +28,7 @@ MonoBehaviour:
   shardSpinRange: {x: -180, y: 180}
   num3DBreaks: 5
   shrinkTime: 0.25
+  stripWidthUV: 0.4
   branching: 0.12
   maxTips: 50
   panDuration: 5

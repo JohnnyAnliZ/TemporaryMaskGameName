@@ -44,3 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5b2eec422b7010419e9825ea592bfea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CompositeManager
+  cameraA: {fileID: 0}
+  cameraB: {fileID: 0}
+  maskDrawer: {fileID: 0}
+  outputCam: {fileID: 0}
+  wobbleMin: 0
+  wobbleMax: 0.5
+  wobbleSpeed: 0.25
+  caMultiplier: 1

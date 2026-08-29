@@ -15,7 +15,8 @@ Shader "Custom/CircleMask"
 
 			int _PassIndex;		// 0, 1, 2, ... _Num2DTo3DPasses-1
 			int _Num2DTo3DPasses;		// total number of passes to fill the mask for 2D to 3D conversion
-			float _BlackProgress;	// 0-1, float for animation
+			float _StripWidth;	// visible fraction of screen width: 1 = full 16:9, 0.316 = the live-action video
+			int _IsBlackedOut;	// the snap to black that used to be _BlackProgress == 1
 			float _CellSize;	// size of the Voronoi cells in pixels
 			float _ShatterBias;	// >1 skews toward later passes revealing more cells
 			float4 _CameraPos;	// world-space camera position for stable hashing
@@ -99,23 +100,15 @@ Shader "Custom/CircleMask"
 				uint assignedPass = (int)(biased * _Num2DTo3DPasses);
 				assignedPass = min(assignedPass, _Num2DTo3DPasses - 1);
 
-				if (assignedPass >= _PassIndex) discard;
+				// Every pixel writes now instead of discarding. The old discard sat above the strip test, so in
+				// 2D mode (_PassIndex 0, where every cell discards) ret.g never got written and the bars could
+				// not appear at all. The target is cleared each frame, so writing 0 is the same thing.
+				half4 ret = half4(0.0, 0.0, 0.0, 0.0);
+				if (assignedPass < _PassIndex) ret.r = 1.0; // first channel: the 2D->3D reveal
 
-				half4 ret = half4(1.0, 0.0, 0.0, 0.0);//set the first channel(2D to 3D)
-
-				float video_width_uv = 0.3; // the width of the video in UV space, tweak to taste
-				if (_BlackProgress >= 1.0) {
-					ret.g = 1.0;
-				} else if (_BlackProgress > 0.0) {
-					// half-width of the visible middle strip:
-					// starts at 0.5 (whole screen visible), ends at video_width_uv/2
-					float visibleHalfWidth = lerp(0.5, video_width_uv * 0.5, saturate(_BlackProgress));
-
-					float distFromCenter = abs(i.uv.x - 0.5);
-
-					if (distFromCenter > visibleHalfWidth) {
-						ret.g = 1.0; // red needs to stay for composite to read because of blur pass
-					}
+				// _StripWidth is the visible fraction of screen width outright, so each section holds its own.
+				if (_IsBlackedOut || abs(i.uv.x - 0.5) > _StripWidth * 0.5) {
+					ret.g = 1.0; // red needs to stay for composite to read because of blur pass
 				}
 
 				return ret;
