@@ -67,6 +67,10 @@ Shader "Custom/DarkDither"
 			//which means the dither runs normally: the safe default everywhere else.
 			float _DitherSuppress;
 
+			//Also a global, for the same reason: Player3DController drives it over a respawn, and a material
+			//property of the same name would shadow it.
+			float _FadeToBlack;
+
 			static const float kBayer[16] =
 			{
 				 0.0,  8.0,  2.0, 10.0,
@@ -102,7 +106,10 @@ Shader "Custom/DarkDither"
 				float lum = dot(col.rgb, float3(0.2126, 0.7152, 0.0722));
 				float range = max(_DitherThreshold, 1e-4);
 				float amount = _Amount * (1.0 - saturate(_DitherSuppress));
-				if (lum >= range || amount <= 0.0) return col;
+
+				//Guarded rather than returned early, because the respawn fade at the bottom has to run on
+				//every pixel - including the bright ones the dither skips.
+				if (lum < range && amount > 0.0) {
 
 				//Fade out at the top of the range so dithered and undithered areas meet without a hard seam
 				float darkness = 1.0 - smoothstep(range * 0.75, range, lum);
@@ -149,6 +156,12 @@ Shader "Custom/DarkDither"
 				float3 dithered = col.rgb + (quantised - lum);
 
 				col.rgb = saturate(lerp(col.rgb, dithered, darkness * amount));
+				}
+
+				//Respawn fade, driven by Player3DController. Folded into this pass rather than given its own
+				//fullscreen blit: this pass already reads and writes every pixel, so riding along costs one
+				//multiply instead of a second full-resolution read and write every frame.
+				col.rgb *= 1.0 - saturate(_FadeToBlack);
 				return col;
 			}
 			ENDHLSL

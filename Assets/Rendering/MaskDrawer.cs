@@ -7,14 +7,6 @@ using UnityEngine.Rendering.Universal;
 using Random = UnityEngine.Random;
 
 
-public struct CrackSegment {
-	public Vector2 start;
-	public Vector2 end;
-	public float startProgress;
-	public float endProgress;
-	public float thickness;
-}
-
 public class MaskDrawer : MonoBehaviour
 {
 	CommandBuffer cmd;
@@ -40,16 +32,40 @@ public class MaskDrawer : MonoBehaviour
 
 	float stripWidth = 1f;
 	bool bIsBlackedOut = false;
-	Coroutine stripCoroutine;
+	Coroutine breakCoroutine;
 
 	public float StripWidth => stripWidth;
 
-	float CrackProgress => Mathf.InverseLerp(1f, Globals.Instance.stripWidthUV, stripWidth);
-	List<CrackSegment> cracks = new();
-	bool cracksGenerated = false;
+	float breakProgress = 0f;
 
-	//Keep track manually, no rigidbody
-	class CrackShard {
+	//Voronoi glass for the 3D->Live break. Cells are built once, then two fronts sweep in from the sides:
+	//cracks appear at CrackFront, shards detach and fall once ShatterFront reaches them. The black left
+	//behind is the glass that actually fell, not a separate wipe.
+	//A piece of glass lives as a GlassShard while it's still in the frame, then becomes a FallingShard.
+	struct CrackSegment {
+		public Vector2 start;      //the end it grows out from
+		public Vector2 end;
+		public float startDepth;   //front value when it starts drawing
+		public float endDepth;     //front value when it's fully drawn
+		public float thickness;
+		public float glint;        //0 for most; only a few catch the light
+		public int shardA, shardB; //either side; the crack goes when either one falls
+	}
+	class GlassCell {
+		public int id;           //index into the cell array, so cracks can find the shard owning it
+		public Vector2[] poly;
+		public Vector2 centroid;
+		public float depth;      //when the cracking reached it, in reveal units
+	}
+	//One or more cells merged across undrawn edges. Falls as a single piece.
+	class GlassShard {
+		public List<GlassCell> cells = new();
+		public Vector2 centroid;
+		public float depth;
+		public bool fallen;
+	}
+	//Detached, mid-air. Hand-rolled rather than rigidbodies since it's UV-space, not world-space.
+	class FallingShard {
 		public Vector2[] localVerts;
 		public Vector2[] origUVs;
 		public int[] tris;
@@ -58,13 +74,54 @@ public class MaskDrawer : MonoBehaviour
 		public float rot;
 		public float angVel;
 	}
-	List<CrackShard> crackShards = new();
+
+	List<CrackSegment> cracks = new();
+	List<GlassShard> glassShards = new(); //sorted by depth, which is also the order they fall
+	List<FallingShard> fallingShards = new();
+	List<Vector2[]> blackPolys = new();   //footprints of shards that have fallen
+	bool cracksGenerated = false;
+	int nextFall;
+	float lastFallTime;
+	bool bFinalCollapse; //last break landed: the ceiling comes off and the whole mirror lets go
 	RenderTexture frozen3DRT;
+
+	//Mesh scratch, reused every rebuild rather than reallocated. uv2.x = -1..1 across a crack's width;
+	//uv2.y picks the shading (0 = frozen capture, 1 = crack, 2 = live 3D view); uv2.z = glint.
+	//Vertex colour alpha carries the crack tip taper.
+	readonly List<Vector3> verts = new();
+	readonly List<Vector2> uvs = new();
+	readonly List<Vector3> uv2s = new();
+	readonly List<Color> colors = new();
+	readonly List<int> tris = new();
+
+	static readonly int GLASS_ROWS = 14;
+	static readonly float GLASS_EDGE_BIAS = 0.6f;      //<1 packs sites toward the side edges
+	static readonly float GLASS_MERGE_CHANCE = 0.1f;  //edges left undrawn, merging their cells into bigger shards
+	static readonly float CRACK_REACH = 1f;            //how deep cracks get by the end; 1 = the centre line
+	static readonly float SHARD_FALL_INTERVAL = 0.05f; //one shard at a time, so it crumbles instead of dropping in slabs
+	static readonly int CRACK_SUBDIV = 3;
+	static readonly float CRACK_WANDER = 0.1f;        //perpendicular wander as a fraction of edge length
+	static readonly int CRACK_SEEDS_PER_SIDE = 8;      //more seeds = more uniform front, fewer = distinct fingers
+	static readonly float CRACK_SPEED_VARIANCE = 3f;   //fastest:slowest route ratio; this is what makes fingers
+	static readonly float CRACK_PATH_WEIGHT = 0.5f;   //0 = flat x front, 1 = unbounded network fingers
+	static readonly float SHARD_DRIFT = 0.1f;        //ceiling on how far a loosened shard refracts, in UV
+	static readonly float SHATTER_EAGERNESS = 0.8f;  //<1 runs the shatter front closer behind the cracks, so more falls per break
+	static readonly float FINAL_COLLAPSE_SCALE = 0.15f; //the last of the mirror comes down this much quicker as it goes
+	static readonly float CRACK_GLINT_CHANCE = 0.2f; //fraction of cracks that catch the light; the rest stay dark
+	static readonly float CRACK_TIP_FADE = 0.03f;     //depth band the advancing tip fades over, so it comes to a point
+
+	//Both fronts run over the reveal metric from GenerateCracks: 0 at the side edges, 1 at the centre line.
+	//Stated as where each front lands at the end rather than as a speed ratio -- as a ratio the cracks hit
+	//the centre at half progress and had nothing left to do. The lead falls out of the gap between them.
+	float ShatterReach => 1f - Globals.Instance.stripWidthUV; //the strip edge; the final collapse takes the rest
+	//Curved so the shatter front sits closer behind the cracks; the gap is the cracked-but-standing band.
+	float ShatterFront => bFinalCollapse ? 1f : Mathf.Pow(breakProgress, SHATTER_EAGERNESS) * ShatterReach;
+	float CrackFront => breakProgress * CRACK_REACH;
 
 	int noFogLayer = -1;
 	static readonly int CRACKS_LAYER = 30;
-	static readonly float CRACK_THICKNESS_MIN = 0.004f;
-	static readonly float CRACK_THICKNESS_MAX = 0.01f;
+	static readonly float CRACK_THICKNESS_MIN = 0.0015f;
+	static readonly float CRACK_THICKNESS_MAX = 0.004f;
 	GameObject cracksGO;
 	Mesh cracksMesh;
 	Material cracksMat;
@@ -112,7 +169,7 @@ public class MaskDrawer : MonoBehaviour
 		cracksGO.transform.SetParent(transform, false);
 		cracksGO.transform.position = Vector3.zero; //prevent frustrum cull
 		cracksMesh = new Mesh { name = "CracksMesh" };
-		cracksMesh.indexFormat = IndexFormat.UInt32; //just to be safe for our 128 grid size
+		cracksMesh.indexFormat = IndexFormat.UInt32; //cracks + shards overrun 16-bit indices
 		cracksMesh.MarkDynamic();
 		cracksMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 10000f);
 		cracksGO.AddComponent<MeshFilter>().sharedMesh = cracksMesh;
@@ -151,6 +208,8 @@ public class MaskDrawer : MonoBehaviour
 		cmd.SetGlobalVector("_CameraPos", new Vector4(cam2D.transform.position.x, cam2D.transform.position.y, halfW, halfH));
 		cmd.SetGlobalFloat("_CellSize", Globals.Instance.shardSize);
 		cmd.SetGlobalFloat("_ShatterBias", Globals.Instance.shatterBias);
+		//Purely the section's framing now. The break leaves this alone and puts its black down as the
+		//footprints of shards that actually fell, so there's no rectangle closing in over the top of them.
 		cmd.SetGlobalFloat("_StripWidth", stripWidth);
 		cmd.SetGlobalInt("_IsBlackedOut", bIsBlackedOut ? 1 : 0);
 		cmd.SetGlobalInt("_Num2DTo3DPasses", Globals.Instance.numBreaks);
@@ -189,7 +248,8 @@ public class MaskDrawer : MonoBehaviour
 
 		Graphics.ExecuteCommandBuffer(cmd);
 
-		UpdateCrackShards(Time.deltaTime);
+		UpdateShatter();
+		UpdateFallingShards(Time.deltaTime);
 		RebuildCracksMesh();
 	}
 
@@ -197,33 +257,79 @@ public class MaskDrawer : MonoBehaviour
 	void RebuildCracksMesh() {
 		if (cracksMesh == null) return;
 		cracksMesh.Clear();
-		if (cracks.Count == 0 && crackShards.Count == 0) return;
+		if (cracks.Count == 0 && fallingShards.Count == 0 && blackPolys.Count == 0) return;
 
-		var verts = new List<Vector3>();
-		var uvs = new List<Vector2>();
-		var colors = new List<Color>();
-		var tris = new List<int>();
+		verts.Clear(); uvs.Clear(); uv2s.Clear(); colors.Clear(); tris.Clear();
 		int vi = 0;
 
+		//Where glass has already fallen: ragged black following the cell boundaries, so the hole matches
+		//the shard that left rather than the hard rectangular strip edge underneath it.
+		foreach (Vector2[] poly in blackPolys) {
+			for (int i = 0; i < poly.Length; i++) {
+				verts.Add(poly[i]); uvs.Add(poly[i]); uv2s.Add(Vector3.zero); colors.Add(Color.black);
+			}
+			for (int i = 1; i < poly.Length - 1; i++) {
+				tris.Add(vi); tris.Add(vi + i); tris.Add(vi + i + 1);
+			}
+			vi += poly.Length;
+		}
+
+		//Cracked but still standing: no longer part of one flat mirror, so it's drawn as its own geometry
+		//sampling the live view through an offset, refracting out of line with its neighbours. The offset
+		//grows as the shatter front closes in, so a shard works its way loose before it drops.
+		float shatterFront = ShatterFront;
+		for (int gi = 0; gi < glassShards.Count; gi++) {
+			GlassShard g = glassShards[gi];
+			if (g.fallen || g.depth > CrackFront) continue;
+			float loose = g.depth > 0f ? Mathf.Clamp01(shatterFront / g.depth) : 1f;
+			Vector2 drift = ShardDrift(gi) * (loose * SHARD_DRIFT);
+			foreach (GlassCell cell in g.cells) {
+				for (int i = 0; i < cell.poly.Length; i++) {
+					verts.Add(cell.poly[i]);
+					uvs.Add(cell.poly[i] + drift);
+					uv2s.Add(new Vector3(0f, 2f, 0f));
+					colors.Add(Color.white);
+				}
+				for (int i = 1; i < cell.poly.Length - 1; i++) {
+					tris.Add(vi); tris.Add(vi + i); tris.Add(vi + i + 1);
+				}
+				vi += cell.poly.Length;
+			}
+		}
+
+		float front = CrackFront;
 		foreach (CrackSegment seg in cracks) {
-			float visT = Mathf.InverseLerp(seg.startProgress, seg.endProgress, CrackProgress);
+			//A crack is the gap between two shards, so it exists only while both are still standing.
+			if (glassShards[seg.shardA].fallen || glassShards[seg.shardB].fallen) continue;
+			//Draw the segment part-way as the front passes over it, so a crack visibly runs outward from
+			//the end it grew from instead of popping in whole.
+			float visT = Mathf.Clamp01(Mathf.InverseLerp(seg.startDepth, seg.endDepth, front));
 			if (visT <= 0f) continue;
-			Vector2 end = Vector2.Lerp(seg.start, seg.end, visT);
-			Vector2 delta = end - seg.start;
+			Vector2 tip = Vector2.Lerp(seg.start, seg.end, visT);
+			Vector2 delta = tip - seg.start;
 			if (delta.sqrMagnitude < 1e-8f) continue;
 			Vector2 dir = delta.normalized;
 			Vector2 perp = new Vector2(-dir.y, dir.x) * (seg.thickness * 0.5f);
 
-			Vector2 v0 = seg.start - perp, v1 = seg.start + perp, v2 = end + perp, v3 = end - perp;
+			//Taper the advancing tip to nothing. Keyed on depth rather than on the segment, so the fade is
+			//continuous as the front crosses from one segment into the next instead of resetting at joints.
+			//At the growing tip the lerped depth equals the front exactly, so it comes to a true point.
+			float tipDepth = Mathf.Lerp(seg.startDepth, seg.endDepth, visT);
+			Color cStart = new(0f, 0f, 0f, Mathf.Clamp01((front - seg.startDepth) / CRACK_TIP_FADE));
+			Color cTip = new(0f, 0f, 0f, Mathf.Clamp01((front - tipDepth) / CRACK_TIP_FADE));
+
+			Vector2 v0 = seg.start - perp, v1 = seg.start + perp, v2 = tip + perp, v3 = tip - perp;
 			verts.Add(v0); verts.Add(v1); verts.Add(v2); verts.Add(v3);
 			uvs.Add(v0);   uvs.Add(v1);   uvs.Add(v2);   uvs.Add(v3);
-			colors.Add(Color.black); colors.Add(Color.black); colors.Add(Color.black); colors.Add(Color.black);
+			uv2s.Add(new Vector3(-1f, 1f, seg.glint)); uv2s.Add(new Vector3(1f, 1f, seg.glint));
+			uv2s.Add(new Vector3(1f, 1f, seg.glint));  uv2s.Add(new Vector3(-1f, 1f, seg.glint));
+			colors.Add(cStart); colors.Add(cStart); colors.Add(cTip); colors.Add(cTip);
 			tris.Add(vi + 0); tris.Add(vi + 1); tris.Add(vi + 2);
 			tris.Add(vi + 0); tris.Add(vi + 2); tris.Add(vi + 3);
 			vi += 4;
 		}
 
-		foreach (CrackShard s in crackShards) {
+		foreach (FallingShard s in fallingShards) {
 			float cs = Mathf.Cos(s.rot);
 			float sn = Mathf.Sin(s.rot);
 			int baseIdx = vi;
@@ -232,6 +338,7 @@ public class MaskDrawer : MonoBehaviour
 				Vector2 rotated = new Vector2(lv.x * cs - lv.y * sn, lv.x * sn + lv.y * cs);
 				verts.Add((Vector3)(s.pos + rotated));
 				uvs.Add(s.origUVs[i]);
+				uv2s.Add(Vector3.zero);
 				colors.Add(Color.white);
 			}
 			for (int i = 0; i < s.tris.Length; i++) tris.Add(baseIdx + s.tris[i]);
@@ -240,6 +347,7 @@ public class MaskDrawer : MonoBehaviour
 
 		cracksMesh.SetVertices(verts);
 		cracksMesh.SetUVs(0, uvs);
+		cracksMesh.SetUVs(1, uv2s);
 		cracksMesh.SetColors(colors);
 		cracksMesh.SetTriangles(tris, 0, calculateBounds: false);
 		cracksMesh.bounds = new Bounds(Vector3.zero, Vector3.one * 10000f);
@@ -247,14 +355,28 @@ public class MaskDrawer : MonoBehaviour
 
 	public void ResetMask() {
 		currentPass = 0;
-		if (stripCoroutine != null) StopCoroutine(stripCoroutine);
 		stripWidth = 1f;
+		breakProgress = 0f;
 		bIsBlackedOut = false;
 		cracks.Clear();
-		crackShards.Clear();
+		fallingShards.Clear();
 		cracksGenerated = false;
+		ClearGlass();
 		ClearSpawnedShards();
 		SyncCameras();
+	}
+
+	//The voronoi glass rebuilds itself on the next shrink, but the fallen-cell footprints and the fall queue
+	//would otherwise carry over and leave the mirror already broken on a second run through.
+	void ClearGlass() {
+		//Cancel the propagation too -- a reset landing inside its blackout wait would otherwise still black
+		//out and shatter half a second into whatever came next.
+		if (breakCoroutine != null) StopCoroutine(breakCoroutine);
+		breakCoroutine = null;
+		glassShards.Clear();
+		blackPolys.Clear();
+		nextFall = 0;
+		bFinalCollapse = false;
 	}
 
 	//Destroy the physical 2D->3D glass shards spawned by Do_Shatter so they don't pile up across loops.
@@ -265,326 +387,452 @@ public class MaskDrawer : MonoBehaviour
 		}
 	}
 
-    public void ResetMask3D() {
-        currentPass = Globals.Instance.numBreaks;
-        if (stripCoroutine != null) StopCoroutine(stripCoroutine);
-        stripWidth = 1f;
-        bIsBlackedOut = false;
-        cracks.Clear();
-        crackShards.Clear();
-        cracksGenerated = false;
-        SyncCameras();
-    }
+	public void ResetMask3D() {
+		currentPass = Globals.Instance.numBreaks;
+		stripWidth = 1f;
+		breakProgress = 0f;
+		bIsBlackedOut = false;
+		cracks.Clear();
+		fallingShards.Clear();
+		cracksGenerated = false;
+		ClearGlass();
+		SyncCameras();
+	}
 
-    //3d to live------------------------------------------------------------------------
-    public void Do_ShrinkToBlack() {
+	//3d to live------------------------------------------------------------------------
+	//The break has its own clock, not stripWidth: driving it from the strip meant a section setting its
+	//framing also declared the mirror half-broken. Falling isn't tied to the propagation either -- shards
+	//leave one at a time and trail behind the front.
+	public void Do_ShrinkToBlack() {
 		if (!cracksGenerated) GenerateCracks();
 		int steps = Mathf.Max(1, Globals.Instance.num3DBreaks);
-		float full = Globals.Instance.stripWidthUV;
-		float target = Mathf.Max(full, stripWidth - (1f - full) / steps);
-		StartStripAnim(target, Globals.Instance.shrinkTime);
+		StartBreakAnim(Mathf.Clamp01(breakProgress + 1f / steps), Globals.Instance.shrinkTime);
 		AudioManager.Instance.HandleShrink(false);
 	}
 	public void Do_ShrinkAll() {
 		if (!cracksGenerated) GenerateCracks();
-		StartStripAnim(Globals.Instance.stripWidthUV, Globals.Instance.shrinkTime);
+		StartBreakAnim(1f, Globals.Instance.shrinkTime);
 		AudioManager.Instance.HandleShrink(true);
 	}
 
 	public void SetStripWidth(float width) {
-		if (stripCoroutine != null) StopCoroutine(stripCoroutine);
-		stripCoroutine = null;
 		stripWidth = Mathf.Clamp01(width);
 		bIsBlackedOut = false;
 	}
 
-	void StartStripAnim(float target, float duration) {
-		if (stripCoroutine != null) StopCoroutine(stripCoroutine);
-		stripCoroutine = StartCoroutine(AnimateStrip(target, duration));
+	void StartBreakAnim(float target, float duration) {
+		if (breakCoroutine != null) StopCoroutine(breakCoroutine);
+		breakCoroutine = StartCoroutine(AnimateBreak(target, duration));
 	}
-	IEnumerator AnimateStrip(float target, float duration) {
-		float start = stripWidth;
+	IEnumerator AnimateBreak(float target, float duration) {
+		float start = breakProgress;
 		float t = 0f;
 		while (t < duration) {
 			t += Time.deltaTime;
-			stripWidth = Mathf.Lerp(start, target, Mathf.SmoothStep(0f, 1f, t / duration));
+			breakProgress = Mathf.Lerp(start, target, Mathf.SmoothStep(0f, 1f, t / duration));
 			yield return null;
 		}
-		stripWidth = target;
-		stripCoroutine = null;
+		breakProgress = target;
+		breakCoroutine = null;
 
-		if (stripWidth <= Globals.Instance.stripWidthUV + 0.001f) {
-			bIsBlackedOut = true;
-			yield return new WaitForSeconds(0.5f);
-			Do_ShatterCracks();
-		}
+		//Lifts the ceiling on the shatter front so the centre band becomes eligible too, and the usual
+		//cascade takes the rest down. Dumping it all in one frame read as a wall of glass moving together.
+		if (breakProgress >= 0.999f) bFinalCollapse = true;
 	}
 
-	public void Do_ShatterCracks() {
-		const int GRID = 128;
-		bool[,] isCrack = new bool[GRID, GRID];
-
-		//Rasterize
-		foreach (var seg in cracks) {
-			float visT = Mathf.InverseLerp(seg.startProgress, seg.endProgress, CrackProgress);
-			if (visT <= 0f) continue;
-			Vector2 segEnd = Vector2.Lerp(seg.start, seg.end, visT);
-			int widthPx = Mathf.Max(1, Mathf.CeilToInt(seg.thickness * GRID));
-			RasterizeSegment(seg.start, segEnd, widthPx, GRID, isCrack);
-		}
-
-		//Flood Fill regionId: -2=outside the visible strip (skip entirely),
-		//-1=crack cell (absorbed later by BFS), 0=unassigned non-crack, >=1=region index.
-		float stripHalfUV = Globals.Instance.stripWidthUV * 0.5f;
-		int[,] regionId = new int[GRID, GRID];
-		float cellSizeUV = 1f / GRID;
-		for (int y = 0; y < GRID; y++) {
-			for (int x = 0; x < GRID; x++) {
-				float cellCenterX = (x + 0.5f) * cellSizeUV;
-				bool inStrip = Mathf.Abs(cellCenterX - 0.5f) <= stripHalfUV;
-				if (!inStrip) regionId[x, y] = -2;
-				else regionId[x, y] = isCrack[x, y] ? -1 : 0;
+	//Exactly one shard per interval, never more -- keeping pace with the front made it come down in clumps.
+	//Total cascade length is shard count x SHARD_FALL_INTERVAL; the count is logged on generate.
+	void UpdateShatter() {
+		if (nextFall < glassShards.Count && glassShards[nextFall].depth <= ShatterFront) {
+			//Coming down for good: each piece follows the last a little quicker, so the ending accelerates.
+			float interval = SHARD_FALL_INTERVAL;
+			if (bFinalCollapse) {
+				interval *= Mathf.Lerp(1f, FINAL_COLLAPSE_SCALE, (float)nextFall / glassShards.Count);
 			}
+			if (Time.time - lastFallTime < interval) return;
+			lastFallTime = Time.time;
+			CaptureCurrentView();
+			DetachShard(glassShards[nextFall++]);
+			return;
 		}
 
-		var regions = new List<List<Vector2Int>>();
-		var queue = new Queue<Vector2Int>();
-		int[] dx = { 1, -1, 0, 0 }, dy = { 0, 0, 1, -1 };
-		for (int y = 0; y < GRID; y++) {
-			for (int x = 0; x < GRID; x++) {
-				if (regionId[x, y] != 0) continue;
-				int id = regions.Count + 1;
-				var cells = new List<Vector2Int>();
-				queue.Clear();
-				queue.Enqueue(new Vector2Int(x, y));
-				regionId[x, y] = id;
-				while (queue.Count > 0) {
-					var c = queue.Dequeue();
-					cells.Add(c);
-					for (int i = 0; i < 4; i++) {
-						int nx = c.x + dx[i], ny = c.y + dy[i];
-						if (nx < 0 || nx >= GRID || ny < 0 || ny >= GRID) continue;
-						if (regionId[nx, ny] != 0) continue;
-						regionId[nx, ny] = id;
-						queue.Enqueue(new Vector2Int(nx, ny));
-					}
-				}
-				regions.Add(cells);
-			}
-		}
+		//Nothing left standing. Black out only now -- doing it when the last break finished meant shards
+		//were still coming down over a frame that had already gone black.
+		if (bFinalCollapse && nextFall >= glassShards.Count) bIsBlackedOut = true;
+	}
 
-		//BFS expand regions so no gaps remain
-		queue.Clear();
-		for (int y = 0; y < GRID; y++)
-			for (int x = 0; x < GRID; x++)
-				if (regionId[x, y] >= 1) queue.Enqueue(new Vector2Int(x, y));
-		while (queue.Count > 0) {
-			var c = queue.Dequeue();
-			int myId = regionId[c.x, c.y];
-			for (int i = 0; i < 4; i++) {
-				int nx = c.x + dx[i], ny = c.y + dy[i];
-				if (nx < 0 || nx >= GRID || ny < 0 || ny >= GRID) continue;
-				if (regionId[nx, ny] != -1) continue; //only absorb unassigned crack cells
-				regionId[nx, ny] = myId;
-				regions[myId - 1].Add(new Vector2Int(nx, ny));
-				queue.Enqueue(new Vector2Int(nx, ny));
-			}
-		}
-
-		//Capture 3d camera onto shards
+	//Re-taken on every detach, so a shard freezes the view as it was at the instant it came away. Capturing
+	//once at the first fall meant only that first shard matched the screen and everything after it carried
+	//a stale frame. One blit per shard, and they're tens of milliseconds apart, so the cost is nothing.
+	void CaptureCurrentView() {
 		Texture camBTex = Shader.GetGlobalTexture("_CameraB_Tex");
-		if (camBTex != null) {
-			if (frozen3DRT == null || frozen3DRT.width != camBTex.width || frozen3DRT.height != camBTex.height) {
-				if (frozen3DRT != null) frozen3DRT.Release();
-				frozen3DRT = new RenderTexture(camBTex.width, camBTex.height, 0, RenderTextureFormat.ARGB32);
-			}
-			Graphics.Blit(camBTex, frozen3DRT);
-			if (cracksMat != null) cracksMat.mainTexture = frozen3DRT;
-		}
+		if (camBTex == null) return;
 
-		foreach (var cells in regions) {
-			if (cells.Count < 4) continue;
-			SpawnRegionShard(cells, GRID);
+		if (frozen3DRT == null || frozen3DRT.width != camBTex.width || frozen3DRT.height != camBTex.height) {
+			if (frozen3DRT != null) frozen3DRT.Release();
+			frozen3DRT = new RenderTexture(camBTex.width, camBTex.height, 0, RenderTextureFormat.ARGB32);
 		}
-
-		cracks.Clear();
-		RebuildCracksMesh();
+		Graphics.Blit(camBTex, frozen3DRT);
+		if (cracksMat != null) cracksMat.mainTexture = frozen3DRT;
 	}
 
-	void RasterizeSegment(Vector2 start, Vector2 end, int widthPx, int grid, bool[,] isCrack) {
-		float dxf = end.x - start.x, dyf = end.y - start.y;
-		float length = Mathf.Sqrt(dxf * dxf + dyf * dyf);
-		if (length < 1e-5f) return;
-		int steps = Mathf.Max(1, Mathf.CeilToInt(length * grid * 2)); //oversample so no gaps
-		int half = widthPx / 2;
-		for (int s = 0; s <= steps; s++) {
-			float t = (float)s / steps;
-			float uvx = start.x + dxf * t;
-			float uvy = start.y + dyf * t;
-			int cx = Mathf.Clamp(Mathf.FloorToInt(uvx * grid), 0, grid - 1);
-			int cy = Mathf.Clamp(Mathf.FloorToInt(uvy * grid), 0, grid - 1);
-			for (int oy = -half; oy <= half; oy++) {
-				int ny = cy + oy;
-				if (ny < 0 || ny >= grid) continue;
-				for (int ox = -half; ox <= half; ox++) {
-					int nx = cx + ox;
-					if (nx < 0 || nx >= grid) continue;
-					isCrack[nx, ny] = true;
-				}
+	void DetachShard(GlassShard g) {
+		g.fallen = true; //every crack touching this shard stops drawing from here on
+		//The mesh is just the group's cell fans concatenated. A merged group can be concave, but a falling
+		//shard never needs a single outline, so fans are enough and no triangulation is required.
+		var verts = new List<Vector2>();
+		var origUVs = new List<Vector2>();
+		var tris = new List<int>();
+		foreach (GlassCell c in g.cells) {
+			int b = verts.Count;
+			for (int i = 0; i < c.poly.Length; i++) {
+				verts.Add(c.poly[i] - g.centroid);
+				origUVs.Add(c.poly[i]);
 			}
+			for (int i = 1; i < c.poly.Length - 1; i++) {
+				tris.Add(b); tris.Add(b + i); tris.Add(b + i + 1);
+			}
+			blackPolys.Add(c.poly);
 		}
-	}
+		if (tris.Count == 0) return;
 
-	void SpawnRegionShard(List<Vector2Int> cells, int grid) {
-		float cellSize = 1f / grid;
-		float sumX = 0, sumY = 0;
-		foreach (var c in cells) { sumX += c.x; sumY += c.y; }
-		Vector2 centerUV = new Vector2((sumX / cells.Count + 0.5f) * cellSize, (sumY / cells.Count + 0.5f) * cellSize);
-
-		//Local verts + origUVs so texture rotates with shard as it falls
-		var verts = new List<Vector2>(cells.Count * 4);
-		var origUVs = new List<Vector2>(cells.Count * 4);
-		var tris = new List<int>(cells.Count * 6);
-		foreach (var c in cells) {
-			float ux0 = c.x * cellSize;
-			float uy0 = c.y * cellSize;
-			float ux1 = ux0 + cellSize;
-			float uy1 = uy0 + cellSize;
-			int baseIdx = verts.Count;
-			verts.Add(new Vector2(ux0 - centerUV.x, uy0 - centerUV.y));
-			verts.Add(new Vector2(ux1 - centerUV.x, uy0 - centerUV.y));
-			verts.Add(new Vector2(ux1 - centerUV.x, uy1 - centerUV.y));
-			verts.Add(new Vector2(ux0 - centerUV.x, uy1 - centerUV.y));
-			origUVs.Add(new Vector2(ux0, uy0));
-			origUVs.Add(new Vector2(ux1, uy0));
-			origUVs.Add(new Vector2(ux1, uy1));
-			origUVs.Add(new Vector2(ux0, uy1));
-			tris.Add(baseIdx); tris.Add(baseIdx + 1); tris.Add(baseIdx + 2);
-			tris.Add(baseIdx); tris.Add(baseIdx + 2); tris.Add(baseIdx + 3);
-		}
-
-		Vector2 fromCenter = centerUV - new Vector2(0.5f, 0.5f);
-		Vector2 outward = fromCenter.sqrMagnitude > 1e-4f ? fromCenter.normalized : Random.insideUnitCircle.normalized;
-		Vector2 vel = outward * Random.Range(0.1f, 0.25f) + new Vector2(0f, Random.Range(0.05f, 0.2f));
-
-		crackShards.Add(new CrackShard {
+		//Drift out from whichever side it broke off, then fall. UV y is screen-down here, so +y is down.
+		float side = g.centroid.x < 0.5f ? -1f : 1f;
+		fallingShards.Add(new FallingShard {
 			localVerts = verts.ToArray(),
 			origUVs = origUVs.ToArray(),
 			tris = tris.ToArray(),
-			pos = centerUV,
-			vel = vel,
+			pos = g.centroid,
+			vel = new Vector2(side * Random.Range(0.02f, 0.10f), Random.Range(0.05f, 0.20f)),
 			rot = 0f,
 			angVel = Random.Range(-3f, 3f)
 		});
 	}
 
 	//UV space physics
-	void UpdateCrackShards(float dt) {
-		if (crackShards.Count == 0) return;
-		for (int i = crackShards.Count - 1; i >= 0; i--) {
-			var s = crackShards[i];
+	void UpdateFallingShards(float dt) {
+		if (fallingShards.Count == 0) return;
+		for (int i = fallingShards.Count - 1; i >= 0; i--) {
+			var s = fallingShards[i];
 			s.vel.y += 0.8f * dt;
 			s.pos += s.vel * dt;
 			s.rot += s.angVel * dt;
-			if (s.pos.y > 2f) crackShards.RemoveAt(i);
+			if (s.pos.y > 2f) fallingShards.RemoveAt(i);
 		}
 	}
 
+	//Build the voronoi glass: sites, cell polygons, the crack network along their shared edges, and the
+	//merge groups that fall as single shards.
 	void GenerateCracks() {
 		cracks.Clear();
+		glassShards.Clear();
+		blackPolys.Clear();
+		nextFall = 0;
 
-		const float REACH_MIN = 0.5f;
-		const float REACH_MAX = 1.0f;
-		const int MAX_ITER = 80;
+		float aspect = maskRT != null ? (float)maskRT.width / maskRT.height : 16f / 9f;
+		int rows = GLASS_ROWS;
+		int cols = Mathf.Max(2, Mathf.RoundToInt(rows * aspect));
 
-		var tips = new List<(Vector2 pos, Vector2 dir, int side, float progress, float reach, float thickness)>();
-
-		//4 corner seeds
-		Vector2[] cornerPos = {
-			new Vector2(0f, 0.03f),  //bottom-left
-			new Vector2(1f, 0.03f),  //bottom-right
-			new Vector2(0f, 0.97f),  //top-left
-			new Vector2(1f, 0.97f),  //top-right
-		};
-		int[] cornerSides = { -1, +1, -1, +1 };
-		Vector2[] cornerBaseDirs = {
-			new Vector2(1f, 1f).normalized,
-			new Vector2(-1f, 1f).normalized,
-			new Vector2(1f, -1f).normalized,
-			new Vector2(-1f, -1f).normalized,
-		};
-		for (int i = 0; i < 4; i++) {
-			float angleJit = Random.Range(-15f, 15f) * Mathf.Deg2Rad;
-			float cs = Mathf.Cos(angleJit), sn = Mathf.Sin(angleJit);
-			Vector2 d = cornerBaseDirs[i];
-			Vector2 dir = new Vector2(d.x * cs - d.y * sn, d.x * sn + d.y * cs);
-			float reach = Random.Range(REACH_MIN, REACH_MAX);
-			float thickness = Random.Range(CRACK_THICKNESS_MIN, CRACK_THICKNESS_MAX);
-			tips.Add((cornerPos[i], dir, cornerSides[i], 0f, reach, thickness));
+		//Sites on a jittered grid, warped along x so they pack toward the left and right edges. Density is
+		//most of what sells a fracture: fine where it started, coarse out in the middle.
+		Vector2[] sites = new Vector2[cols * rows];
+		for (int i = 0; i < cols; i++) {
+			for (int j = 0; j < rows; j++) {
+				uint hx = Hash2D(i, j);
+				uint hy = Hash2D(i + 1337, j + 7919);
+				float u = (i + hx / 4294967295f) / cols;
+				float v = (j + hy / 4294967295f) / rows;
+				sites[i * rows + j] = new Vector2(EdgeWarp(u), v);
+			}
 		}
 
-		//2 middle seeds per side
-		const int middleCount = 2;
-		for (int i = 0; i < middleCount; i++) {
-			float yBase = Mathf.Lerp(0.08f, 0.92f, (i + 1f) / (middleCount + 1f));
-			float yL = Mathf.Clamp01(yBase + Random.Range(-0.04f, 0.04f));
-			float yR = Mathf.Clamp01(yBase + Random.Range(-0.04f, 0.04f));
-			float reachL = Random.Range(REACH_MIN, REACH_MAX);
-			float reachR = Random.Range(REACH_MIN, REACH_MAX);
-			float thickL = Random.Range(CRACK_THICKNESS_MIN, CRACK_THICKNESS_MAX);
-			float thickR = Random.Range(CRACK_THICKNESS_MIN, CRACK_THICKNESS_MAX);
-			tips.Add((new Vector2(0f, yL), new Vector2(1f, Random.Range(-0.7f, 0.7f)).normalized, -1, 0f, reachL, thickL));
-			tips.Add((new Vector2(1f, yR), new Vector2(-1f, Random.Range(-0.7f, 0.7f)).normalized, +1, 0f, reachR, thickR));
-		}
+		//Each cell is the unit rect clipped by the perpendicular bisector against every nearby site. Two
+		//neighbours derive their shared edge from the same bisector, so the polygons meet with no gaps --
+		//which is the whole reason this replaces the old rasterise-and-flood-fill.
+		GlassCell[] cells = new GlassCell[cols * rows];
+		var poly = new List<Vector2>();
+		var tmp = new List<Vector2>();
+		for (int i = 0; i < cols; i++) {
+			for (int j = 0; j < rows; j++) {
+				int id = i * rows + j;
+				poly.Clear();
+				poly.Add(new Vector2(0f, 0f)); poly.Add(new Vector2(1f, 0f));
+				poly.Add(new Vector2(1f, 1f)); poly.Add(new Vector2(0f, 1f));
 
-		int iter = 0;
-		while (tips.Count > 0 && iter++ < MAX_ITER) {
-			var next = new List<(Vector2 pos, Vector2 dir, int side, float progress, float reach, float thickness)>();
-			foreach (var tip in tips) {
-				float segLen = Mathf.Lerp(0.02f, 0.1f, Mathf.Pow(Random.value, 2f));
-				Vector2 jitter = new Vector2(Random.Range(-0.2f, 0.4f), Random.Range(-2f, 2f));
-				Vector2 newDir = (tip.dir + jitter).normalized;
-				Vector2 centerBias = new Vector2(tip.side == -1 ? 0.25f : -0.25f, 0f);
-				newDir = (newDir + centerBias).normalized;
-				Vector2 newPos = tip.pos + newDir * segLen;
-
-				bool hitEdge = newPos.y < 0f || newPos.y > 1f;
-				if (hitEdge) newPos.y = Mathf.Clamp01(newPos.y);
-
-				float distFromEdge = tip.side == -1 ? newPos.x : 1f - newPos.x;
-				float newProgress = Mathf.Clamp01(distFromEdge / tip.reach);
-
-				cracks.Add(new CrackSegment {
-					start = tip.pos,
-					end = newPos,
-					startProgress = tip.progress,
-					endProgress = newProgress,
-					thickness = tip.thickness
-				});
-
-				if (newProgress >= 1f || hitEdge) continue;
-				if (newProgress - tip.progress < 0.005f) continue; //kill stuck tips
-
-				if (next.Count < Globals.Instance.maxTips && Random.value < Globals.Instance.branching) {
-					float branchReach = Random.Range(REACH_MIN, REACH_MAX);
-					if (branchReach > distFromEdge + 0.05f) {
-						float branchStartProgress = distFromEdge / branchReach;
-						float angleRad = Random.Range(-55f, 55f) * Mathf.Deg2Rad;
-						float cs = Mathf.Cos(angleRad);
-						float sn = Mathf.Sin(angleRad);
-						Vector2 branchDir = new Vector2(newDir.x * cs - newDir.y * sn, newDir.x * sn + newDir.y * cs);
-						float branchThickness = tip.thickness * Random.Range(0.5f, 1.1f);
-						next.Add((newPos, branchDir, tip.side, branchStartProgress, branchReach, branchThickness));
+				for (int di = -2; di <= 2 && poly.Count >= 3; di++) {
+					for (int dj = -2; dj <= 2 && poly.Count >= 3; dj++) {
+						if (di == 0 && dj == 0) continue;
+						int ni = i + di, nj = j + dj;
+						if (ni < 0 || ni >= cols || nj < 0 || nj >= rows) continue;
+						ClipByBisector(poly, sites[id], sites[ni * rows + nj], tmp);
 					}
 				}
+				if (poly.Count < 3) continue;
 
-				next.Add((newPos, newDir, tip.side, newProgress, tip.reach, tip.thickness));
+				Vector2 centroid = Vector2.zero;
+				foreach (Vector2 p in poly) centroid += p;
+				centroid /= poly.Count;
+
+				cells[id] = new GlassCell {
+					id = id,
+					poly = poly.ToArray(),
+					centroid = centroid,
+					depth = Mathf.Min(centroid.x, 1f - centroid.x)
+				};
 			}
-			tips = next;
+		}
+
+		//Collect shared edges. Each edge is emitted once per cell that owns it, so anything seen twice is
+		//an interior boundary between two cells and anything seen once is the frame border, which never cracks.
+		var edges = new Dictionary<long, (int a, int b, Vector2 p, Vector2 q)>();
+		for (int id = 0; id < cells.Length; id++) {
+			GlassCell c = cells[id];
+			if (c == null) continue;
+			for (int i = 0; i < c.poly.Length; i++) {
+				Vector2 p = c.poly[i], q = c.poly[(i + 1) % c.poly.Length];
+				long key = EdgeKey(p, q);
+				if (edges.TryGetValue(key, out var e)) edges[key] = (e.a, id, e.p, e.q);
+				else edges[key] = (id, -1, p, q);
+			}
+		}
+
+		//Union-find: an edge we choose not to draw merges the cells behind it, so shards come in a range of
+		//sizes instead of all being one cell. A crack that ends up inside a merged group reads as a fracture
+		//that didn't break all the way through, which is what stops the network looking like a diagram.
+		int[] parent = new int[cells.Length];
+		for (int i = 0; i < parent.Length; i++) parent[i] = i;
+
+		var interior = new List<(int a, int b, Vector2 p, Vector2 q)>();
+		foreach (var e in edges.Values) {
+			if (e.b < 0 || cells[e.a] == null || cells[e.b] == null) continue;
+			if (Random.value < GLASS_MERGE_CHANCE) Union(parent, e.a, e.b);
+			else interior.Add(e);
+		}
+		//Propagation. Revealing on raw x made every crack advance as one tidy vertical front. Instead, walk
+		//the network with Dijkstra from a few seeds per side, random weight per edge: cheap routes race
+		//ahead into fingers, slow ones lag, and it still branches at real junctions.
+		var vertIds = new Dictionary<long, int>();
+		var vertPos = new List<Vector2>();
+		var adj = new List<List<(int to, float cost)>>();
+		var edgeVerts = new List<(int a, int b)>();
+
+		int VertId(Vector2 p) {
+			long key = PointKey(p);
+			if (vertIds.TryGetValue(key, out int existing)) return existing;
+			int id = vertPos.Count;
+			vertIds[key] = id;
+			vertPos.Add(p);
+			adj.Add(new List<(int, float)>());
+			return id;
+		}
+
+		foreach (var e in interior) {
+			int ia = VertId(e.p), ib = VertId(e.q);
+			float cost = (e.q - e.p).magnitude * Random.Range(1f, CRACK_SPEED_VARIANCE);
+			adj[ia].Add((ib, cost));
+			adj[ib].Add((ia, cost));
+			edgeVerts.Add((ia, ib));
+		}
+
+		//Only a few seeds per side -- seeding every border vertex just rebuilds the uniform front.
+		var seeds = new List<int>();
+		for (int side = 0; side < 2; side++) {
+			float sx = side == 0 ? 0f : 1f;
+			for (int k = 0; k < CRACK_SEEDS_PER_SIDE; k++) {
+				float targetY = (k + 0.5f) / CRACK_SEEDS_PER_SIDE + Random.Range(-0.08f, 0.08f);
+				int best = -1;
+				float bestD = float.MaxValue;
+				for (int v = 0; v < vertPos.Count; v++) {
+					if (Mathf.Abs(vertPos[v].x - sx) > 0.02f) continue;
+					float d = Mathf.Abs(vertPos[v].y - targetY);
+					if (d < bestD) { bestD = d; best = v; }
+				}
+				if (best >= 0 && !seeds.Contains(best)) seeds.Add(best);
+			}
+		}
+
+		float[] dist = new float[vertPos.Count];
+		for (int i = 0; i < dist.Length; i++) dist[i] = float.MaxValue;
+		var frontier = new List<(float d, int v)>();
+		foreach (int s in seeds) {
+			dist[s] = 0f;
+			frontier.Add((0f, s));
+		}
+		while (frontier.Count > 0) {
+			int bi = 0;
+			for (int i = 1; i < frontier.Count; i++) if (frontier[i].d < frontier[bi].d) bi = i;
+			var cur = frontier[bi];
+			frontier.RemoveAt(bi);
+			if (cur.d > dist[cur.v]) continue;
+			foreach (var (to, cost) in adj[cur.v]) {
+				float nd = cur.d + cost;
+				if (nd >= dist[to]) continue;
+				dist[to] = nd;
+				frontier.Add((nd, to));
+			}
+		}
+
+		float maxDist = 0f;
+		foreach (float d in dist) if (d < float.MaxValue) maxDist = Mathf.Max(maxDist, d);
+		if (maxDist <= 0f) maxDist = 1f;
+
+		//Path distance alone lets a cheap route snake into the middle while its neighbours sit untouched.
+		//Blending against x keeps x as the general stopping point, while the path term still lets fingers
+		//run ahead inside that band. Normalised against the half-width so 1 is the centre line -- against
+		//the strip edge instead, the whole middle band collapses to one value and loses its ordering.
+		float[] reveal = new float[vertPos.Count];
+		for (int v = 0; v < reveal.Length; v++) {
+			float xNorm = Mathf.Clamp01(Mathf.Min(vertPos[v].x, 1f - vertPos[v].x) * 2f);
+			float pathNorm = dist[v] >= float.MaxValue ? 1f : dist[v] / maxDist;
+			reveal[v] = Mathf.Lerp(xNorm, pathNorm, CRACK_PATH_WEIGHT);
+		}
+
+		//A cell is ready to fall once the cracks all the way around it have arrived.
+		for (int id = 0; id < cells.Length; id++) {
+			GlassCell c = cells[id];
+			if (c == null) continue;
+			float reached = 0f;
+			bool any = false;
+			foreach (Vector2 p in c.poly) {
+				if (!vertIds.TryGetValue(PointKey(p), out int v)) continue;
+				reached = Mathf.Max(reached, reveal[v]);
+				any = true;
+			}
+			//Cells the network never touched still have to go, so fall back to their own x depth.
+			c.depth = any ? reached : Mathf.Clamp01(Mathf.Min(c.centroid.x, 1f - c.centroid.x) * 2f);
+		}
+
+		//Gather cells into their merged groups, then order by when the cracking got to them -- that is the
+		//order they fall, so the mirror comes apart following the fracture rather than in a straight line.
+		var byRoot = new Dictionary<int, GlassShard>();
+		for (int id = 0; id < cells.Length; id++) {
+			if (cells[id] == null) continue;
+			int root = Find(parent, id);
+			if (!byRoot.TryGetValue(root, out GlassShard g)) {
+				g = new GlassShard();
+				byRoot[root] = g;
+			}
+			g.cells.Add(cells[id]);
+		}
+		foreach (GlassShard g in byRoot.Values) {
+			Vector2 c = Vector2.zero;
+			float d = 0f;
+			foreach (GlassCell cell in g.cells) {
+				c += cell.centroid;
+				d = Mathf.Max(d, cell.depth); //the last cell to be cracked is what holds the group on
+			}
+			g.centroid = c / g.cells.Count;
+			g.depth = d;
+			glassShards.Add(g);
+		}
+		glassShards.Sort((x, y) => x.depth.CompareTo(y.depth));
+
+		//Emitted last so each crack can name the two shards it sits between. A crack is the gap between
+		//them, so once either side falls it's just the edge of a hole -- owning the shards outright means
+		//cracks vanish exactly when their glass does, with no second front to keep in sync.
+		var shardOfCell = new Dictionary<int, int>();
+		for (int gi = 0; gi < glassShards.Count; gi++) {
+			foreach (GlassCell cell in glassShards[gi].cells) shardOfCell[cell.id] = gi;
+		}
+		for (int i = 0; i < interior.Count; i++) {
+			var e = interior[i];
+			var (ia, ib) = edgeVerts[i];
+			bool flip = reveal[ib] < reveal[ia];
+			//Each edge grows from whichever end the crack reached first, so segments draw outward like a
+			//tip advancing rather than popping in whole.
+			EmitCrack(flip ? e.q : e.p, flip ? e.p : e.q,
+				Mathf.Min(reveal[ia], reveal[ib]), Mathf.Max(reveal[ia], reveal[ib]),
+				shardOfCell[e.a], shardOfCell[e.b]);
 		}
 
 		cracksGenerated = true;
-		Log.Info($"Generated {cracks.Count} segments.");
+		Log.Info($"Glass: {glassShards.Count} shards, {cracks.Count} crack segments.");
+	}
+
+	//Stable per-shard direction and magnitude, so a piece keeps refracting the same way instead of
+	//jittering each frame. Magnitude is 0..1 of SHARD_DRIFT, making that constant a ceiling rather than
+	//a fixed amount every shard shares -- some sit almost true, others sit well out of line.
+	static Vector2 ShardDrift(int index) {
+		float a = Hash2D(index, 7919) / 4294967295f * Mathf.PI * 2f;
+		float m = Hash2D(index, 104729) / 4294967295f;
+		return new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * m;
+	}
+
+	//Uniform u -> x, packed toward 0 and 1.
+	static float EdgeWarp(float u) {
+		float t = u * 2f - 1f;
+		return 0.5f + 0.5f * Mathf.Sign(t) * Mathf.Pow(Mathf.Abs(t), GLASS_EDGE_BIAS);
+	}
+
+	//Sutherland-Hodgman: keep the half of the polygon nearer to `site` than to `other`.
+	static void ClipByBisector(List<Vector2> poly, Vector2 site, Vector2 other, List<Vector2> tmp) {
+		Vector2 dir = other - site;
+		Vector2 mid = (site + other) * 0.5f;
+		tmp.Clear();
+		for (int i = 0; i < poly.Count; i++) {
+			Vector2 a = poly[i];
+			Vector2 b = poly[(i + 1) % poly.Count];
+			float da = Vector2.Dot(a - mid, dir);
+			float db = Vector2.Dot(b - mid, dir);
+			if (da <= 0f) tmp.Add(a);
+			if ((da <= 0f) != (db <= 0f)) tmp.Add(Vector2.Lerp(a, b, da / (da - db)));
+		}
+		poly.Clear();
+		poly.AddRange(tmp);
+	}
+
+	//Neighbouring cells derive shared geometry from the same bisector, so rounding a point identifies it
+	//from either side despite the float noise.
+	static long PointKey(Vector2 p) {
+		long x = (long)Mathf.Round(p.x * 10000f);
+		long y = (long)Mathf.Round(p.y * 10000f);
+		return (x << 32) ^ (y & 0xffffffffL);
+	}
+	static long EdgeKey(Vector2 a, Vector2 b) => PointKey((a + b) * 0.5f);
+
+	static int Find(int[] parent, int i) {
+		while (parent[i] != i) {
+			parent[i] = parent[parent[i]];
+			i = parent[i];
+		}
+		return i;
+	}
+	static void Union(int[] parent, int a, int b) {
+		int ra = Find(parent, a), rb = Find(parent, b);
+		if (ra != rb) parent[rb] = ra;
+	}
+
+	//One voronoi edge becomes a few segments with a little perpendicular wander, so the network doesn't read
+	//as a diagram. The ends stay pinned so junctions still meet cleanly. Thickness tapers inward, away from
+	//the side the fracture started at.
+	void EmitCrack(Vector2 a, Vector2 b, float d0, float d1, int shardA, int shardB) {
+		Vector2 delta = b - a;
+		float len = delta.magnitude;
+		if (len < 1e-5f) return;
+		Vector2 perp = new Vector2(-delta.y, delta.x) / len;
+
+		//Decided once per edge so a glint runs the whole length of a crack rather than flickering segment
+		//to segment. Most cracks get none at all -- a bright core on every one reads as glowing veins.
+		float glint = Random.value < CRACK_GLINT_CHANCE ? Random.Range(0.5f, 1f) : 0f;
+
+		Vector2 prev = a;
+		for (int s = 1; s <= CRACK_SUBDIV; s++) {
+			Vector2 p = Vector2.Lerp(a, b, (float)s / CRACK_SUBDIV);
+			if (s < CRACK_SUBDIV) p += perp * (Random.Range(-CRACK_WANDER, CRACK_WANDER) * len);
+			//Spread the edge's arrival window across its segments so the crack runs along its own length.
+			cracks.Add(new CrackSegment {
+				start = prev,
+				end = p,
+				startDepth = Mathf.Lerp(d0, d1, (float)(s - 1) / CRACK_SUBDIV),
+				endDepth = Mathf.Lerp(d0, d1, (float)s / CRACK_SUBDIV),
+				//Thickest at the seeds and thinning as it runs out, the way a fracture loses energy.
+				thickness = Mathf.Lerp(CRACK_THICKNESS_MAX, CRACK_THICKNESS_MIN, Mathf.Clamp01(d0)),
+				glint = glint,
+				shardA = shardA,
+				shardB = shardB
+			});
+			prev = p;
+		}
 	}
 
 	//2d to 3d--------------------------------------------------------------------------------

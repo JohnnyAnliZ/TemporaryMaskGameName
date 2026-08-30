@@ -8,6 +8,16 @@ public class FirstPersonLook : MonoBehaviour
 	float pitch;
 	Vector2 mouseDelta;
 
+	float dip;
+	float dipVelocity;
+
+	public void AddLandingDip(float impactVelocity) {
+		var g = Globals.Instance;
+		float u = Mathf.Clamp01(Mathf.InverseLerp(g.landingDipMinSpeed, g.landingDipMaxSpeed, -impactVelocity));
+		dip = -g.landingDipMax * u;
+		dipVelocity = 0f;
+	}
+
 	public void Init(Transform target) {
 		this.target = target;
 		Cursor.lockState = CursorLockMode.Locked;
@@ -46,7 +56,10 @@ public class FirstPersonLook : MonoBehaviour
 		if (target == null) return;
 		var g = Globals.Instance;
 
-		transform.position = target.position + Vector3.up * g.eyeOffset;
+		//Damped spring
+		dipVelocity += (-dip * g.landingDipSpring - dipVelocity * g.landingDipDamping) * Time.deltaTime;
+		dip += dipVelocity * Time.deltaTime;
+		transform.position = target.position + Vector3.up * (g.eyeOffset + dip);
 
 		yaw += mouseDelta.x * g.mouseSensitivity;
 		pitch -= mouseDelta.y * g.mouseSensitivity;
@@ -72,26 +85,25 @@ public class FirstPersonLook : MonoBehaviour
 		pitch = targetPitch;
 	}
 	public System.Collections.IEnumerator PanToTarget(Transform lookTarget, float duration) {
-		if (lookTarget == null) { Log.Warn("PanToTarget: lookTarget is null — did you forget to assign it on the trigger?"); yield break; }
-
-		Quaternion startRot = Quaternion.Euler(pitch, yaw, 0f);
-		Vector3 dir = lookTarget.position - transform.position;
-		if (dir.sqrMagnitude < 1e-6f) { Log.Warn("PanToTarget: target is at camera position"); yield break; }
-		Quaternion endRot = Quaternion.LookRotation(dir.normalized, Vector3.up);
-		Log.Info($"PanToTarget: start=({pitch:F1},{yaw:F1}) end={endRot.eulerAngles} dur={duration}");
+		Globals g = Globals.Instance;
+		float startYaw = yaw;
+		float startPitch = pitch;
 
 		float t = 0f;
 		while (t < duration) {
 			t += Time.deltaTime;
 			float u = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / duration));
-			Quaternion cur = Quaternion.Slerp(startRot, endRot, u);
-			Vector3 e = cur.eulerAngles;
-			yaw = e.y;
-			pitch = e.x > 180f ? e.x - 360f : e.x;
+
+			Vector3 dir = lookTarget.position - transform.position;
+			if (dir.sqrMagnitude < 1e-6f) yield break;
+			dir.Normalize();
+
+			float targetYaw = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+			float targetPitch = Mathf.Clamp(-Mathf.Asin(dir.y) * Mathf.Rad2Deg, -g.pitchClamp, g.pitchClamp);
+
+			yaw = Mathf.Lerp(startYaw, startYaw + Mathf.DeltaAngle(startYaw, targetYaw), u);
+			pitch = Mathf.Lerp(startPitch, targetPitch, u);
 			yield return null;
 		}
-		Vector3 fe = endRot.eulerAngles;
-		yaw = fe.y;
-		pitch = fe.x > 180f ? fe.x - 360f : fe.x;
 	}
 }

@@ -8,7 +8,7 @@ public class CompositeManager : Singleton<CompositeManager>
 	[HideInInspector] public Camera cameraB;
 	RenderTexture rtA;
 	RenderTexture rtB;
-	int lastWidth, lastHeight;
+	int lastInternalHeight;
 	bool initialized = false;
 	RenderTexture maskRT;
 	public MaskDrawer maskDrawer;
@@ -23,7 +23,7 @@ public class CompositeManager : Singleton<CompositeManager>
 	public float wobbleSpeed = 1f;
 	public float caMultiplier = 1f;
 
-	AspectRatioLocker aspectLocker;
+	[HideInInspector] public AspectRatioLocker aspectLocker;
 
 	//Sorta lazy initialization where the cameras find this manager and only then initializes
 	public void RegisterCamera(Camera cam, int index) {
@@ -51,8 +51,6 @@ public class CompositeManager : Singleton<CompositeManager>
 			maskDrawer = gameObject.AddComponent<MaskDrawer>();
 
 			wobbleVolume = GameObject.Find("ModulationVolume").GetComponent<Volume>();
-			//.profile, not .sharedProfile, so widening the ceiling doesn't dirty the asset on disk. The bound is
-			//[NonSerialized] and resets to 1 every load, so it has to be raised here rather than in the inspector.
 			wobbleVolume.profile.TryGet(out wobbleCA);
 			caBase = wobbleCA.intensity.value;
 			wobbleCA.intensity.max = 100f;
@@ -69,7 +67,9 @@ public class CompositeManager : Singleton<CompositeManager>
 	void Update() {
 		if (!initialized) return;
 
-		if (Screen.width != lastWidth || Screen.height != lastHeight) {
+		//The buffers are window-independent now, so a resize costs nothing -- only a change to the internal
+		//resolution needs a rebuild.
+		if (Globals.Instance.internalHeight != lastInternalHeight) {
 			ReleaseRTs();
 			CreateRenderTextures();
 		}
@@ -80,24 +80,19 @@ public class CompositeManager : Singleton<CompositeManager>
 	}
 
 	void CreateRenderTextures() {
-		lastWidth = Screen.width;
-		lastHeight = Screen.height;
+		lastInternalHeight = Globals.Instance.internalHeight;
 
-		//Render at the target aspect (the largest targetAspect-shaped box that fits the window),
-		//not the window's own aspect. The output camera maps this into a matching letterboxed
-		//viewport rect 1:1, so content is never stretched; AspectRatioLocker fills the black bars.
-		float targetAspect = aspectLocker != null ? aspectLocker.targetAspect : (float)lastWidth / lastHeight;
-		int rtW, rtH;
-		if ((float)lastWidth / lastHeight > targetAspect) {
-			rtH = lastHeight;
-			rtW = Mathf.RoundToInt(lastHeight * targetAspect);
-		} else {
-			rtW = lastWidth;
-			rtH = Mathf.RoundToInt(lastWidth / targetAspect);
-		}
+		//Fixed internal resolution at the target aspect, upscaled to the window by the composite pass. Only
+		//sharpness rides on these dimensions -- framing comes from outputCam.rect and Composite.shader samples
+		//over 0-1 UV -- so the buffers never have to track the window, and screen-space effects measured in
+		//buffer pixels stay put across resolutions. AspectRatioLocker fills the black bars.
+		int rtH = lastInternalHeight;
+		int rtW = Mathf.RoundToInt(rtH * aspectLocker.targetAspect);
 
 		rtA = new RenderTexture(rtW, rtH, 24, RenderTextureFormat.DefaultHDR);
 		rtB = new RenderTexture(rtW, rtH, 24, RenderTextureFormat.DefaultHDR);
+		rtA.filterMode = FilterMode.Bilinear; //live action wants the soft upscale
+		rtB.filterMode = FilterMode.Point; //keeps DarkDither's Bayer cells hard-edged rather than smearing them
 		var maskDesc = new RenderTextureDescriptor(rtW, rtH, RenderTextureFormat.RGHalf, 0);
 		maskDesc.sRGB = false; //idk otherwise you get an annoying warning in the log
 		maskRT = new RenderTexture(maskDesc);

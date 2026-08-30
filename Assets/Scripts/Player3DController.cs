@@ -5,15 +5,23 @@ using UnityEngine.InputSystem;
 public class Player3DController : MonoBehaviour
 {
 	CharacterController controller;
+	FirstPersonLook look;
 	Transform lookTransform;
+	float groundedStepOffset;
 	float verticalVelocity;
 	float coyoteTimer;
+	float airTimer;
+	bool bJumped;
 	float jumpBufferTimer;
 	float spaceTimer;
 	bool bIsHoldingSpace;
-	Vector3 jumpBoost;
+	Vector3 horizontalVelocity;
 	Platform lastPlatform;
 	Vector3 spawnPoint;
+	bool bInputWasOn;
+
+	static readonly int FadeToBlackId = Shader.PropertyToID("_FadeToBlack");
+	float fadeAmount;
 
 	// Impact logic
 	bool isFalling = false;
@@ -34,15 +42,22 @@ public class Player3DController : MonoBehaviour
 
 	public void Teleport(Vector3 pos) {
 		controller.enabled = false;
-		if (Physics.Raycast(pos + Vector3.up, Vector3.down, out RaycastHit hit, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) {
-			pos.y = hit.point.y - (controller.center.y - controller.height * 0.5f) + controller.skinWidth;
+
+		Vector3 origin = pos + Vector3.up;
+		if (Physics.SphereCast(origin, controller.radius, Vector3.down, out RaycastHit hit, 100f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)) {
+			float bottomSphereY = origin.y - hit.distance;
+			pos.y = bottomSphereY + (controller.height * 0.5f - controller.radius) - controller.center.y + controller.skinWidth;
 		}
 		transform.position = pos;
 		controller.enabled = true;
 
+		controller.Move(Vector3.down * (controller.skinWidth * 2f));
+
 		verticalVelocity = 0f;
-		jumpBoost = Vector3.zero;
+		horizontalVelocity = Vector3.zero;
 		coyoteTimer = 0f;
+		airTimer = 0f;
+		bJumped = false;
 		jumpBufferTimer = 0f;
 		spaceTimer = 0f;
 		bIsHoldingSpace = false;
@@ -57,17 +72,26 @@ public class Player3DController : MonoBehaviour
 
 	void Awake() {
 		controller = GetComponent<CharacterController>();
+		groundedStepOffset = controller.stepOffset;
 	}
 
 	void Start() {
-		lookTransform = FindAnyObjectByType<FirstPersonLook>().transform;
+		look = FindAnyObjectByType<FirstPersonLook>();
+		lookTransform = look.transform;
 	}
 
 	void Update() {
 		Globals g = Globals.Instance;
+		float dt = Time.deltaTime;
+
+		if (controller.isGrounded) {
+			airTimer = 0f;
+			bJumped = false;
+		} else airTimer += dt;
+		bool bGrounded = controller.isGrounded || (!bJumped && airTimer < g.groundedGraceTime);
 
 		Animator animator = GameManager.Instance.player2D.GetComponent<Animator>();
-		animator?.SetBool("isGrounded", controller.isGrounded);
+		animator?.SetBool("isGrounded", bGrounded);
 
 		if (bFloating) {
 			floatElapsed += Time.deltaTime;
@@ -81,12 +105,13 @@ public class Player3DController : MonoBehaviour
 
 		bool bInputOn = GameManager.Instance.bInputEnabled;
 		if (!bInputOn) {
+			bInputWasOn = false;
 			animator?.SetBool("isMoving", false);
 			animator?.SetBool("isGrounded", true);
 			return;
 		}
-
-		float dt = Time.deltaTime;
+		bool bInputJustEnabled = !bInputWasOn;
+		bInputWasOn = true;
 
 		Keyboard keyboard = Keyboard.current;
 
@@ -95,10 +120,14 @@ public class Player3DController : MonoBehaviour
 		if (keyboard.sKey.isPressed) forward -= 1f;
 		if (keyboard.aKey.isPressed) horizontal -= 1f;
 		if (keyboard.dKey.isPressed) horizontal += 1f;
-		bool bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame;
+		//wasPressedThisFrame only fires on the frame the key goes down, and that edge is lost entirely if the
+		//press happened while input was off - through a respawn fade, or a cutscene. Treat the key already
+		//being held on the first frame back as a fresh press, otherwise the first jump after control returns
+		//does nothing and the key has to be released and pressed again.
+		bool bSpaceJustPressed = keyboard.spaceKey.wasPressedThisFrame || (bInputJustEnabled && keyboard.spaceKey.isPressed);
 
 		//Coyote
-		if (controller.isGrounded) coyoteTimer = g.coyoteTime;
+		if (bGrounded) coyoteTimer = g.coyoteTime;
 		else coyoteTimer -= dt;
 
 		//Jump buffer
@@ -117,8 +146,6 @@ public class Player3DController : MonoBehaviour
 			inputDir = right * horizontal + fwd * forward;
 		}
 
-		if (controller.isGrounded) jumpBoost = Vector3.zero;
-
 		animator?.SetBool("isMoving", inputDir != Vector3.zero);
 
 		//Start spaceTimer, to check if we should charge or not
@@ -126,6 +153,12 @@ public class Player3DController : MonoBehaviour
 			bIsHoldingSpace = true;
 			spaceTimer = 0f;
 			jumpBufferTimer = 0f;
+		}
+
+		//Cancel coyote
+		if (bIsHoldingSpace && coyoteTimer <= 0f) {
+			bIsHoldingSpace = false;
+			spaceTimer = 0f;
 		}
 
 		if (bIsHoldingSpace) {
@@ -139,16 +172,19 @@ public class Player3DController : MonoBehaviour
 					chargeTime = range > 0f ? Mathf.Clamp01((spaceTimer - g.jumpTapWindow) / range) : 1f;
 				}
 				verticalVelocity = Mathf.Lerp(g.jumpForceMin, g.jumpForceMax, chargeTime);
-				jumpBoost = inputDir.normalized * g.jumpForwardBoost * chargeTime; //a lil forward boost
+				horizontalVelocity += inputDir.normalized * g.jumpForwardBoost * chargeTime; //a lil forward boost
 				bIsHoldingSpace = false;
 				spaceTimer = 0f;
 				coyoteTimer = 0f;
+				bJumped = true;
 			}
 		}
 
 		if (controller.isGrounded) {
 			if (isFalling) {
 				AudioManager.Instance.HandleImpact(verticalVelocity);
+				look.AddLandingDip(verticalVelocity);
+				Log.Info($"{verticalVelocity}");
 				isFalling = false;
 			}
 		}
@@ -167,10 +203,20 @@ public class Player3DController : MonoBehaviour
 		float effectiveGravity = g.gravity * Mathf.Lerp(g.riseGravityMulti, g.fallGravityMulti, blendTime);
 		verticalVelocity += effectiveGravity * dt;
 
-		float multiplier = controller.isGrounded ? 1f : g.airControl;
+		float multiplier = bGrounded ? 1f : g.airControl;
 		if (bIsHoldingSpace && (spaceTimer > g.jumpTapWindow)) multiplier *= g.chargeMoveMulti; //slow walk when charging
-		Vector3 move = inputDir * g.moveSpeed * multiplier + jumpBoost;
+
+		//Momentum
+		Vector3 target = inputDir * g.moveSpeed * multiplier;
+		float rate = inputDir != Vector3.zero
+			? (bGrounded ? g.groundAccel : g.airAccel)
+			: (bGrounded ? g.groundDecel : g.airDecel);
+		horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, target, rate * dt);
+
+		Vector3 move = horizontalVelocity;
 		move.y = verticalVelocity;
+
+		controller.stepOffset = controller.isGrounded ? groundedStepOffset : 0f;
 		controller.Move(move * dt);
 
 		if (controller.isGrounded) {
@@ -198,13 +244,36 @@ public class Player3DController : MonoBehaviour
 		}
 
 		if (transform.position.y < g.fallThreshold) {
-			bool hasCheckpoint = lastPlatform != null && lastPlatform.spawnPoint != null;
-			Teleport(hasCheckpoint ? lastPlatform.spawnPoint.position : spawnPoint);
-			lookTransform.rotation = Quaternion.identity; //FIXME
+			StartCoroutine(Respawn());
 		}
 
 		// Handle footstepsounds
-		AudioManager.Instance.HandleFootsteps(inputDir, controller.isGrounded);
+		AudioManager.Instance.HandleFootsteps(inputDir, bGrounded);
+	}
+
+	System.Collections.IEnumerator Respawn() {
+		Globals g = Globals.Instance;
+		GameManager.Instance.bInputEnabled = false;
+
+		yield return FadeToBlack(1f, g.respawnFadeOut);
+
+		bool hasCheckpoint = lastPlatform != null && lastPlatform.spawnPoint != null;
+		Teleport(hasCheckpoint ? lastPlatform.spawnPoint.position : spawnPoint);
+
+		yield return new WaitForSeconds(g.respawnHold);
+		yield return FadeToBlack(0f, g.respawnFadeIn);
+
+		GameManager.Instance.bInputEnabled = true;
+	}
+	System.Collections.IEnumerator FadeToBlack(float target, float duration) {
+		float start = fadeAmount;
+		for (float t = 0f; t < duration; t += Time.deltaTime) {
+			fadeAmount = Mathf.Lerp(start, target, Mathf.Clamp01(t / duration));
+			Shader.SetGlobalFloat(FadeToBlackId, fadeAmount);
+			yield return null;
+		}
+		fadeAmount = target;
+		Shader.SetGlobalFloat(FadeToBlackId, target);
 	}
 
 	void OnDrawGizmos() {

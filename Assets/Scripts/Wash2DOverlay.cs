@@ -51,14 +51,14 @@ public class Wash2DOverlay : MonoBehaviour
 		Vector3 focus = mirrorHole != null ? mirrorHole.position : transform.position;
 		washCam.transform.position = new Vector3(focus.x, focus.y, focus.z - 10f);
 		washCam.orthographicSize = startOrthoSize;
+		washCam.aspect = CompositeManager.Instance.aspectLocker.targetAspect;
 		washCam.enabled = true;
 	}
 	public void Hide() {
-		if (washCam != null) washCam.enabled = false;
+		washCam.enabled = false;
 	}
 
 	public void SetZoom(float u) {
-		if (washCam == null) return;
 		washCam.orthographicSize = Mathf.Lerp(startOrthoSize, endOrthoSize, Mathf.Clamp01(u));
 	}
 
@@ -121,10 +121,8 @@ public class Wash2DOverlay : MonoBehaviour
 
 		while (true) {
 			bool bHover = false;
-			if (mouse != null) {
-				Vector2 uv = Viewport.ToUV(mouse.position.ReadValue());
-				bHover = resumeHotspot.Contains(uv);
-			}
+			Vector2 uv = Viewport.ToUV(mouse.position.ReadValue());
+			bHover = resumeHotspot.Contains(uv);
 
 			bCursorHovering = bHover;
 			hoverObject.SetActive(bHover);
@@ -132,7 +130,7 @@ public class Wash2DOverlay : MonoBehaviour
 			cursorScale = Mathf.Lerp(cursorScale, bHover ? cursorHoverScale : cursorNormalScale, k);
 			cursorColor = Color.Lerp(cursorColor, bHover ? cursorHoverColor : cursorNormalColor, k);
 
-			if (bHover && mouse != null && mouse.leftButton.wasPressedThisFrame) break;
+			if (bHover && mouse.leftButton.wasPressedThisFrame) break;
 			yield return null;
 		}
 
@@ -143,18 +141,16 @@ public class Wash2DOverlay : MonoBehaviour
 
 	void OnGUI() {
 		if (!bWaitingForHotspot) return;
-		Sprite sprite = (bCursorHovering && cursorHoverSprite != null) ? cursorHoverSprite : cursorNormalSprite;
-		if (sprite == null) return;
 
-		Mouse mouse = Mouse.current;
-		if (mouse == null) return;
-		Vector2 mousePos = mouse.position.ReadValue();
+		Sprite sprite = (bCursorHovering && cursorHoverSprite != null) ? cursorHoverSprite : cursorNormalSprite;
+		Vector2 mousePos = Mouse.current.position.ReadValue();
 		float guiY = Screen.height - mousePos.y;
 
 		Rect texRect = sprite.textureRect;
 		Texture2D tex = sprite.texture;
-		float w = texRect.width * cursorScale;
-		float h = texRect.height * cursorScale;
+		float uiScale = CompositeManager.Instance.outputCam.rect.height * Screen.height / 1080;
+		float w = texRect.width * cursorScale * uiScale;
+		float h = texRect.height * cursorScale * uiScale;
 
 		Rect drawRect = new(mousePos.x - w * 0.5f, guiY - h * 0.5f, w, h);
 		Rect uvRect = new(texRect.x / tex.width, texRect.y / tex.height, texRect.width / tex.width, texRect.height / tex.height);

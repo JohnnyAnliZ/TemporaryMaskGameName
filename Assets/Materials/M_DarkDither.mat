@@ -25,15 +25,15 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Amount: 0.3
+    - _Amount: 0.367
     - _DitherPixelSize: 2
-    - _DitherThreshold: 0.15
+    - _DitherThreshold: 0.1
     - _DriftFromLook: 4
     - _DriftFromMove: 4
     - _EdgeNoise: 0.2
     - _Levels: 7
     - _PerspectiveRef: 2
-    - _PerspectiveScale: 0.15
+    - _PerspectiveScale: 0.2
     - _ShadowLift: 0.1
     - _TemporalAmount: 0.67
     - _TemporalRate: 4

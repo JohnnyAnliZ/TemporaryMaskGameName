@@ -24,8 +24,6 @@ public class Globals : ScriptableObject {
 	public int num3DBreaks = 3;
 	public float shrinkTime = 0.25f;
 	public float stripWidthUV = 0.316f; //(720/1280) / (16/9) = 0.316
-	public float branching = 0.12f;
-	public int maxTips = 50;
 	public float panDuration = 5f;
 	public float waitDuration = 2f;
 
@@ -33,6 +31,12 @@ public class Globals : ScriptableObject {
 	public float mouseSensitivity = 2f;
 	public float eyeOffset = 0.6f;
 	public float pitchClamp = 85f;
+
+	public float landingDipMax = 0.22f;
+	public float landingDipMinSpeed = 8f;
+	public float landingDipMaxSpeed = 22f;
+	public float landingDipSpring = 200f;
+	public float landingDipDamping = 20f;
 
 	[Header("World")]
 	public float world2DZ = 1000f;
@@ -55,9 +59,16 @@ public class Globals : ScriptableObject {
 	public float nearBrightness = 2.5f;
 	public float spriteZPerPlayerZ = 0.5f;
 	public float fallThreshold = -8f;
+	public float respawnFadeOut = 0.25f;
+	public float respawnHold = 0.15f;
+	public float respawnFadeIn = 0.35f;
 
 	[Header("Player Movement")]
 	public float moveSpeed = 5f;
+	public float groundAccel = 40f;
+	public float groundDecel = 25f;
+	public float airAccel = 20f;
+	public float airDecel = 3f;
 	public float gravity = -30f;
 	public float riseGravityMulti = 0.5f;
 	public float fallGravityMulti = 1.8f;
@@ -65,6 +76,7 @@ public class Globals : ScriptableObject {
 	public float jumpForwardBoost = 4f;
 	public float airControl = 0.4f;
 	public float coyoteTime = 0.1f;
+	public float groundedGraceTime = 0.15f;
 	public float jumpBufferTime = 0.1f;
 	public float jumpTapWindow = 0.1f;
 	public float jumpChargeTime = 0.6f;
@@ -94,6 +106,8 @@ public class Globals : ScriptableObject {
 	public float outlineMaxOpacity = 1f;
 	public float angleFull = 12f;
 	public float angleFade = 4f;
+
+	public int internalHeight = 1080;
 
 	[Header("Misc")]
 	#if UNITY_EDITOR

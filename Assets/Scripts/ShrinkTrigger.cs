@@ -33,24 +33,25 @@ public class ShrinkTrigger : MonoBehaviour {
 		FirstPersonLook look = FindAnyObjectByType<FirstPersonLook>();
 		yield return look.PanToTarget(lookTarget, g.panDuration);
 
-		handFromPos.z += 200;
-		handToPos.z += 200;
+		Vector3 fromPos = handFromPos + Vector3.forward * 200f;
+		Vector3 toPos = handToPos + Vector3.forward * 200f;
 		handMesh.SetActive(true);
 		Quaternion fromRot = Quaternion.Euler(handFromEuler);
 		Quaternion toRot = Quaternion.Euler(handToEuler);
 		for (float t = 0f; t < handReachDuration; t += Time.deltaTime) {
 			float u = Mathf.Clamp01(t / handReachDuration);
 			u = u * u * (3f - 2f * u);
-			handMesh.transform.SetPositionAndRotation(Vector3.Lerp(handFromPos, handToPos, u), Quaternion.Slerp(fromRot, toRot, u));
+			handMesh.transform.SetPositionAndRotation(Vector3.Lerp(fromPos, toPos, u), Quaternion.Slerp(fromRot, toRot, u));
 			yield return null;
 		}
-		handMesh.transform.SetPositionAndRotation(handToPos, toRot);
+		handMesh.transform.SetPositionAndRotation(toPos, toRot);
 
 		yield return new WaitForSeconds(1);
 
 		CompositeManager.Instance.maskDrawer.Do_ShrinkAll();
 		yield return new WaitForSeconds(g.waitDuration);
 
+		handMesh.SetActive(false);
 		GameManager.Instance.runner.CompleteSection();
 	}
 }

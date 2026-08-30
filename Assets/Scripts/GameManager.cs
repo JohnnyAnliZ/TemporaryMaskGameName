@@ -10,10 +10,23 @@ public class GameManager : Singleton<GameManager>
 	[HideInInspector] public SectionRunner runner;
 	public bool bInputEnabled = true;
 
-	void Start() {
-		//uh yeah sure these can live here...
+	//Shader globals outlive play mode in both directions
+	static void ResetShaderGlobals() {
 		Shader.SetGlobalFloat("_FlickerSuppress", 0f);
 		Shader.SetGlobalFloat("_DitherSuppress", 0f);
+		Shader.SetGlobalFloat("_FadeToBlack", 0f);
+	}
+#if UNITY_EDITOR
+	[UnityEditor.InitializeOnLoadMethod]
+	static void ClearShaderGlobalsOnExitPlaymode() {
+		UnityEditor.EditorApplication.playModeStateChanged += state => {
+			if (state == UnityEditor.PlayModeStateChange.EnteredEditMode) ResetShaderGlobals();
+		};
+	}
+#endif
+
+	void Start() {
+		ResetShaderGlobals();
 
 		Globals g = Globals.Instance;
 

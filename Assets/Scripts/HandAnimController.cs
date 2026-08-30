@@ -53,7 +53,13 @@ public class HandAnimController : MonoBehaviour
 	float cursorScale;
 	Color cursorColor;
 
+	Vector3 restWorldPos;
+
 	Animator anim => animator != null ? animator : (animator = GetComponent<Animator>());
+
+	void Awake() {
+		restWorldPos = transform.position;
+	}
 
 	public void PlayRubFaceSequence(Trans3DPart part1, Trans3DPart part2, Rect resumeHotspot, Action onComplete, bool debugSkipToPause = false) {
 		if (sequence != null) StopCoroutine(sequence);
@@ -75,6 +81,8 @@ public class HandAnimController : MonoBehaviour
 		yield return RunPart(part2, player, look, eyeOffset);
 
 		controller.enabled = true;
+
+		transform.position = restWorldPos;
 		sequence = null;
 		onComplete?.Invoke();
 	}
@@ -166,6 +174,7 @@ public class HandAnimController : MonoBehaviour
 		}
 
 		bWaitingForHotspot = false;
+		SetMirrorMaterial(false);
 		Cursor.lockState = CursorLockMode.Locked;
 	}
 
@@ -182,21 +191,18 @@ public class HandAnimController : MonoBehaviour
 		return true;
 	}
 
-	//Cursor
 	void OnGUI() {
 		if (!bWaitingForHotspot) return;
-		Sprite sprite = (cursorHovering && cursorHoverSprite != null) ? cursorHoverSprite : cursorNormalSprite;
-		if (sprite == null) return;
 
-		Mouse mouse = Mouse.current;
-		if (mouse == null) return;
-		Vector2 mousePos = mouse.position.ReadValue();
+		Sprite sprite = (cursorHovering && cursorHoverSprite != null) ? cursorHoverSprite : cursorNormalSprite;
+		Vector2 mousePos = Mouse.current.position.ReadValue();
 		float guiY = Screen.height - mousePos.y;
 
 		Rect texRect = sprite.textureRect;
 		Texture2D tex = sprite.texture;
-		float w = texRect.width * cursorScale;
-		float h = texRect.height * cursorScale;
+		float uiScale = CompositeManager.Instance.outputCam.rect.height * Screen.height / 1080;
+		float w = texRect.width * cursorScale * uiScale;
+		float h = texRect.height * cursorScale * uiScale;
 
 		Rect drawRect = new(mousePos.x - w * 0.5f, guiY - h * 0.5f, w, h);
 		Rect uvRect = new(texRect.x / tex.width, texRect.y / tex.height, texRect.width / tex.width, texRect.height / tex.height);

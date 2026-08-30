@@ -21,21 +21,24 @@ MonoBehaviour:
   cameraSnapToPixelGrid: 0
   numBreaks: 6
   shardSize: 1.1
-  maskBlurRadius: 5
+  maskBlurRadius: 10
   shatterBias: 3
   shatterStagger: 0.4
   shardSpeedRange: {x: 0.5, y: 2}
   shardSpinRange: {x: -180, y: 180}
   num3DBreaks: 5
   shrinkTime: 0.25
-  stripWidthUV: 0.4
-  branching: 0.12
-  maxTips: 50
+  stripWidthUV: 0.316
   panDuration: 5
-  waitDuration: 3
+  waitDuration: 6
   mouseSensitivity: 0.1
   eyeOffset: 0.6
   pitchClamp: 85
+  landingDipMax: 0.5
+  landingDipMinSpeed: 8
+  landingDipMaxSpeed: 16
+  landingDipSpring: 100
+  landingDipDamping: 10
   world2DZ: 1000
   world3DZ: 200
   camera2DNearClip: 900
@@ -53,19 +56,27 @@ MonoBehaviour:
   nearDistance: 16
   nearBrightness: 1.6
   spriteZPerPlayerZ: 2
-  fallThreshold: -6
-  moveSpeed: 3.5
-  gravity: -20
+  fallThreshold: -7
+  respawnFadeOut: 0.2
+  respawnHold: 0
+  respawnFadeIn: 0.3
+  moveSpeed: 3.2
+  groundAccel: 67
+  groundDecel: 18
+  airAccel: 30
+  airDecel: 0
+  gravity: -19
   riseGravityMulti: 0.8
   fallGravityMulti: 2
   fallGravityBlend: 3
-  jumpForwardBoost: 5
+  jumpForwardBoost: 9
   airControl: 0.8
-  coyoteTime: 0.1
-  jumpBufferTime: 0.1
+  coyoteTime: 0.05
+  groundedGraceTime: 0.1
+  jumpBufferTime: 0.3
   jumpTapWindow: 0.2
   jumpChargeTime: 0.5
-  jumpForceMin: 5.5
+  jumpForceMin: 6
   jumpForceMax: 9
   chargeMoveMulti: 0.5
   cameraOrthoSize: 4.5
@@ -85,6 +96,7 @@ MonoBehaviour:
   outlineMaxOpacity: 0.4
   angleFull: 6
   angleFade: 6
+  internalHeight: 720
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
   gameLevels:
