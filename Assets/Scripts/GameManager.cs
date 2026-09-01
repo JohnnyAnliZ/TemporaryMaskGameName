@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Rendering.Universal;
 
 public class GameManager : Singleton<GameManager>
@@ -9,6 +10,9 @@ public class GameManager : Singleton<GameManager>
 
 	[HideInInspector] public SectionRunner runner;
 	public bool bInputEnabled = true;
+
+	static readonly int WINDOWED_WIDTH = 1280;
+	static readonly int WINDOWED_HEIGHT = 720;
 
 	//Shader globals outlive play mode in both directions
 	static void ResetShaderGlobals() {
@@ -164,5 +168,22 @@ public class GameManager : Singleton<GameManager>
 			runner.Init(cutscenePlayer);
 			runner.PlaySection(startSection, startSubsection);
 		}
+	}
+
+	//Alt-tabbing back in restores whatever the current section wants instead of leaving the cursor loose
+	void OnApplicationFocus(bool bFocused) {
+		if (bFocused) Cursors.Apply();
+	}
+
+	void Update() {
+		//Clicking back into the window takes control again, so Escape can free the cursor without needing a
+		//second Escape to get it back. Only fires while actually released, so it never eats a gameplay click.
+		if (Cursor.lockState == CursorLockMode.None && Mouse.current.leftButton.wasPressedThisFrame) Cursors.Apply();
+
+		//F11
+		if (!Keyboard.current.f11Key.wasPressedThisFrame) return;
+
+		if (Screen.fullScreen) Screen.SetResolution(WINDOWED_WIDTH, WINDOWED_HEIGHT, FullScreenMode.Windowed);
+		else Screen.SetResolution(Display.main.systemWidth, Display.main.systemHeight, FullScreenMode.FullScreenWindow);
 	}
 }

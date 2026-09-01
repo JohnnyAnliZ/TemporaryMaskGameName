@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class AudioManager : Singleton<AudioManager>
 {
-
     [Header("Music Clips")]
     public AudioClip track2DIntro;
     public AudioClip track2D;
@@ -11,6 +10,7 @@ public class AudioManager : Singleton<AudioManager>
     public AudioClip track3D;
     public AudioClip trackTransToRealLife;
     public AudioClip trackRealLife;
+    public AudioClip trackTrans;
 
     [Header("SFX Clips")]
     public AudioClip introSink;
@@ -41,6 +41,21 @@ public class AudioManager : Singleton<AudioManager>
     public AudioClip[] impactClips3D;
     public float impactVolume = 1.0f;
 
+    [Header("2D -> 3D Handoff")]
+    public float handoffWait = 6.0f;
+    public float handoffCrossfade = 3.0f;
+    public float track3DIntroVolume = 0.6f;
+
+    [Header("Trans Sections")]
+    public float trans3DGlitchy = 0.5f;
+    public float trans2DGlitchy = 0.8f;
+    public float transFadeIn = 4.0f;
+    public float introWaterVolume = 1.0f;
+    public float introWaterFadeOut = 3.0f;
+
+    public float shrinkShatterDelay = 0.25f;
+    public float shrinkShatterVolume = 0.5f;
+
     // Music sources
     private AudioSource track2DIntroSource;
     private AudioSource track2DSource;
@@ -52,11 +67,11 @@ public class AudioManager : Singleton<AudioManager>
     private AudioSource trackTransToRealLifeSource;
     private AudioLowPassFilter trackTransToRealLifeFilter;
     private AudioSource trackRealLifeSource;
+    private AudioSource trackTransSource;
 
     // SFX sources
     private AudioSource sfxSource;
     private AudioSource sinkIdleSource;
-    private AudioSource sinkIdleHandsSource;
     private AudioSource mirrorIdleSource;
     private AudioSource ambienceSource;
     private AudioSource glitchyAmbienceSource;
@@ -109,9 +124,8 @@ public class AudioManager : Singleton<AudioManager>
         // Audio sources
         // SFX
         sfxSource = CreateChildAudioSource("sfxSource", 0.5f, null, false);
-        sinkIdleSource = CreateChildAudioSource("sinkIdleSource", 0.5f, sinkIdle, true);
-        sinkIdleHandsSource = CreateChildAudioSource("sinkIdleHandsSource", 0.5f, sinkIdleHands, true);
-        mirrorIdleSource = CreateChildAudioSource("mirrorIdleSource", 0.5f, mirrorIdle, true);
+        sinkIdleSource = CreateChildAudioSource("sinkIdleSource", 1.0f, sinkIdle, true);
+        mirrorIdleSource = CreateChildAudioSource("mirrorIdleSource", 1.0f, mirrorIdle, true);
 
         ambienceSource = CreateChildAudioSource("ambienceSource", 1, ambience, true);
         glitchyAmbienceSource = CreateChildAudioSource("glitchyAmbienceSource", 0.03f, glitchyAmbience, true);
@@ -131,7 +145,7 @@ public class AudioManager : Singleton<AudioManager>
 
         trackTransTo3DSource = CreateChildAudioSource("trackTransTo3DSource", 0, trackTransTo3D, true);
 
-        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0.6f, track3DIntro, false);
+        track3DIntroSource = CreateChildAudioSource("track3DIntroSource", 0, track3DIntro, false);
 
         track3DSource = CreateChildAudioSource("track3DSource", 0, track3D, true);
         track3DFilter = track3DSource.gameObject.AddComponent<AudioLowPassFilter>();
@@ -144,15 +158,32 @@ public class AudioManager : Singleton<AudioManager>
         trackRealLifeSource = CreateChildAudioSource("trackRealLifeSource", 0, trackRealLife, true);
         trackRealLifeSource.panStereo = 0.5f;
 
+        trackTransSource = CreateChildAudioSource("trackTransSource", 0, trackTrans, true);
+
         // Start ambience
         ambienceSource.Play();
         glitchyAmbienceSource.Play();
     }
 
-    public void HandleSubsection(string subsection)
+    void SilenceAllMusic()
     {
-        switch (subsection)
-        {
+        track2DIntroSource.volume = 0f;
+        track2DSource.volume = 0f;
+        trackTransTo3DSource.volume = 0f;
+        track3DIntroSource.volume = 0f;
+        track3DSource.volume = 0f;
+        trackTransToRealLifeSource.volume = 0f;
+        trackRealLifeSource.volume = 0f;
+        trackTransSource.volume = 0f;
+        track2DFilter.cutoffFrequency = 22000f;
+        track3DFilter.cutoffFrequency = 22000f;
+        trackTransToRealLifeFilter.cutoffFrequency = 0f;
+    }
+
+    public void HandleSubsection(string subsection) {
+        SilenceAllMusic();
+
+        switch (subsection) {
             case "IntroFlowerSubsection":
                 sfxSource.Stop();
                 track2DIntroSource.volume = 1.0f;
@@ -172,6 +203,7 @@ public class AudioManager : Singleton<AudioManager>
                 StartMusic(3.75f + 8.0f);
                 break; 
             case "TwoDBreak":
+                hasTransitioned = true;
                 track2DSource.volume = 1.0f;
                 ambienceSource.volume = 1.0f;
                 glitchyAmbienceSource.volume = 0.03f;
@@ -179,28 +211,49 @@ public class AudioManager : Singleton<AudioManager>
                 break; 
             case "ThreeD":
             case "ThreeDBreak":
+                hasTransitioned = true;
+                track2DFilter.cutoffFrequency = 0f;
                 track3DSource.volume = 1.0f;
-                ambienceSource.volume = 1.0f;
-                glitchyAmbienceSource.volume = 0.24f;
+                ambienceSource.volume = 0.0f;
+                glitchyAmbienceSource.volume = 0.4f;
                 footstepClips = footstepClips3D;
-                footstepSource.volume += 0.05f;
+                footstepSource.volume = footstepVolume + 0.1f;
                 impactClips = impactClips3D;
                 StartMusic();
                 break; 
             case "LiveActionSubsection":
+                hasTransitioned = true;
+                trackTransToRealLifeFilter.cutoffFrequency = 5000f;
                 trackRealLifeSource.volume = 1.0f;
                 ambienceSource.volume = 0.0f;
                 glitchyAmbienceSource.volume = 0.0f;
                 StartMusic();
-                break; 
+                break;
+            case "Trans3DSubsection":
+                hasTransitioned = true;
+                trackRealLifeSource.volume = 1.0f;
+                trackTransSource.volume = 1.0f;
+                if (!trackTransSource.isPlaying) trackTransSource.Play();
+                ambienceSource.volume = 0.0f;
+                glitchyAmbienceSource.volume = trans3DGlitchy;
+                StartMusic();
+                break;
+            case "Trans2DSubsection":
+                hasTransitioned = true;
+                trackRealLifeSource.volume = 1.0f;
+                trackTransSource.volume = 1.0f;
+                if (!trackTransSource.isPlaying) trackTransSource.Play();
+                ambienceSource.volume = 0.0f;
+                glitchyAmbienceSource.volume = trans2DGlitchy;
+                StartMusic();
+                break;
             default:
-                Log.Info($"HandleSubsection {subsection}");
+                Log.Warn($"HandleSubsection: unknown subsection {subsection}");
                 break;
         }
     }
 
-    private void StartMusic(float startTime = 0.0f)
-    {
+    private void StartMusic(float startTime = 0.0f) {
         if (!musicStarted) {
             track2DIntroSource.time = startTime;
             track2DIntroSource.Play();
@@ -219,9 +272,15 @@ public class AudioManager : Singleton<AudioManager>
         }
     }
 
-    public void PlayIntroSink()
-    {
+    public void PlayIntroSink() {
         sfxSource.PlayOneShot(introSink, 1f);
+        trackTransSource.volume = introWaterVolume;
+        trackTransSource.Play();
+        StartCoroutine(FadeOutIntroWater());
+    }
+    private System.Collections.IEnumerator FadeOutIntroWater() {
+        yield return new WaitForSeconds(Mathf.Max(0f, introSink.length - introWaterFadeOut));
+        FadeToVolume(trackTransSource, 0f, introWaterFadeOut);
     }
 
     public void HandleFootsteps(Vector3 movementDirection, bool isGrounded) {
@@ -240,155 +299,185 @@ public class AudioManager : Singleton<AudioManager>
 		}
 	}
 
-    public void PlayFootstep()
-    {
-        if (footstepClips == null || footstepClips.Length == 0 || footstepSource == null) return;
+    public void PlayFootstep() {
         AudioClip randomClip = footstepClips[Random.Range(0, footstepClips.Length)];
         footstepSource.PlayOneShot(randomClip, footstepVolume);
     }
 
-    public void HandleImpact(float verticalVelocity)
-    {
-        //Guard before indexing, not after: impactClips[Length-1] on an empty array throws.
-        if (impactClips == null || impactClips.Length == 0 || impactSource == null) return;
-
+    public void HandleImpact(float verticalVelocity) {
         AudioClip randomClip;
+
+        float volume;
         if (verticalVelocity > -12f) {
-			impactVolume = 0.4f;
+			volume = 0.4f;
             randomClip = impactClips[impactClips.Length-1];
 		} else if (verticalVelocity <= -12f && verticalVelocity >= -20f) {
-			impactVolume = 0.2f + ((-verticalVelocity - 12f) * 0.01f); // scale by velocity
+			volume = 0.2f + ((-verticalVelocity - 12f) * 0.01f); // scale by velocity
             randomClip = impactClips[Random.Range(0, impactClips.Length-1)];
 		} else {
-			impactVolume = 1f;
+			volume = 1f;
             randomClip = impactClips[Random.Range(0, impactClips.Length-1)];
 		}
-        impactSource.PlayOneShot(randomClip, impactVolume);
+        impactSource.PlayOneShot(randomClip, volume);
     }
 
-    public void HandleShatter()
-    {
-        // Play shatter sound effect
+    public void HandleShatter() {
         if (shatterClips == null || shatterClips.Length == 0 || sfxSource == null || shattersPlayed >= Globals.Instance.numBreaks) return;
-        //Clamp to the array: numBreaks is a mask budget and may exceed the authored clip count.
+
         AudioClip currClip = shatterClips[Mathf.Min(shattersPlayed, shatterClips.Length - 1)];
         sfxSource.PlayOneShot(currClip, shatterVol);
         shattersPlayed += 1;
         shatterVol += 0.1f;
 
-        // Transition music
-        switch (shattersPlayed)
-        {
+        switch (shattersPlayed) {
             case 1:
-                FadeToVolume(track2DIntroSource, 0f, 8);
-                FadeToVolume(track2DSource, 1f, 8);
-                FadeLowPassFilterCutoff(track2DFilter, 18000f, 0.5f);
-                FadeToVolume(trackTransTo3DSource, 0.05f, 1);
-                glitchyAmbienceSource.volume = 0.06f;
-                break; 
+                if (!hasTransitioned) {
+                    hasTransitioned = true;
+                    FadeToVolume(track2DIntroSource, 0f, 8);
+                }
+                FadeToVolume(track2DSource, 0.85f, 1);
+                FadeLowPassFilterCutoff(track2DFilter, 9000, 1);
+                FadeToVolume(trackTransTo3DSource, 0.2f, 1);
+                ambienceSource.volume = 0.85f;
+                glitchyAmbienceSource.volume = 0.1f;
+                break;
             case 2:
-                FadeLowPassFilterCutoff(track2DFilter, 14000f, 0.5f);
-                FadeToVolume(trackTransTo3DSource, 0.1f, 1);
-                glitchyAmbienceSource.volume = 0.09f;
+                FadeToVolume(track2DSource, 0.65f, 1);
+                FadeLowPassFilterCutoff(track2DFilter, 5000, 1);
+                FadeToVolume(trackTransTo3DSource, 0.45f, 1);
+                ambienceSource.volume = 0.6f;
+                glitchyAmbienceSource.volume = 0.15f;
                 break;
             case 3:
-                FadeLowPassFilterCutoff(track2DFilter, 10000f, 0.5f);
-                FadeToVolume(trackTransTo3DSource, 0.15f, 1);
-                glitchyAmbienceSource.volume = 0.12f;
-                break;
-            case 4:
-                FadeLowPassFilterCutoff(track2DFilter, 6000f, 0.5f);
-                FadeToVolume(trackTransTo3DSource, 0.25f, 1);
-                glitchyAmbienceSource.volume = 0.15f;
+                FadeToVolume(track2DSource, 0.5f, 1);
+                FadeLowPassFilterCutoff(track2DFilter, 2000, 1);
+                FadeToVolume(trackTransTo3DSource, 0.7f, 1);
+                ambienceSource.volume = 0.4f;
+                glitchyAmbienceSource.volume = 0.22f;
                 footstepClips = footstepClipsTrans;
-                footstepSource.volume += 0.05f;
+                footstepSource.volume = footstepVolume + 0.05f;
                 impactClips = impactClipsTrans;
                 break;
+            case 4:
+                FadeToVolume(track2DSource, 0.3f, 1);
+                FadeLowPassFilterCutoff(track2DFilter, 1000f, 1);
+                FadeToVolume(trackTransTo3DSource, 1, 1);
+                ambienceSource.volume = 0.2f;
+                glitchyAmbienceSource.volume = 0.26f;
+                break;
             case 5:
-                FadeLowPassFilterCutoff(track2DFilter, 3000f, 0.5f);
-                FadeToVolume(trackTransTo3DSource, 0.45f, 1);
-                glitchyAmbienceSource.volume = 0.18f;
-                break;
-            case 6:
-                FadeLowPassFilterCutoff(track2DFilter, 1000f, 0.5f);
-                FadeToVolume(trackTransTo3DSource, 0.7f, 1);
-                glitchyAmbienceSource.volume = 0.21f;
-                break;
-            default:
-                FadeLowPassFilterCutoff(track2DFilter, 0, 4);
-                FadeToVolume(track2DSource, 0f, 8);
-                FadeToVolume(trackTransTo3DSource, 1f, 1);
-                glitchyAmbienceSource.volume = 0.24f;
-                footstepClips = footstepClips3D;
-                footstepSource.volume += 0.05f;
-                impactClips = impactClips3D;
-                FadeToVolume(trackTransTo3DSource, 0f, 8);
-                FadeToVolume(track3DSource, 1f, 8);
-                track3DIntroSource.Play();
+                FadeLowPassFilterCutoff(track2DFilter, 600f, 1);
+                ambienceSource.volume = 0.1f;
+                glitchyAmbienceSource.volume = 0.3f;
                 break;
         }
-    }
 
-    public void HandleShrink(bool isFinal)
-    {
-        while (isFinal || cracksPlayed < Globals.Instance.num3DBreaks) {
-            // Play cracking sound effect
-            if (crackingClips == null || crackingClips.Length == 0 || sfxSource == null || cracksPlayed >= Globals.Instance.num3DBreaks) return;
-            //num3DBreaks (5) currently exceeds crackingClips (4), so clamp or this throws.
-            AudioClip currClip = crackingClips[Mathf.Min(cracksPlayed, crackingClips.Length - 1)];
-            sfxSource.PlayOneShot(currClip, crackVol);
-            cracksPlayed += 1;
-            crackVol += 0.15f;
-
-            // Transition music
-            switch (cracksPlayed)
-            {
-                case 1:
-                    FadeToVolume(track3DIntroSource, 0f, 8);
-                    trackTransToRealLifeFilter.cutoffFrequency = 300f;
-                    FadeToVolume(trackTransToRealLifeSource, 0.4f, 1);
-                    FadeLowPassFilterCutoff(track3DFilter, 1000f, 0.2f);
-                    ambienceSource.volume = 0.75f;
-                    glitchyAmbienceSource.volume = 0.18f;
-                    break; 
-                case 2:
-                    trackTransToRealLifeFilter.cutoffFrequency = 400f;
-                    FadeToVolume(trackTransToRealLifeSource, 0.6f, 1);
-                    FadeLowPassFilterCutoff(track3DFilter, 600f, 0.2f);
-                    ambienceSource.volume = 0.50f;
-                    glitchyAmbienceSource.volume = 0.12f;
-                    break;
-                case 3:
-                    trackTransToRealLifeFilter.cutoffFrequency = 500f;
-                    FadeToVolume(trackTransToRealLifeSource, 0.8f, 1);
-                    FadeLowPassFilterCutoff(track3DFilter, 400f, 0.2f);
-                    ambienceSource.volume = 0.25f;
-                    glitchyAmbienceSource.volume = 0.06f;
-                    break;
-                default:
-                    trackTransToRealLifeFilter.cutoffFrequency = 5000f;
-                    FadeToVolume(trackTransToRealLifeSource, 1f, 1);
-                    track3DFilter.cutoffFrequency = 300f;
-                    FadeLowPassFilterCutoff(track3DFilter, 0f, 4);
-                    FadeToVolume(track3DSource, 0, 8);
-                    ambienceSource.volume = 0;
-                    glitchyAmbienceSource.volume = 0;
-                    FadeToVolume(trackTransToRealLifeSource, 0f, 4);
-                    FadeToVolume(trackRealLifeSource, 1f, 4);
-                    break;
-            }
-            if (!isFinal) {
-                break;
-            } else if (cracksPlayed >= Globals.Instance.num3DBreaks) {
-                break;
-            }
+        if (shattersPlayed >= Globals.Instance.numBreaks) {
+            FadeToVolume(track2DSource, 0f, handoffCrossfade);
+            FadeLowPassFilterCutoff(track2DFilter, 0, 4);
+            ambienceSource.volume = 0.0f;
+            glitchyAmbienceSource.volume = 0.4f;
+            footstepClips = footstepClips3D;
+            footstepSource.volume = footstepVolume + 0.1f;
+            impactClips = impactClips3D;
+            StartCoroutine(HandoffTo3D());
+            return;
         }
+
+    }
+    private System.Collections.IEnumerator HandoffTo3D() {
+        FadeToVolume(trackTransTo3DSource, 0f, handoffCrossfade);
+        track3DIntroSource.Play();
+        FadeToVolume(track3DIntroSource, track3DIntroVolume, handoffCrossfade);
+        yield return new WaitForSeconds(handoffWait);
+
+        FadeToVolume(track3DIntroSource, 0f, handoffCrossfade);
+        FadeToVolume(track3DSource, 1f, handoffCrossfade);
     }
 
-    public void HandleRLSound(int index)
+    public void HandleShrink(bool isFinal) {
+        do {
+        if (crackingClips == null || crackingClips.Length == 0 || sfxSource == null || cracksPlayed >= Globals.Instance.num3DBreaks) return;
+
+        AudioClip currClip = crackingClips[Mathf.Min(cracksPlayed, crackingClips.Length - 1)];
+        sfxSource.PlayOneShot(currClip, crackVol);
+        StartCoroutine(PlayShrinkShatter());
+        cracksPlayed += 1;
+        crackVol += 0.15f;
+
+        if (cracksPlayed >= Globals.Instance.num3DBreaks) {
+            FadeLowPassFilterCutoff(trackTransToRealLifeFilter, 5000f, 1);
+            FadeToVolume(trackTransToRealLifeSource, 0, 6);
+            FadeToVolume(track3DSource, 0, 1);
+            FadeToVolume(trackRealLifeSource, 1f, 4);
+            glitchyAmbienceSource.volume = 0;
+            return;
+        }
+
+        switch (cracksPlayed) {
+            case 1:
+                FadeToVolume(trackTransToRealLifeSource, 0.3f, 1);
+                FadeLowPassFilterCutoff(trackTransToRealLifeFilter, 500f, 1);
+                FadeToVolume(track3DSource, 0.9f, 1);
+                FadeLowPassFilterCutoff(track3DFilter, 10000f, 1);
+                glitchyAmbienceSource.volume = 0.3f;
+                break; 
+            case 2:
+                FadeToVolume(trackTransToRealLifeSource, 0.55f, 1);
+                FadeLowPassFilterCutoff(trackTransToRealLifeFilter, 1000f, 1);
+                FadeToVolume(track3DSource, 0.75f, 1);
+                FadeLowPassFilterCutoff(track3DFilter, 5000f, 1);
+                glitchyAmbienceSource.volume = 0.2f;
+                break;
+            case 3:
+                FadeToVolume(trackTransToRealLifeSource, 0.8f, 1);
+                FadeLowPassFilterCutoff(trackTransToRealLifeFilter, 1500f, 1);
+                FadeToVolume(track3DSource, 0.4f, 1);
+                FadeLowPassFilterCutoff(track3DFilter, 1000f, 1);
+                glitchyAmbienceSource.volume = 0.1f;
+                break;
+            case 4:
+                FadeToVolume(trackTransToRealLifeSource, 1, 1);
+                FadeLowPassFilterCutoff(trackTransToRealLifeFilter, 2500f, 1);
+                FadeToVolume(track3DSource, 0.2f, 1);
+                FadeLowPassFilterCutoff(track3DFilter, 500f, 1);
+                break;
+        }
+        } while (isFinal);
+    }
+    private System.Collections.IEnumerator PreLapTransBed(float clipLength) {
+        yield return new WaitForSeconds(Mathf.Max(0f, clipLength - transFadeIn));
+        trackTransSource.Play();
+        FadeToVolume(trackTransSource, 1.0f, transFadeIn);
+    }
+
+    private System.Collections.IEnumerator PlayShrinkShatter() {
+        yield return new WaitForSeconds(shrinkShatterDelay);
+        sfxSource.PlayOneShot(shatterClips[6], shrinkShatterVolume);
+    }
+
+    //The live action picture jumps, stutters and skips its way through the section. The audio under it has to
+    //take the same jumps or the two visibly come apart -- the video players carry no audio of their own, so
+    //nothing follows those seeks unless we do it here. Wrapped rather than clamped, so a backward jump near
+    //the head of a loop lands at the tail instead of piling up on zero.
+    public void GlitchSeek(float deltaSeconds)
     {
-        switch (index)
-        {
+        void Seek(AudioSource s) {
+            if (!s.isPlaying) return;
+            float len = s.clip.length;
+            float t = s.time + deltaSeconds;
+            if (t < 0f) t += len;
+            else if (t >= len) t -= len;
+            s.time = Mathf.Clamp(t, 0f, len - 0.05f);
+        }
+
+        Seek(trackRealLifeSource);
+        Seek(mirrorIdleSource);
+        Seek(sinkIdleSource);
+    }
+
+    public void HandleRLSound(int index, float clipLength) {
+        switch (index) {
             case 0:
                 mirrorIdleSource.Play();
                 break;
@@ -397,6 +486,7 @@ public class AudioManager : Singleton<AudioManager>
                 sfxSource.PlayOneShot(mirrorCheck, 1.0f);
                 break;
             case 2:
+                mirrorIdleSource.Play();
                 FadeToVolume(mirrorIdleSource, 1.0f, 1.0f);
                 break;
             case 3:
@@ -417,13 +507,16 @@ public class AudioManager : Singleton<AudioManager>
             default:
                 FadeToVolume(sinkIdleSource, 0.0f, 1.0f);
                 sfxSource.PlayOneShot(washFace, 1.0f);
+                StartCoroutine(PreLapTransBed(clipLength));
                 break;
         }
     }
 
-    public void HandleTransBackTo3D()
-    {
-        FadeToVolume(trackRealLifeSource, 0.0f, 4.0f);
+    public void FadeOutForIntro(float duration) {
+        FadeToVolume(trackRealLifeSource, 0f, duration);
+        FadeToVolume(trackTransSource, 0f, duration);
+        FadeToVolume(glitchyAmbienceSource, 0f, duration);
+        FadeToVolume(ambienceSource, 0f, duration);
     }
 
     private void Update()
@@ -452,7 +545,6 @@ public class AudioManager : Singleton<AudioManager>
         return audioSource;
     }
 
-
     public void FadeToVolume(AudioSource source, float targetVolume, float duration = 2f)
     {
         StartCoroutine(FadeToVolumeCoroutine(source, targetVolume, duration));
@@ -471,11 +563,6 @@ public class AudioManager : Singleton<AudioManager>
         }
 
         source.volume = targetVolume;
-        
-        if (targetVolume == 0f)
-        {
-            source.Stop();
-        }
     }
 
     public void FadeLowPassFilterCutoff(AudioLowPassFilter filter, float targetCutoff, float duration = 2f)

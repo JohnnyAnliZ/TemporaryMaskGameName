@@ -52,6 +52,7 @@ MonoBehaviour:
   track3D: {fileID: 8300000, guid: 23c32a010de257546a3b9611d9162d46, type: 3}
   trackTransToRealLife: {fileID: 8300000, guid: 4aec3dea30dedfb42b51a009e30a1737, type: 3}
   trackRealLife: {fileID: 8300000, guid: 4315057e0d9ea7843812e025c7a5a738, type: 3}
+  trackTrans: {fileID: 8300000, guid: 32a4944dfc7f60743b8f39e0bbda6a91, type: 3}
   introSink: {fileID: 8300000, guid: 8dd45a765175e25489535b0216817924, type: 3}
   shatterClips:
   - {fileID: 8300000, guid: c16cf15365f2338428531b58f4dc6cc8, type: 3}
@@ -103,7 +104,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c6e2300b15c97d5438be56b38d41a86d, type: 3}
   - {fileID: 8300000, guid: a157cc14beaa1e7409638759c0850b6c, type: 3}
   footstepVolume: 0.4
-  footstepInterval: 0.4
+  footstepInterval: 0.35
   impactClips2D:
   - {fileID: 8300000, guid: d278a0a33ee61464c9ef2e07d5995290, type: 3}
   - {fileID: 8300000, guid: 19f4370451e9b5a488204c4237fb7de3, type: 3}
@@ -117,6 +118,16 @@ MonoBehaviour:
   - {fileID: 8300000, guid: a9802532274af494299c19d9b3ab0a95, type: 3}
   - {fileID: 8300000, guid: 0c995fb2075496547b455b91473c8fb5, type: 3}
   impactVolume: 0.5
+  handoffWait: 7
+  handoffCrossfade: 6
+  track3DIntroVolume: 0.6
+  trans3DGlitchy: 0.6
+  trans2DGlitchy: 0.9
+  transFadeIn: 6
+  introWaterVolume: 0.1
+  introWaterFadeOut: 4
+  shrinkShatterDelay: 0.35
+  shrinkShatterVolume: 0.25
 --- !u!82 &1871322857511142886
 AudioSource:
   m_ObjectHideFlags: 0

@@ -46,7 +46,23 @@ public static class Viewport {
 }
 
 public static class Cursors {
-	public static readonly Vector2 pauseStartUV = new(0.05f, 0.5f);
+	public static readonly Vector2 pauseStartUV = new(0.5f, 0.1f);
+
+	//What the section running right now wants the cursor to be. Escape releases to None so the window can be
+	//left, and regaining focus or clicking back in restores this rather than assuming Locked -- the live action
+	//and Trans sections run a Confined cursor, so a hardcoded relock jammed them to the screen centre.
+	public static CursorLockMode desired = CursorLockMode.Locked;
+
+	public static void Set(CursorLockMode mode) {
+		desired = mode;
+		Apply();
+	}
+
+	//Every mode except None draws its own cursor sprite, so the OS one only appears once actually released.
+	public static void Apply() {
+		Cursor.lockState = desired;
+		Cursor.visible = desired == CursorLockMode.None;
+	}
 
 	//Warping moves the OS cursor but raises no input event, so Mouse.position keeps handing back its old value
 	//InputState.Change writes the control state directly so the next ReadValue() agrees with reality

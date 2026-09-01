@@ -146,7 +146,7 @@ public class HandAnimController : MonoBehaviour
 	IEnumerator WaitForHotspotClick(Rect resumeHotspot) {
 		Mouse mouse = Mouse.current;
 
-		Cursor.lockState = CursorLockMode.Confined;
+		Cursors.Set(CursorLockMode.Confined);
 		yield return null; //need to wait for mouse cursor stuff...
 		Cursors.WarpTo(Cursors.pauseStartUV);
 		yield return null;
@@ -175,7 +175,7 @@ public class HandAnimController : MonoBehaviour
 
 		bWaitingForHotspot = false;
 		SetMirrorMaterial(false);
-		Cursor.lockState = CursorLockMode.Locked;
+		Cursors.Set(CursorLockMode.Locked);
 	}
 
 	void SetMirrorMaterial(bool bHover) {

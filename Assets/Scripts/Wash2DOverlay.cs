@@ -110,7 +110,7 @@ public class Wash2DOverlay : MonoBehaviour
 	IEnumerator WaitForHotspotClick(Rect resumeHotspot) {
 		Mouse mouse = Mouse.current;
 
-		Cursor.lockState = CursorLockMode.Confined;
+		Cursors.Set(CursorLockMode.Confined);
 		yield return null; //need to wait for mouse cursor stuff...
 		Cursors.WarpTo(Cursors.pauseStartUV);
 		yield return null;
@@ -136,7 +136,7 @@ public class Wash2DOverlay : MonoBehaviour
 
 		hoverObject.SetActive(false);
 		bWaitingForHotspot = false;
-		Cursor.lockState = CursorLockMode.Locked;
+		Cursors.Set(CursorLockMode.Locked);
 	}
 
 	void OnGUI() {

@@ -184,7 +184,7 @@ public class Player3DController : MonoBehaviour
 			if (isFalling) {
 				AudioManager.Instance.HandleImpact(verticalVelocity);
 				look.AddLandingDip(verticalVelocity);
-				Log.Info($"{verticalVelocity}");
+				//Log.Info($"{verticalVelocity}");
 				isFalling = false;
 			}
 		}

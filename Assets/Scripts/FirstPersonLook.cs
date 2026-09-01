@@ -20,8 +20,7 @@ public class FirstPersonLook : MonoBehaviour
 
 	public void Init(Transform target) {
 		this.target = target;
-		Cursor.lockState = CursorLockMode.Locked;
-		Cursor.visible = false;
+		Cursors.Set(CursorLockMode.Locked);
 	}
 
 	public void SetLook(float yawDegrees, float pitchDegrees = 0f) {
@@ -36,12 +35,6 @@ public class FirstPersonLook : MonoBehaviour
 	}
 
 	void Update() {
-		if (Keyboard.current.escapeKey.wasPressedThisFrame) {
-			bool locked = Cursor.lockState == CursorLockMode.Locked;
-			Cursor.lockState = locked ? CursorLockMode.None : CursorLockMode.Locked;
-			Cursor.visible = locked;
-		}
-
 		if (!GameManager.Instance.bInputEnabled) {
 			mouseDelta = Vector2.zero;
 			return;

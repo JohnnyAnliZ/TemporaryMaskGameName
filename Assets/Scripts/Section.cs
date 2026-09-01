@@ -169,7 +169,7 @@ public class Trans3DSubsection : Subsection {
 
 		Shader.SetGlobalFloat(DitherSuppressId, 1f);
 
-		AudioManager.Instance.HandleTransBackTo3D();
+		AudioManager.Instance.HandleSubsection("Trans3DSubsection");
 
 		GameObject.Find("hand").GetComponent<HandAnimController>()
 			.PlayRubFaceSequence(part1, part2, resumeHotspot, () => GameManager.Instance.runner.CompleteSection(), debugSkipToPause);
@@ -203,6 +203,8 @@ public class Trans2DSubsection : Subsection {
 
 		GameManager.Instance.player2D.SetActive(false);
 		GameObject.Find("SinkAnim").GetComponent<SpriteRenderer>().enabled = true;
+
+		AudioManager.Instance.HandleSubsection("Trans2DSubsection");
 
 		Wash2DOverlay.Instance.Show();
 	}
@@ -297,6 +299,8 @@ public class SectionRunner : MonoBehaviour {
 		float zOffset = Globals.Instance.cameraZOffset;
 		SectionAsset intro = Resources.Load<SectionAsset>($"Sections/Section_{Section.Intro}");
 		CutsceneKeyframe end = ((CutsceneSubsection)intro.subsections[0]).keyframes[0];
+
+		AudioManager.Instance.FadeOutForIntro(t.zoomDuration);
 
 		float time = 0f;
 		while (time < t.zoomDuration) {

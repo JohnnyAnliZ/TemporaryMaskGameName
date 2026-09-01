@@ -29,6 +29,14 @@ public class VideoManager : Singleton<VideoManager>
 	public RectTransform blinkTop;
 	public RectTransform blinkBottom;
 	public float blinkDuration = 0.4f;
+	public float blinkJitter = 0.35f;
+	public Vector2 blinkPartialOpen = new Vector2(0.25f, 0.5f);
+	public Vector2 ambientBlinkInterval = new Vector2(2f, 5f);
+	public Vector3 blinkCountWeights = new Vector3(5f, 3f, 1f);
+
+	public Vector2 glitchInterval = new Vector2(1.5f, 6f);
+	public Vector2Int glitchFrames = new Vector2Int(2, 8);
+	public Vector2Int glitchRepeats = new Vector2Int(2, 4);
 
 	public Sprite cursorNormalSprite;
 	public Sprite cursorHoverSprite;
@@ -47,6 +55,8 @@ public class VideoManager : Singleton<VideoManager>
 	int currentIndex = -1;
 	StateConfig currentConfig;
 	bool bBlinking;
+	Coroutine ambientRoutine;
+	Coroutine glitchRoutine;
 
 	protected override void Awake() {
 		base.Awake();
@@ -89,28 +99,26 @@ public class VideoManager : Singleton<VideoManager>
 		StartCoroutine(FadeInCoroutine(factor, startIndex));
 	}
 	IEnumerator FadeInCoroutine(float factor, int startIndex) {
-		Cursor.lockState = CursorLockMode.Confined;
+		Cursors.Set(CursorLockMode.Confined);
 		yield return null;
 
 		PlayAt(startIndex);
 
+		bBlinking = true;
 		canvasGroup.alpha = 1f;
 		ApplyBlinkAmplitude(0f);
 
 		int n = initialBlinkAmplitudes != null ? initialBlinkAmplitudes.Length : 0;
 		float scale = Mathf.Max(0f, factor);
 
-		//Total blink runtime so the parallel video fade matches
 		float totalDur = 0f;
 		for (int i = 0; i < n; i++) {
 			float bd = initialBlinkDurations[Mathf.Min(i, initialBlinkDurations.Length - 1)] * scale;
 			totalDur += (i < n - 1) ? bd : bd * 0.5f;
 		}
 
-		if (videoFadeGroup != null) {
-			videoFadeGroup.alpha = 0f;
-			StartCoroutine(FadeAlphaTo(videoFadeGroup, 1f, totalDur));
-		}
+		videoFadeGroup.alpha = 0f;
+		StartCoroutine(FadeAlphaTo(videoFadeGroup, 1f, totalDur));
 
 		for (int i = 0; i < n; i++) {
 			float amp = initialBlinkAmplitudes[i];
@@ -122,7 +130,59 @@ public class VideoManager : Singleton<VideoManager>
 		}
 
 		ApplyBlinkAmplitude(1f);
-		if (videoFadeGroup != null) videoFadeGroup.alpha = 1f;
+		videoFadeGroup.alpha = 1f;
+		bBlinking = false;
+		ambientRoutine = StartCoroutine(AmbientBlink());
+		glitchRoutine = StartCoroutine(Glitch());
+	}
+
+	IEnumerator Glitch() {
+		while (true) {
+			yield return new WaitForSeconds(Random.Range(glitchInterval.x, glitchInterval.y));
+			if (!mainPlayer.isPlaying) continue;
+
+			int frames = Random.Range(glitchFrames.x, glitchFrames.y + 1);
+			int mode = Random.Range(0, 3);
+			int delta = mode == 0 ? frames : -frames;
+			int repeats = mode == 2 ? Random.Range(glitchRepeats.x, glitchRepeats.y + 1) : 1;
+
+			for (int i = 0; i < repeats; i++) {
+				long maxFrame = (long)mainPlayer.frameCount - 1;
+				long target = mainPlayer.frame + delta;
+				if (target < 0) target = 0;
+				else if (target > maxFrame) target = maxFrame;
+
+				mainPlayer.frame = target;
+				if (outlinePlayer.clip != null) outlinePlayer.frame = target;
+				//Same jump for the audio bed. Sent as the intended delta rather than the clamped one -- the
+				//audio sources wrap where the video clamps, so they want the raw movement.
+				AudioManager.Instance.GlitchSeek(delta / (float)mainPlayer.clip.frameRate);
+
+				yield return new WaitForSeconds(frames / (float)mainPlayer.clip.frameRate);
+			}
+		}
+	}
+
+	IEnumerator AmbientBlink() {
+		while (true) {
+			yield return new WaitForSeconds(Random.Range(ambientBlinkInterval.x, ambientBlinkInterval.y));
+			yield return BlinkBurst(false);
+		}
+	}
+
+	IEnumerator BlinkBurst(bool bAdvance) {
+		float half = blinkDuration * 0.5f;
+		yield return BlinkAmplitudeTo(0f, half * Random.Range(1f - blinkJitter, 1f + blinkJitter));
+
+		if (bAdvance) PlayAt(currentIndex + 1);
+
+		float roll = Random.value * (blinkCountWeights.x + blinkCountWeights.y + blinkCountWeights.z);
+		int blinks = roll < blinkCountWeights.x ? 1 : (roll < blinkCountWeights.x + blinkCountWeights.y ? 2 : 3);
+		for (int i = 1; i < blinks; i++) {
+			yield return BlinkAmplitudeTo(Random.Range(blinkPartialOpen.x, blinkPartialOpen.y), half * Random.Range(1f - blinkJitter, 1f + blinkJitter));
+			yield return BlinkAmplitudeTo(0f, half * Random.Range(1f - blinkJitter, 1f + blinkJitter));
+		}
+		yield return BlinkAmplitudeTo(1f, half * Random.Range(1f - blinkJitter, 1f + blinkJitter));
 	}
 
 	IEnumerator FadeAlphaTo(CanvasGroup cg, float target, float duration) {
@@ -159,19 +219,31 @@ public class VideoManager : Singleton<VideoManager>
 		if (index >= configs.Length) {
 			currentIndex = -1;
 			currentConfig = null;
-            canvasGroup.alpha = 0;
-			Cursor.lockState = CursorLockMode.Locked;
+			if (ambientRoutine != null) { StopCoroutine(ambientRoutine); ambientRoutine = null; }
+			if (glitchRoutine != null) { StopCoroutine(glitchRoutine); glitchRoutine = null; }
+			mainPlayer.Stop();
+			outlinePlayer.Stop();
+			canvasGroup.alpha = 0;
+			cursorUI.gameObject.SetActive(false);
+			Cursors.Set(CursorLockMode.Locked);
 			GameManager.Instance.runner.CompleteSection();
-            return;
+			return;
 		}
 
 		currentIndex = index;
 		currentConfig = configs[index];
 
+		//Just for the last one
+		bool bAnyIdleAhead = false;
+		for (int i = index; i < configs.Length; i++) {
+			if (configs[i].isIdle) { bAnyIdleAhead = true; break; }
+		}
+		cursorUI.gameObject.SetActive(bAnyIdleAhead);
+
 		mainPlayer.clip = currentConfig.mainClip;
 		mainPlayer.isLooping = currentConfig.isIdle;
 		mainPlayer.Play();
-		AudioManager.Instance.HandleRLSound(index);
+		AudioManager.Instance.HandleRLSound(index, (float)currentConfig.mainClip.length);
 
 		if (currentConfig.outlineClip != null) {
 			outlinePlayer.clip = currentConfig.outlineClip;
@@ -187,162 +259,50 @@ public class VideoManager : Singleton<VideoManager>
 	}
 
 	void OnMainEnd(VideoPlayer vp) {
-		PlayAt(currentIndex + 1);
+		StartCoroutine(BlinkAndAdvance());
 	}
 
 	void Update() {
-		if (canvasGroup == null || canvasGroup.alpha < 1f) return;
-		if (bBlinking) return;
-		if (currentConfig == null) return;
+		if (canvasGroup.alpha < 1f) return;
 
-		Mouse mouse = Mouse.current;
-		if (mouse == null) return;
-
-		Vector2 screenPos = mouse.position.ReadValue();
-
-		bool bHasOutline = currentConfig.outlineClip != null;
-		if (cursorUI != null) cursorUI.gameObject.SetActive(bHasOutline);
-
-		if (!bHasOutline && outlineImage != null) outlineImage.enabled = false;
-
+		Vector2 screenPos = Mouse.current.position.ReadValue();
 		RectTransform hitRect = frameRect != null ? frameRect : canvasRect;
-        if (hitRect != null) {
-			RectTransformUtility.ScreenPointToLocalPointInRectangle(hitRect, screenPos, null, out Vector2 localPos);
-			if (cursorUI != null && bHasOutline) cursorUI.anchoredPosition = localPos;
+		RectTransformUtility.ScreenPointToLocalPointInRectangle(hitRect, screenPos, null, out Vector2 localPos);
 
-			Rect r = hitRect.rect;
-			Vector2 uv = new Vector2(
-				(localPos.x - r.xMin) / r.width,
-				(localPos.y - r.yMin) / r.height
-			);
-			bool bHover = bHasOutline && currentConfig.hotspot.Contains(uv);
-			if (outlineImage != null && bHasOutline) outlineImage.enabled = bHover;
+		Rect r = hitRect.rect;
+		Vector2 uv = new Vector2(
+			(localPos.x - r.xMin) / r.width,
+			(localPos.y - r.yMin) / r.height
+		);
+		bool bInHotspot = currentConfig.hotspot.Contains(uv);
 
+		bool bCanAdvance = currentConfig.isIdle && bInHotspot;
+		if (outlineImage != null) outlineImage.enabled = !bBlinking && currentConfig.outlineClip != null && bInHotspot;
 
-            //Cursor hover
-            if (bHasOutline) {
-				float targetScale = bHover ? cursorHoverScale : cursorNormalScale;
-				Color targetColor = bHover ? cursorHoverColor : cursorNormalColor;
-				float k = 1f - Mathf.Exp(-cursorTransitionSpeed * Time.deltaTime);
-				float s = Mathf.Lerp(cursorUI.localScale.x, targetScale, k);
-				cursorUI.localScale = new Vector3(s, s, 1f);
+		cursorUI.anchoredPosition = localPos;
+		float targetScale = bCanAdvance ? cursorHoverScale : cursorNormalScale;
+		Color targetColor = bCanAdvance ? cursorHoverColor : cursorNormalColor;
+		float k = 1f - Mathf.Exp(-cursorTransitionSpeed * Time.deltaTime);
+		float s = Mathf.Lerp(cursorUI.localScale.x, targetScale, k);
+		cursorUI.localScale = new Vector3(s, s, 1f);
+		cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
+		cursorGraphic.sprite = bCanAdvance ? cursorHoverSprite : cursorNormalSprite;
 
-				cursorGraphic.color = Color.Lerp(cursorGraphic.color, targetColor, k);
-				cursorGraphic.sprite = bHover ? cursorHoverSprite : cursorNormalSprite;
-			}
-
-			if (currentConfig.isIdle && bHover&& mouse.leftButton.wasPressedThisFrame) {
-				StartCoroutine(BlinkAndAdvance());
-			}
+		if (bBlinking) return;
+		if (bCanAdvance && Mouse.current.leftButton.wasPressedThisFrame) {
+			StartCoroutine(BlinkAndAdvance());
 		}
 	}
 
 	IEnumerator BlinkAndAdvance() {
 		bBlinking = true;
+		if (ambientRoutine != null) StopCoroutine(ambientRoutine);
 		if (outlineImage != null) outlineImage.enabled = false;
 
-		float half = blinkDuration * 0.5f;
-
-		//Close
-		float t = 0f;
-		while (t < half) {
-			t += Time.deltaTime;
-			float u = Mathf.SmoothStep(0f, 1f, t / half);
-			ApplyBlinkAmplitude(1f - u);
-			yield return null;
-		}
-
-		PlayAt(currentIndex + 1);
-
-		//Open
-		t = 0f;
-		while (t < half) {
-			t += Time.deltaTime;
-			float u = Mathf.SmoothStep(0f, 1f, t / half);
-			ApplyBlinkAmplitude(u);
-			yield return null;
-		}
-		ApplyBlinkAmplitude(1f);
+		yield return BlinkBurst(true);
 
 		bBlinking = false;
-	}
-
-	//Runtime (Game view) visualization — edit hotspots in the inspector while playing and watch them update live.
-	//Stop play and re-author the final values back into the prefab.
-	//void OnGUI() {
-	//	#if !UNITY_EDITOR
-	//	return;
-	//	#endif
-	//	if (configs == null || canvasRect == null) return;
-
-	//	Vector3[] corners = new Vector3[4];
-	//	canvasRect.GetWorldCorners(corners);
-	//	Canvas canvas = canvasRect.GetComponent<Canvas>();
-	//	Camera worldCam = (canvas != null) ? canvas.worldCamera : null;
-
-	//	//Canvas BL + local right/up axes in SCREEN space (handles canvas rotation correctly)
-	//	Vector2 blS = WorldToGuiScreen(corners[0], canvas, worldCam);
-	//	Vector2 brS = WorldToGuiScreen(corners[3], canvas, worldCam);
-	//	Vector2 tlS = WorldToGuiScreen(corners[1], canvas, worldCam);
-	//	Vector2 rightS = brS - blS;
-	//	Vector2 upS    = tlS - blS;
-
-	//	for (int i = 0; i < configs.Length; i++) {
-	//		StateConfig c = configs[i];
-	//		if (c == null) continue;
-	//		Rect h = c.hotspot;
-	//		//Four hotspot corners in screen-GUI coords
-	//		Vector2 p0 = blS + rightS * h.x + upS * h.y;
-	//		Vector2 p1 = blS + rightS * (h.x + h.width) + upS * h.y;
-	//		Vector2 p2 = blS + rightS * (h.x + h.width) + upS * (h.y + h.height);
-	//		Vector2 p3 = blS + rightS * h.x + upS * (h.y + h.height);
-
-	//		Color col = (c == currentConfig) ? Color.yellow : new Color(1f, 1f, 1f, 0.5f);
-	//		DrawGuiLine(p0, p1, col, 2f);
-	//		DrawGuiLine(p1, p2, col, 2f);
-	//		DrawGuiLine(p2, p3, col, 2f);
-	//		DrawGuiLine(p3, p0, col, 2f);
-
-	//		GUI.color = col;
-	//		GUI.Label(new Rect(p0.x + 4, p0.y - 18, 80, 20), i.ToString());
-	//		GUI.color = Color.white;
-	//	}
-
-	//	//Cursor UV readout so you can match hotspot values to where the mouse actually lands
-	//	Mouse mouse = Mouse.current;
-	//	if (mouse != null) {
-	//		Vector2 screenPos = mouse.position.ReadValue();
-	//		RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, screenPos, null, out Vector2 localPos);
-	//		Rect rect = canvasRect.rect;
-	//		float uvx = (localPos.x - rect.xMin) / rect.width;
-	//		float uvy = (localPos.y - rect.yMin) / rect.height;
-	//		GUI.color = Color.yellow;
-	//		GUI.Label(new Rect(10, 10, 400, 20), $"cursor UV: ({uvx:F3}, {uvy:F3})");
-	//		GUI.color = Color.white;
-	//	}
-	//}
-
-	//World-space RectTransform corner → screen-GUI coord (top-left origin, y flipped)
-	static Vector2 WorldToGuiScreen(Vector3 world, Canvas canvas, Camera cam) {
-		Vector2 sp;
-		if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay) sp = world;
-		else if (cam != null) sp = cam.WorldToScreenPoint(world);
-		else sp = Vector2.zero;
-		return new Vector2(sp.x, Screen.height - sp.y);
-	}
-
-	static void DrawGuiLine(Vector2 a, Vector2 b, Color c, float thickness) {
-		Vector2 d = b - a;
-		float len = d.magnitude;
-		if (len < 0.5f) return;
-		float angle = Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg;
-		Matrix4x4 prevMatrix = GUI.matrix;
-		Color prevColor = GUI.color;
-		GUI.color = c;
-		GUIUtility.RotateAroundPivot(angle, a);
-		GUI.DrawTexture(new Rect(a.x, a.y - thickness * 0.5f, len, thickness), Texture2D.whiteTexture);
-		GUI.matrix = prevMatrix;
-		GUI.color = prevColor;
+		if (currentConfig != null) ambientRoutine = StartCoroutine(AmbientBlink());
 	}
 
 	void OnDrawGizmos() {
