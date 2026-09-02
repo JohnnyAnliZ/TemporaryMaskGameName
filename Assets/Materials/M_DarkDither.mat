@@ -25,7 +25,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Amount: 0.367
+    - _Amount: 0.32
     - _DitherPixelSize: 2
     - _DitherThreshold: 0.1
     - _DriftFromLook: 4

@@ -24,7 +24,7 @@ public class GoalTrigger : MonoBehaviour {
 
 	IEnumerator RunCredits() {
 		GameManager.Instance.bInputEnabled = false;
-		Cursors.Set(CursorLockMode.None);
+		Cursors.Set(CursorLockMode.Locked);
 
 		yield return FadeOut();
 

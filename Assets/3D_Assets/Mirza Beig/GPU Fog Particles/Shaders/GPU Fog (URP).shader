@@ -524,11 +524,19 @@ Shader "Mirza Beig/GPU Fog (URP)"
 				float simpleNoise1 = SimpleNoise( texCoord3*_SimpleNoiseScale );
 				float SimpleNoise18 = saturate( (0.0 + (simpleNoise1 - _SimpleNoiseRemap) * (1.0 - 0.0) / (1.0 - _SimpleNoiseRemap)) );
 				float lerpResult34 = lerp( 1.0 , SimpleNoise18 , _SimpleNoiseAmount);
-				float2 texCoord20 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
-				float simplePerlin3D19 = snoise( ( float3( texCoord20 ,  0.0 ) + ( _SimplexNoiseAnimation * _TimeParameters.x ) + ( ParticleStableRandom43 * 20.0 ) )*_SimplexNoiseScale );
-				simplePerlin3D19 = simplePerlin3D19*0.5 + 0.5;
-				float SimplexNoise25 = saturate( (0.0 + (simplePerlin3D19 - _SimplexNoiseRemap) * (1.0 - 0.0) / (1.0 - _SimplexNoiseRemap)) );
-				float lerpResult33 = lerp( 1.0 , SimplexNoise25 , _SimplexNoiseAmount);
+				//Skipped when the layer is unused. lerp(1, x, 0) is 1, so with _SimplexNoiseAmount at 0 -- which
+				//is what Fog Large uses -- a full 3D simplex noise was being evaluated for every fog pixel and
+				//then multiplied away. The condition is a uniform, so the branch is coherent across the whole
+				//draw and costs nothing; setting the amount above 0 brings the layer straight back.
+				float lerpResult33 = 1.0;
+				if ( _SimplexNoiseAmount > 0.0 )
+				{
+					float2 texCoord20 = IN.ase_texcoord3.xy * float2( 1,1 ) + float2( 0,0 );
+					float simplePerlin3D19 = snoise( ( float3( texCoord20 ,  0.0 ) + ( _SimplexNoiseAnimation * _TimeParameters.x ) + ( ParticleStableRandom43 * 20.0 ) )*_SimplexNoiseScale );
+					simplePerlin3D19 = simplePerlin3D19*0.5 + 0.5;
+					float SimplexNoise25 = saturate( (0.0 + (simplePerlin3D19 - _SimplexNoiseRemap) * (1.0 - 0.0) / (1.0 - _SimplexNoiseRemap)) );
+					lerpResult33 = lerp( 1.0 , SimplexNoise25 , _SimplexNoiseAmount);
+				}
 				float mulTime6 = _TimeParameters.x * _VoronoiNoiseAnimation.z;
 				float time2 = mulTime6;
 				float2 voronoiSmoothId2 = 0;

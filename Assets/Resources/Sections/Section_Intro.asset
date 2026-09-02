@@ -207,7 +207,7 @@ MonoBehaviour:
       data:
         name: Flower
         keyframes:
-        - time: 4
+        - time: 6
           cameraPos: {x: 181, y: 7}
           orthoSize: 5.75
           easeIn:

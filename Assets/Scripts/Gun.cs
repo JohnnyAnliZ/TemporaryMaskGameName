@@ -50,8 +50,6 @@ public class GunController : Singleton<GunController> {
 	[Range(0f, 1f)] public float decalAlphaMin = 0.6f;
 	public int maxDecals = 32;
 
-	public bool bLogShots;
-
 	bool bEquipped;
 	bool bPendingEquip;
 	Camera cam3D;
@@ -213,7 +211,7 @@ public class GunController : Singleton<GunController> {
 		flashTimer = flashDuration;
 
 		bool bHit = Rays.Cast(cam.position, cam.forward, out RaycastHit hit, 100f, shootMask,
-			QueryTriggerInteraction.Ignore, visualize: bLogShots, visualizeDuration: 2f);
+			QueryTriggerInteraction.Ignore);
 
 		tracerStart = muzzle.position;
 		Vector3 delta = (bHit ? hit.point : cam.position + cam.forward * 100f) - tracerStart;
@@ -227,13 +225,9 @@ public class GunController : Singleton<GunController> {
 		tracer.endColor = tracerColor;
 		tracer.gameObject.SetActive(true);
 
-		if (bLogShots) {
-			Log.Info(bHit
-				? $"hit {hit.collider.name} ({LayerMask.LayerToName(hit.collider.gameObject.layer)}) at {hit.distance:F1}m"
-				: "missed", screen: true);
-		}
 		if (!bHit) return;
 
+		//The only per-shot allocation left; the decals and tracer are pooled.
 		ParticleSystem impact = Instantiate(impactPrefab, hit.point, Quaternion.LookRotation(hit.normal));
 		impact.Play();
 		Destroy(impact.gameObject, impactLifetime);

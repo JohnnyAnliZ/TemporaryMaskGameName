@@ -31,7 +31,7 @@ MonoBehaviour:
   stripWidthUV: 0.316
   panDuration: 5
   waitDuration: 6
-  mouseSensitivity: 0.1
+  mouseSensitivity: 0.075
   eyeOffset: 0.6
   pitchClamp: 85
   landingDipMax: 0.5
@@ -96,7 +96,7 @@ MonoBehaviour:
   outlineMaxOpacity: 0.4
   angleFull: 6
   angleFade: 6
-  internalHeight: 720
+  internalHeight: 680
   gameLevelAssets:
   - {fileID: 102900000, guid: 428fd4f8eedbbf945a183276a84cf78a, type: 3}
   gameLevels:

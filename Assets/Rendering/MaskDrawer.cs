@@ -29,6 +29,19 @@ public class MaskDrawer : MonoBehaviour
 	static readonly float shardMaxSpawnDistance = 10f;
 	static readonly float shardSpawnDistancePullback = 0.9f;
 	static readonly float shardThickness = 0.05f;
+	//Spawning a whole pass at once cost 13-45ms. Drained under this budget instead: high enough that a pass
+	//still lands within a few frames, low enough that no single frame carries the whole cost.
+	static readonly float SHARD_SPAWN_BUDGET_MS = 6f;
+
+	//Camera state is captured per shard because the queue outlives the frame the break happened on.
+	struct PendingShard {
+		public Vector2Int coord;
+		public Vector2 center;
+		public Vector3 camPos;
+		public float halfW, halfH;
+	}
+	readonly Queue<PendingShard> shardQueue = new();
+	Coroutine shardSpawnRoutine;
 
 	float stripWidth = 1f;
 	bool bIsBlackedOut = false;
@@ -104,7 +117,7 @@ public class MaskDrawer : MonoBehaviour
 	static readonly int CRACK_SEEDS_PER_SIDE = 8;      //more seeds = more uniform front, fewer = distinct fingers
 	static readonly float CRACK_SPEED_VARIANCE = 3f;   //fastest:slowest route ratio; this is what makes fingers
 	static readonly float CRACK_PATH_WEIGHT = 0.5f;   //0 = flat x front, 1 = unbounded network fingers
-	static readonly float SHARD_DRIFT = 0.1f;        //ceiling on how far a loosened shard refracts, in UV
+	static readonly float SHARD_DRIFT = 0.3f;        //ceiling on how far a loosened shard refracts, in UV
 	static readonly float SHATTER_EAGERNESS = 0.8f;  //<1 runs the shatter front closer behind the cracks, so more falls per break
 	static readonly float FINAL_COLLAPSE_SCALE = 0.15f; //the last of the mirror comes down this much quicker as it goes
 	static readonly float CRACK_GLINT_CHANCE = 0.2f; //fraction of cracks that catch the light; the rest stay dark
@@ -144,6 +157,11 @@ public class MaskDrawer : MonoBehaviour
 
 		cam3D.cullingMask &= ~(1 << CRACKS_LAYER); //hide from 3d camera
 		SyncCameras();
+
+		//Built here, at startup, and never again. Putting it in ResetMask3D wasn't enough: a run that enters
+		//Gameplay in 2D never calls that before the first shrink, so the lazy fallback still paid the ~28ms
+		//mid-gameplay. Startup already loses a frame to scene load, so it costs nothing visible here.
+		GenerateCracks();
 	}
 
 	public void SetCamerasSuspended(bool suspended) {
@@ -250,6 +268,7 @@ public class MaskDrawer : MonoBehaviour
 
 		UpdateShatter();
 		UpdateFallingShards(Time.deltaTime);
+		//Full rebuild and GPU upload every frame while any glass exists; free otherwise, it early-outs.
 		RebuildCracksMesh();
 	}
 
@@ -358,9 +377,7 @@ public class MaskDrawer : MonoBehaviour
 		stripWidth = 1f;
 		breakProgress = 0f;
 		bIsBlackedOut = false;
-		cracks.Clear();
 		fallingShards.Clear();
-		cracksGenerated = false;
 		ClearGlass();
 		ClearSpawnedShards();
 		SyncCameras();
@@ -368,12 +385,15 @@ public class MaskDrawer : MonoBehaviour
 
 	//The voronoi glass rebuilds itself on the next shrink, but the fallen-cell footprints and the fall queue
 	//would otherwise carry over and leave the mirror already broken on a second run through.
+	//Only the per-run state. The voronoi itself -- cells, shards, crack segments -- is built once and kept:
+	//it cost ~26ms to rebuild, and though the pattern is randomised per generation, the mirror comes apart far
+	//too fast for a repeat to be noticeable. Standing shards just need their fallen flag put back.
 	void ClearGlass() {
 		//Cancel the propagation too -- a reset landing inside its blackout wait would otherwise still black
 		//out and shatter half a second into whatever came next.
 		if (breakCoroutine != null) StopCoroutine(breakCoroutine);
 		breakCoroutine = null;
-		glassShards.Clear();
+		foreach (GlassShard s in glassShards) s.fallen = false;
 		blackPolys.Clear();
 		nextFall = 0;
 		bFinalCollapse = false;
@@ -381,6 +401,13 @@ public class MaskDrawer : MonoBehaviour
 
 	//Destroy the physical 2D->3D glass shards spawned by Do_Shatter so they don't pile up across loops.
 	void ClearSpawnedShards() {
+		//Anything still queued belongs to the run being torn down; without this it would spawn into the next.
+		shardQueue.Clear();
+		if (shardSpawnRoutine != null) {
+			StopCoroutine(shardSpawnRoutine);
+			shardSpawnRoutine = null;
+		}
+
 		if (shardParent == null) return;
 		for (int i = shardParent.childCount - 1; i >= 0; i--) {
 			Destroy(shardParent.GetChild(i).gameObject);
@@ -392,9 +419,7 @@ public class MaskDrawer : MonoBehaviour
 		stripWidth = 1f;
 		breakProgress = 0f;
 		bIsBlackedOut = false;
-		cracks.Clear();
 		fallingShards.Clear();
-		cracksGenerated = false;
 		ClearGlass();
 		SyncCameras();
 	}
@@ -404,13 +429,19 @@ public class MaskDrawer : MonoBehaviour
 	//framing also declared the mirror half-broken. Falling isn't tied to the propagation either -- shards
 	//leave one at a time and trail behind the front.
 	public void Do_ShrinkToBlack() {
-		if (!cracksGenerated) GenerateCracks();
+		//The heaviest single thing in the codebase: sites, bisector clipping, an edge dictionary, union-find
+		//and a Dijkstra pass, all in one frame. Prime suspect for a hitch as the 3D->Live break starts.
+		if (!cracksGenerated) {
+			GenerateCracks();
+		}
 		int steps = Mathf.Max(1, Globals.Instance.num3DBreaks);
 		StartBreakAnim(Mathf.Clamp01(breakProgress + 1f / steps), Globals.Instance.shrinkTime);
 		AudioManager.Instance.HandleShrink(false);
 	}
 	public void Do_ShrinkAll() {
-		if (!cracksGenerated) GenerateCracks();
+		if (!cracksGenerated) {
+			GenerateCracks();
+		}
 		StartBreakAnim(1f, Globals.Instance.shrinkTime);
 		AudioManager.Instance.HandleShrink(true);
 	}
@@ -451,6 +482,7 @@ public class MaskDrawer : MonoBehaviour
 			}
 			if (Time.time - lastFallTime < interval) return;
 			lastFallTime = Time.time;
+			//A full-resolution blit per detaching shard, and shards come tens of milliseconds apart.
 			CaptureCurrentView();
 			DetachShard(glassShards[nextFall++]);
 			return;
@@ -843,6 +875,7 @@ public class MaskDrawer : MonoBehaviour
 		if (cam2D == null) return;
 		if (currentPass >= Globals.Instance.numBreaks) return;
 
+		//Spawns a GameObject with a Rigidbody per shard, mid-gameplay. Six of these across a run.
 		int revealingPass = currentPass;
 		currentPass++;
 
@@ -856,9 +889,10 @@ public class MaskDrawer : MonoBehaviour
 				frozenRT = new RenderTexture(camATex.width, camATex.height, 0, RenderTextureFormat.ARGB32);
 			}
 			Graphics.Blit(camATex, frozenRT);
+			shardMaterial.mainTexture = frozenRT; //set once for the pass instead of once per shard
 		}
 
-		AudioManager.Instance.HandleShatter(); // Handle audio things
+		AudioManager.Instance.HandleShatter();
 
 		SpawnShardsForPass(revealingPass);
 	}
@@ -885,9 +919,29 @@ public class MaskDrawer : MonoBehaviour
 				if (cellCenter.x < camPos.x - halfW || cellCenter.x > camPos.x + halfW) continue; //skip off-screen
 				if (cellCenter.y < camPos.y - halfH || cellCenter.y > camPos.y + halfH) continue;
 
-				SpawnShardAt(new Vector2Int(cx, cy), cellCenter, camPos, halfW, halfH);
+				shardQueue.Enqueue(new PendingShard {
+					coord = new Vector2Int(cx, cy), center = cellCenter,
+					camPos = camPos, halfW = halfW, halfH = halfH
+				});
 			}
 		}
+		if (shardSpawnRoutine == null) shardSpawnRoutine = StartCoroutine(DrainShardQueue());
+	}
+
+	//Budgeted by time rather than by a shard count, so the per-frame cost stays bounded whatever the frame
+	//rate -- a fixed count would spread over a fixed number of frames, which is longest on the slow machines
+	//that can least afford it. Camera state is captured at break time because the queue outlives the frame.
+	IEnumerator DrainShardQueue() {
+		while (shardQueue.Count > 0) {
+			double start = Time.realtimeSinceStartupAsDouble;
+			do {
+				PendingShard p = shardQueue.Dequeue();
+				SpawnShardAt(p.coord, p.center, p.camPos, p.halfW, p.halfH);
+			} while (shardQueue.Count > 0
+				&& (Time.realtimeSinceStartupAsDouble - start) * 1000.0 < SHARD_SPAWN_BUDGET_MS);
+			yield return null;
+		}
+		shardSpawnRoutine = null;
 	}
 
 	void SpawnShardAt(Vector2Int cellCoord, Vector2 cellCenter, Vector3 camPos, float halfW, float halfH) {
@@ -915,8 +969,10 @@ public class MaskDrawer : MonoBehaviour
 		go.transform.localScale = new Vector3(scale, scale, scale);
 
 		go.AddComponent<MeshFilter>().sharedMesh = cellMesh;
-		Material instance = new Material(shardMaterial);
-		go.AddComponent<MeshRenderer>().material = instance;
+		//sharedMaterial rather than a per-shard instance. Init only ever assigned mainTexture, and every shard
+		//in a pass points at the same frozenRT -- so the instances were identical, cost a native material
+		//allocation each, and gave every shard its own material, which stopped them batching.
+		go.AddComponent<MeshRenderer>().sharedMaterial = shardMaterial;
 
 		//Collider
 		BoxCollider box = go.AddComponent<BoxCollider>();
@@ -944,7 +1000,7 @@ public class MaskDrawer : MonoBehaviour
 
 		Shard shard = go.AddComponent<Shard>();
 		shard.gravityScale = gravityScale;
-		shard.Init(instance, frozenRT, cellMesh);
+		shard.Init(cellMesh);
 	}
 
 	//A little bounce

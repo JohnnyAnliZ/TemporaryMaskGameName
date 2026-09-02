@@ -3,14 +3,11 @@ using UnityEngine;
 public class Shard : MonoBehaviour {
 	public float gravityScale = 0.67f;
 
-	Material mat;
 	Mesh mesh;
 	Rigidbody rb;
 
-	public void Init(Material material, Texture capturedTex, Mesh cellMesh) {
-		mat = material;
+	public void Init(Mesh cellMesh) {
 		mesh = cellMesh;
-		mat.mainTexture = capturedTex;
 		rb = GetComponent<Rigidbody>();
 	}
 
@@ -19,7 +16,6 @@ public class Shard : MonoBehaviour {
 	}
 
 	void OnDestroy() {
-		Destroy(mat);
 		Destroy(mesh);
 	}
 }

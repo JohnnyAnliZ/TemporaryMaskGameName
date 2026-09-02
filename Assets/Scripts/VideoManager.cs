@@ -57,6 +57,7 @@ public class VideoManager : Singleton<VideoManager>
 	bool bBlinking;
 	Coroutine ambientRoutine;
 	Coroutine glitchRoutine;
+	Coroutine playRoutine;
 
 	protected override void Awake() {
 		base.Awake();
@@ -132,6 +133,7 @@ public class VideoManager : Singleton<VideoManager>
 		ApplyBlinkAmplitude(1f);
 		videoFadeGroup.alpha = 1f;
 		bBlinking = false;
+		cursorUI.gameObject.SetActive(true);
 		ambientRoutine = StartCoroutine(AmbientBlink());
 		glitchRoutine = StartCoroutine(Glitch());
 	}
@@ -221,6 +223,7 @@ public class VideoManager : Singleton<VideoManager>
 			currentConfig = null;
 			if (ambientRoutine != null) { StopCoroutine(ambientRoutine); ambientRoutine = null; }
 			if (glitchRoutine != null) { StopCoroutine(glitchRoutine); glitchRoutine = null; }
+			if (playRoutine != null) { StopCoroutine(playRoutine); playRoutine = null; }
 			mainPlayer.Stop();
 			outlinePlayer.Stop();
 			canvasGroup.alpha = 0;
@@ -230,6 +233,7 @@ public class VideoManager : Singleton<VideoManager>
 			return;
 		}
 
+		//Swapping clips on a VideoPlayer can stall while the new one is prepared.
 		currentIndex = index;
 		currentConfig = configs[index];
 
@@ -242,20 +246,37 @@ public class VideoManager : Singleton<VideoManager>
 
 		mainPlayer.clip = currentConfig.mainClip;
 		mainPlayer.isLooping = currentConfig.isIdle;
-		mainPlayer.Play();
-		AudioManager.Instance.HandleRLSound(index, (float)currentConfig.mainClip.length);
-
 		if (currentConfig.outlineClip != null) {
 			outlinePlayer.clip = currentConfig.outlineClip;
 			outlinePlayer.isLooping = currentConfig.isIdle;
-			outlinePlayer.Play();
-			Cursors.WarpTo(Cursors.pauseStartUV);
 		} else {
 			outlinePlayer.Stop();
 			outlinePlayer.clip = null;
 		}
 
-		if (!currentConfig.isIdle && mainPlayer != null) mainPlayer.loopPointReached += OnMainEnd;
+		//Play() on an unprepared clip prepares it synchronously, which is where the 19-129ms stalls came from.
+		//Prepare() does the same work asynchronously, so playback starts a beat later rather than blocking.
+		if (playRoutine != null) StopCoroutine(playRoutine);
+		playRoutine = StartCoroutine(PlayWhenPrepared());
+	}
+
+	//The latency this adds mostly lands behind the blink, since that's where BlinkAndAdvance calls PlayAt from.
+	//On the auto-advance path the outgoing clip's last frame holds instead, which reads as a pause, not a gap.
+	//Sound and the loopPointReached hookup move here so they fire when playback actually starts, not before.
+	IEnumerator PlayWhenPrepared() {
+		mainPlayer.Prepare();
+		if (outlinePlayer.clip != null) outlinePlayer.Prepare();
+		while (!mainPlayer.isPrepared || (outlinePlayer.clip != null && !outlinePlayer.isPrepared)) yield return null;
+
+		mainPlayer.Play();
+		if (outlinePlayer.clip != null) {
+			outlinePlayer.Play();
+			Cursors.WarpTo(Cursors.pauseStartUV);
+		}
+		AudioManager.Instance.HandleRLSound(currentIndex, (float)currentConfig.mainClip.length);
+
+		if (!currentConfig.isIdle) mainPlayer.loopPointReached += OnMainEnd;
+		playRoutine = null;
 	}
 
 	void OnMainEnd(VideoPlayer vp) {
@@ -303,34 +324,5 @@ public class VideoManager : Singleton<VideoManager>
 
 		bBlinking = false;
 		if (currentConfig != null) ambientRoutine = StartCoroutine(AmbientBlink());
-	}
-
-	void OnDrawGizmos() {
-		Vector3 bl, right, up;
-		Vector3 origin = transform.position;
-		bl = origin - new Vector3(2f, 1.125f, 0f);
-		right = new Vector3(4f, 0f, 0f);
-		up = new Vector3(0f, 2.25f, 0f);
-		Gizmos.color = new Color(1f, 1f, 1f, 0.2f);
-		Gizmos.DrawLine(bl, bl + right);
-		Gizmos.DrawLine(bl + right, bl + right + up);
-		Gizmos.DrawLine(bl + right + up, bl + up);
-		Gizmos.DrawLine(bl + up, bl);
-
-		for (int i = 0; i < configs.Length; i++) {
-			StateConfig c = configs[i];
-			if (c == null) continue;
-			Rect h = c.hotspot;
-			Vector3 p0 = bl + right * h.x + up * h.y;
-			Vector3 p1 = bl + right * (h.x + h.width) + up * h.y;
-			Vector3 p2 = bl + right * (h.x + h.width) + up * (h.y + h.height);
-			Vector3 p3 = bl + right * h.x + up * (h.y + h.height);
-
-			Gizmos.color = Color.yellow;
-			Gizmos.DrawLine(p0, p1);
-			Gizmos.DrawLine(p1, p2);
-			Gizmos.DrawLine(p2, p3);
-			Gizmos.DrawLine(p3, p0);
-		}
 	}
 }

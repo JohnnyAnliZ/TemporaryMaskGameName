@@ -49,6 +49,7 @@ MonoBehaviour:
   maskDrawer: {fileID: 0}
   outputCam: {fileID: 0}
   wobbleMin: 0
-  wobbleMax: 0.5
-  wobbleSpeed: 0.25
+  wobbleMax: 0.6
+  wobbleSpeed: 0.28
   caMultiplier: 1
+  aspectLocker: {fileID: 0}

@@ -31,7 +31,7 @@ MonoBehaviour:
           width: 0.2
           height: 0.5
         stripWidth: 0.59
-        zoomDuration: 5
+        zoomDuration: 5.5
         zoomEase:
           serializedVersion: 2
           m_Curve:
